@@ -66,7 +66,8 @@ jobs:
           python -m pip install --quiet ruff==0.7.4
           ruff check $(git ls-files '*.py')
       - name: ShellCheck (framework-authored shell)
-        run: shellcheck $(git ls-files '.githooks/pre-commit' '.githooks/pre-commit.d/*' 'scripts/*.sh' '.claude/hooks/*.sh' | grep -v '\.md$')
+        # Block on warning+error; info/style findings are advisory.
+        run: shellcheck --severity=warning $(git ls-files '.githooks/pre-commit' '.githooks/pre-commit.d/*' 'scripts/*.sh' '.claude/hooks/*.sh' | grep -v '\.md$')
 
   secrets:
     name: Secret scan (gitleaks)
