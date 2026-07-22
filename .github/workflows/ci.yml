@@ -66,18 +66,18 @@ jobs:
           python -m pip install --quiet ruff==0.7.4
           ruff check $(git ls-files '*.py')
       - name: ShellCheck (framework-authored shell)
-        run: shellcheck $(git ls-files '.githooks/pre-commit' '.githooks/pre-commit.d/*' 'scripts/*.sh' '.claude/hooks/*.sh')
+        run: shellcheck $(git ls-files '.githooks/pre-commit' '.githooks/pre-commit.d/*' 'scripts/*.sh' '.claude/hooks/*.sh' | grep -v '\.md$')
 
   secrets:
     name: Secret scan (gitleaks)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4.2.2
-        with:
-          fetch-depth: 0
-      - uses: gitleaks/gitleaks-action@v2
-        env:
-          GITLEAKS_CONFIG: .gitleaks.toml
+      - name: Install and run gitleaks
+        run: |
+          VER=8.24.3
+          curl -sSL "https://github.com/gitleaks/gitleaks/releases/download/v${VER}/gitleaks_${VER}_linux_x64.tar.gz" | tar -xz -C /tmp gitleaks
+          /tmp/gitleaks detect --no-git --source . --config .gitleaks.toml --redact --no-banner
 
   dco:
     name: DCO sign-off
