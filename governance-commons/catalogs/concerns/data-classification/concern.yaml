@@ -1,0 +1,10 @@
+id: data-classification
+name: Data Classification
+characteristic: security
+status: stable
+summary: >
+  How data is labeled and handled by sensitivity: a documented
+  classification scheme with a closed vocabulary, correct per-element and
+  per-model labels, encryption and least-privilege access per class,
+  propagation through data flows, per-class retention and disposal, and
+  exclusion of classified data from logs.

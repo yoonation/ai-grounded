@@ -1,0 +1,42 @@
+id: supply-chain.attestation-and-sbom-retention
+name: Attestations and SBOMs retained per substrate-documented retention policy with auditable
+  access trail
+layer: semantic
+characteristic: security
+severity: medium
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-23'
+  entered_stable: '2026-05-26'
+  authored_by: Myoung Hong
+sources:
+- title: NIST SP 800-218 SSDF v1.1 PS.3 (Archive and Protect Each Software Release; includes
+    provenance and SBOM retention)
+  url: https://csrc.nist.gov/pubs/sp/800/218/final
+- title: EU Regulation 2024/2847 (Cyber Resilience Act) Annex I Part II (vulnerability
+    handling requires documentation retention)
+  url: https://eur-lex.europa.eu/eli/reg/2024/2847/oj
+- title: ISO/IEC 27001 information-security-management retention discipline (substrate-referenced
+    where consumer profiles align)
+  url: https://www.iso.org/standard/27001
+references: []
+statement: 'The consumer retains attestations (SLSA provenance, signature, SBOM-attestation)
+  and SBOMs for each production release for a substrate-documented retention window. Substrate-recommended
+  retention windows: production-grade-baseline three years (matches typical regulatory
+  minima); stricter profiles (financial-services, healthcare, government) seven years
+  (aligns with industry-typical regulatory horizons); looser profile (greenfield-startup)
+  one year. The retention surface supports the consumer''s incident-response capability:
+  given a deployed artifact''s content-addressed digest or version label, the consumer
+  can retrieve the associated attestations and SBOM within minutes. Access to the retention
+  store is logged and the log is itself retained (cross-references logging.integrity integrity).'
+rationale: Retention discipline is the difference between an advisory response that takes
+  hours and one that takes days. When log4shell dropped in December 2021, consumers with
+  strong SBOM retention answered "are we affected?" by querying their SBOM index; consumers
+  without strong SBOM retention re-built each release to determine the answer. The substrate
+  elects a retention window long enough to span typical regulatory horizons but does not
+  extend indefinitely; substrate-recommended retention windows are tuned per profile.
+  The audit-trail dimension addresses the substrate-relevant threat that an attacker with
+  attestation-store write access could substitute attestations to conceal a compromise
+  after the fact. Append-only stores (Sigstore Rekor's transparency log is the substrate-default
+  model) or write-once-read-many storage are substrate-recommended.

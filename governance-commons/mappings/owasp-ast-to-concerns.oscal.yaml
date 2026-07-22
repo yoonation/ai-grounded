@@ -1,0 +1,433 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Myoung Hong
+
+# OWASP Agentic Skills Top 10 (AST10) for 2026 to substrate concern
+# rules.
+#
+# Source taxonomy: governance-commons/catalogs/threats/owasp-agentic-skills-top10.yaml
+# Target catalogs: substrate concern catalogs at
+# governance-commons/catalogs/concerns/.
+#
+# This is the fifth cross-taxonomy mapping and the skill-layer
+# counterpart to owasp-asi-to-concerns. Unlike the ASI mapping (authored
+# in M3 before any agentic concern existed, hence its many coverage gaps
+# pointing at a future agentic-AI concern catalog), this mapping is
+# authored after the agentic-systems concern (M5 Session 2) exists, so
+# the skill-layer threats now bind to real substrate rules. It binds
+# principally to the agentic-systems tool and skill trust policy
+# (agentic-systems.tool-and-skill-trust-policy), and to supply-chain, input-validation,
+# dependency-management, secrets-management, and logging. This closes the
+# last open part of Open Question 7 (the skill-layer threat binding).
+
+mapping:
+  uuid: "a1c4e7f2-3b58-4d6a-9e10-2f7c8b3d5a09"
+
+  metadata:
+    title: "OWASP Agentic Skills Top 10 to Substrate Concerns"
+    version: "1.0.0"
+    last-modified: "2026-06-03T00:00:00Z"
+
+    props:
+      - name: mapping-id
+        ns: governance-commons
+        value: "owasp-ast-to-concerns"
+      - name: lifecycle-status
+        ns: governance-commons
+        value: stable
+      - name: commons-version
+        ns: governance-commons
+        value: "0.7.0"
+      - name: entered-draft-at
+        ns: governance-commons
+        value: "2026-06-03"
+      - name: entered-stable-at
+        ns: governance-commons
+        value: "2026-06-04"
+      - name: reviewer
+        ns: governance-commons
+        value: "myoung-self-attested"
+      - name: reviewed
+        ns: governance-commons
+        value: "2026-06-04"
+      - name: attestation-mechanism
+        ns: governance-commons
+        value: "Charter Section 2.4.1 solo-author attestation; M5 close Path A consolidation"
+        remarks: >
+          Attested under Charter Section 2.4.1 (solo-author
+          attestation) on 2026-06-04. Cooling-off interval
+          honored: mapping drafted 2026-06-03 (M5 Session 3),
+          attested 2026-06-04 (subsequent calendar day per
+          Section 2.4.1). Section 2.4 validation criteria
+          applied: relation rationales are defensible;
+          coverage-gap records are honest; target-rule
+          references resolve to live substrate-rule IDs; no
+          relation duplicates another mapping's claim. Promoted
+          at the M5 close consolidation (Path A) at substrate
+          version 0.8.0.
+      - name: ai-assistance
+        ns: governance-commons
+        value: drafted-and-reviewed
+      - name: ai-assistance-detail
+        ns: governance-commons
+        value: >
+          AI drafted as the M5 Session 3 mapping. Each AST skill-layer
+          risk mapped to substrate concern rules, principally the
+          agentic-systems tool and skill trust policy (agentic-systems.tool-and-skill-trust-policy) and
+          secondarily tool-use authorization (agentic-systems.tool-use-authorization) and
+          delegation authority (agentic-systems.delegation-authority), with supply-chain,
+          input-validation, dependency-management, secrets-management,
+          and logging covering the provenance, parsing, pinning,
+          credential, and audit dimensions. Coverage gaps record the
+          skill-layer dimensions the substrate addresses only partially
+          (metadata-honesty static detection, host-mode isolation
+          defaults, behavioral skill scanning, and cross-platform
+          metadata loss), which are platform-side or scanner-side
+          properties the substrate's first-party-code rules inform but do
+          not fully own. Draft lifecycle per M5 Session 2 and 3; stable
+          promotion batches at the M5 close per the Path A precedent.
+
+    source-catalog:
+      catalog-id: "owasp-agentic-skills-top10"
+      catalog-version: "1.0-2026"
+      href: "../catalogs/threats/owasp-agentic-skills-top10.yaml"
+
+    target-catalog:
+      catalog-id: "concerns"
+      catalog-version: "0.7.0"
+      href: "../catalogs/concerns/"
+
+    methodology: >
+      Same methodology as owasp-asi-to-concerns. For each AST risk,
+      identify substrate concern rules whose intent materially addresses
+      the threat. The agentic-systems concern (M5 Session 2) owns the
+      agent-side controls (tool and skill trust policy, tool-use
+      authorization, action bounds, audit, delegation), so the
+      skill-layer threats bind there first; supply-chain owns artifact
+      provenance and signing; input-validation owns safe parsing;
+      dependency-management owns pinning. Where a threat describes a
+      registry-side, platform-side, or scanner-side property the
+      substrate's first-party-code rules only partially address, partial
+      coverage and an explicit coverage gap are recorded.
+
+  relations:
+
+    # AST01 Malicious Skills
+    - id: "AST01-addressed-by-tool-and-skill-trust-policy"
+      source-rule: "AST01"
+      target-rule: "agentic-systems.tool-and-skill-trust-policy"
+      relation-type: addressed-by
+      rationale: >
+        agentic-systems.tool-and-skill-trust-policy (tool and skill trust policy) is the principal
+        control: it requires a vetting gate before a skill is admitted to
+        the agent's tool set, an explicit stance against unvetted dynamic
+        loading, and a revocation path, which is exactly the decision a
+        malicious skill exploits when admission is automatic.
+      coverage-dimension: "skill-admission-and-vetting"
+    - id: "AST01-addressed-by-signature-verification"
+      source-rule: "AST01"
+      target-rule: "supply-chain.signature-verification"
+      relation-type: addressed-by
+      rationale: >
+        supply-chain.signature-verification (artifact signature verified against the
+        consumer's trust policy) addresses the integrity dimension: a
+        signed skill with a verified content hash cannot be silently
+        substituted by a malicious one.
+      coverage-dimension: "signing-and-integrity"
+    - id: "AST01-addressed-by-tool-authorization-scope"
+      source-rule: "AST01"
+      target-rule: "agentic-systems.tool-authorization-scope"
+      relation-type: addressed-by
+      rationale: >
+        agentic-systems.tool-authorization-scope (tool declares an authorization scope) bounds the
+        damage a malicious skill can do: a skill confined to a declared
+        least-privilege scope cannot reach the secrets or egress a
+        credential-stealing payload needs.
+      coverage-dimension: "blast-radius-containment"
+
+    # AST02 Supply Chain Compromise
+    - id: "AST02-addressed-by-slsa-provenance-verification"
+      source-rule: "AST02"
+      target-rule: "supply-chain.slsa-provenance-verification"
+      relation-type: addressed-by
+      rationale: >
+        supply-chain.slsa-provenance-verification (SLSA provenance attestation present and
+        verifiable) addresses the provenance dimension: verifiable
+        provenance is what lets a consumer detect that the skill it runs
+        is not the skill that was published and reviewed.
+      coverage-dimension: "provenance"
+    - id: "AST02-addressed-by-no-remote-execution-in-build"
+      source-rule: "AST02"
+      target-rule: "supply-chain.no-remote-execution-in-build"
+      relation-type: addressed-by
+      rationale: >
+        supply-chain.no-remote-execution-in-build (build scripts and CI workflows contain no
+        remote-execution) addresses the repository-controlled-execution
+        vector where opening or building a project triggers shell from a
+        configuration file before any trust prompt.
+      coverage-dimension: "config-execution"
+    - id: "AST02-addressed-by-tool-and-skill-trust-policy"
+      source-rule: "AST02"
+      target-rule: "agentic-systems.tool-and-skill-trust-policy"
+      relation-type: addressed-by
+      rationale: >
+        agentic-systems.tool-and-skill-trust-policy requires the trust policy to verify source and
+        provenance before admission, so a poisoned-registry or
+        substituted-dependency skill fails the vetting gate rather than
+        being loaded on trust.
+      coverage-dimension: "skill-admission-and-vetting"
+
+    # AST03 Over-Privileged Skills
+    - id: "AST03-addressed-by-tool-authorization-scope"
+      source-rule: "AST03"
+      target-rule: "agentic-systems.tool-authorization-scope"
+      relation-type: addressed-by
+      rationale: >
+        agentic-systems.tool-authorization-scope (tool declares an authorization scope) is the static
+        floor: a skill that declares no scope, or declares an over-broad
+        one, is exactly the over-privileged-skill shape, and the rule
+        forces a least-privilege declaration.
+      coverage-dimension: "scope-declaration"
+    - id: "AST03-addressed-by-tool-use-authorization"
+      source-rule: "AST03"
+      target-rule: "agentic-systems.tool-use-authorization"
+      relation-type: addressed-by
+      rationale: >
+        agentic-systems.tool-use-authorization (call-time tool-use authorization, least privilege)
+        enforces the declared scope at call time and judges whether the
+        granted authority is genuinely minimal for the skill's purpose.
+      coverage-dimension: "least-privilege-enforcement"
+    - id: "AST03-addressed-by-least-privilege-access"
+      source-rule: "AST03"
+      target-rule: "secrets-management.least-privilege-access"
+      relation-type: addressed-by
+      rationale: >
+        secrets-management.least-privilege-access (secret access is least-privilege per consumer)
+        bounds the credential exposure an over-privileged skill seeks: a
+        skill cannot read secrets its principal is not scoped to.
+      coverage-dimension: "credential-least-privilege"
+
+    # AST04 Insecure Metadata
+    - id: "AST04-addressed-by-tool-authorization-scope"
+      source-rule: "AST04"
+      target-rule: "agentic-systems.tool-authorization-scope"
+      relation-type: addressed-by
+      rationale: >
+        agentic-systems.tool-authorization-scope requires a machine-checkable scope declaration on
+        the skill registration, which is the permission portion of the
+        skill's metadata; its absence or emptiness is statically visible.
+      coverage-dimension: "permission-metadata"
+    - id: "AST04-addressed-by-tool-and-skill-trust-policy"
+      source-rule: "AST04"
+      target-rule: "agentic-systems.tool-and-skill-trust-policy"
+      relation-type: addressed-by
+      rationale: >
+        agentic-systems.tool-and-skill-trust-policy's vetting gate cross-checks declared metadata
+        (description, permissions, risk tier, author) against the skill's
+        observed behavior before admission, catching understated or
+        spoofed metadata.
+      coverage-dimension: "metadata-vetting"
+
+    # AST05 Unsafe Deserialization
+    - id: "AST05-addressed-by-no-unsafe-deserialization"
+      source-rule: "AST05"
+      target-rule: "input-validation.no-unsafe-deserialization"
+      relation-type: addressed-by
+      rationale: >
+        input-validation.no-unsafe-deserialization (deserialization across the trust boundary uses a
+        safe mechanism) directly addresses unsafe parsing of a skill
+        configuration: a safe loader does not execute tags or construct
+        arbitrary objects from a crafted skill file.
+      coverage-dimension: "safe-deserialization"
+    - id: "AST05-addressed-by-deserialization-safe-loaders"
+      source-rule: "AST05"
+      target-rule: "input-validation.deserialization-safe-loaders"
+      relation-type: addressed-by
+      rationale: >
+        input-validation.deserialization-safe-loaders (configuration files, ML models, and other
+        structured input are validated) extends safe parsing to the
+        schema-validation-before-execution the skill manifest needs.
+      coverage-dimension: "structured-input-validation"
+    - id: "AST05-addressed-by-tool-and-skill-trust-policy"
+      source-rule: "AST05"
+      target-rule: "agentic-systems.tool-and-skill-trust-policy"
+      relation-type: addressed-by
+      rationale: >
+        agentic-systems.tool-and-skill-trust-policy's vetting includes safe-loading and behavior review,
+        so a skill that relies on unsafe deserialization to deliver a
+        payload is caught at admission.
+      coverage-dimension: "skill-admission-and-vetting"
+
+    # AST06 Weak Isolation
+    - id: "AST06-addressed-by-action-bounds"
+      source-rule: "AST06"
+      target-rule: "agentic-systems.action-bounds"
+      relation-type: addressed-by
+      rationale: >
+        agentic-systems.action-bounds (consequential actions are bounded) requires the
+        agent to execute in a sandbox or with scoped credentials so the
+        blast radius is contained, which is the application-side face of
+        the weak-isolation threat.
+      coverage-dimension: "sandboxing-and-scoped-execution"
+    - id: "AST06-addressed-by-least-privilege-access"
+      source-rule: "AST06"
+      target-rule: "secrets-management.least-privilege-access"
+      relation-type: addressed-by
+      rationale: >
+        secrets-management.least-privilege-access (least-privilege secret access) limits the
+        persistent host credentials a weakly-isolated skill can reach,
+        reducing what host-mode execution exposes.
+      coverage-dimension: "credential-exposure"
+
+    # AST07 Update Drift
+    - id: "AST07-addressed-by-pinned-versions"
+      source-rule: "AST07"
+      target-rule: "dependency-management.pinned-versions"
+      relation-type: addressed-by
+      rationale: >
+        dependency-management.pinned-versions (production dependency versions are pinned via a
+        committed lock) addresses the unpinned-update vector: a skill and
+        its dependencies pinned to immutable versions cannot drift to an
+        unvetted version automatically.
+      coverage-dimension: "version-pinning"
+    - id: "AST07-addressed-by-signature-verification"
+      source-rule: "AST07"
+      target-rule: "supply-chain.signature-verification"
+      relation-type: addressed-by
+      rationale: >
+        supply-chain.signature-verification (signature and content-hash verification) detects a
+        post-review content change on load, so a mutable registry
+        reference that resolves to different content is caught.
+      coverage-dimension: "content-hash-verification"
+    - id: "AST07-addressed-by-update-cadence"
+      source-rule: "AST07"
+      target-rule: "dependency-management.update-cadence"
+      relation-type: addressed-by
+      rationale: >
+        dependency-management.update-cadence (defined, documented update cadence) frames re-vetting
+        on update rather than trusting a prior review, addressing the
+        patch-lag and silent-update dimensions.
+      coverage-dimension: "update-cadence"
+
+    # AST08 Poor Scanning
+    - id: "AST08-addressed-by-tool-and-skill-trust-policy"
+      source-rule: "AST08"
+      target-rule: "agentic-systems.tool-and-skill-trust-policy"
+      relation-type: addressed-by
+      rationale: >
+        agentic-systems.tool-and-skill-trust-policy requires the vetting gate to include behavior review,
+        not only a pattern scan, which is the policy-side answer to the
+        false-assurance-from-pattern-matching threat. The behavioral and
+        multi-tool depth of the scan itself is a coverage gap.
+      coverage-dimension: "vetting-depth"
+
+    # AST09 No Governance
+    - id: "AST09-addressed-by-agent-autonomy-policy"
+      source-rule: "AST09"
+      target-rule: "agentic-systems.agent-autonomy-policy"
+      relation-type: addressed-by
+      rationale: >
+        agentic-systems.agent-autonomy-policy (agent authorization and autonomy policy) requires
+        the agent's purpose, authority, and ownership to be recorded,
+        which is the governance anchor the no-governance threat lacks.
+      coverage-dimension: "policy-governance"
+    - id: "AST09-addressed-by-tool-and-skill-trust-policy"
+      source-rule: "AST09"
+      target-rule: "agentic-systems.tool-and-skill-trust-policy"
+      relation-type: addressed-by
+      rationale: >
+        agentic-systems.tool-and-skill-trust-policy requires a recorded admitted-skill set, an approval
+        and vetting gate, and a revocation path, which is the
+        skill-inventory-and-approval governance the threat describes.
+      coverage-dimension: "skill-inventory-and-approval"
+    - id: "AST09-addressed-by-agent-action-audit-record"
+      source-rule: "AST09"
+      target-rule: "agentic-systems.agent-action-audit-record"
+      relation-type: addressed-by
+      rationale: >
+        agentic-systems.agent-action-audit-record (agent action and tool-invocation path attaches an
+        audit record) provides the audit-logging-of-skill-actions the
+        no-governance threat lacks; the logging mechanism is owned by
+        the logging concern.
+      coverage-dimension: "action-audit"
+    - id: "AST09-addressed-by-integrity"
+      source-rule: "AST09"
+      target-rule: "logging.integrity"
+      relation-type: addressed-by
+      rationale: >
+        logging.integrity (security-relevant logs are protected with integrity
+        controls that detect or prevent tampering) makes the audit trail
+        agentic-systems.agent-action-audit-record attaches trustworthy for the forensic and governance
+        use the no-governance threat lacks; a tamperable trail is no trail.
+      coverage-dimension: "audit-trail-integrity"
+
+    # AST10 Cross-Platform Reuse
+    - id: "AST10-addressed-by-tool-and-skill-trust-policy"
+      source-rule: "AST10"
+      target-rule: "agentic-systems.tool-and-skill-trust-policy"
+      relation-type: addressed-by
+      rationale: >
+        agentic-systems.tool-and-skill-trust-policy requires re-vetting on admission rather than trusting
+        a prior platform's review, so a skill ported from another
+        registry passes the local vetting gate before use.
+      coverage-dimension: "re-vetting-on-admission"
+    - id: "AST10-addressed-by-tool-authorization-scope"
+      source-rule: "AST10"
+      target-rule: "agentic-systems.tool-authorization-scope"
+      relation-type: addressed-by
+      rationale: >
+        agentic-systems.tool-authorization-scope requires a scope declaration on the local
+        registration, so a port that dropped its permission metadata is
+        flagged when it carries no scope on the target platform.
+      coverage-dimension: "scope-redeclaration"
+
+  coverage-gaps:
+
+    - source-rule: "AST04"
+      gap-description: >
+        Partial coverage. agentic-systems.tool-authorization-scope covers the permission portion of
+        skill metadata and agentic-systems.tool-and-skill-trust-policy's vetting cross-checks declared
+        metadata against behavior, but the substrate has no dedicated
+        static rule that detects a dishonest skill description or a
+        spoofed author identity in the manifest. Metadata-honesty
+        detection is a registry-side and identity-infrastructure property.
+      recommended-action: >
+        Rely on agentic-systems.tool-and-skill-trust-policy behavior-versus-metadata vetting; a
+        registry-side metadata-attestation control is out of substrate
+        first-party-code scope.
+
+    - source-rule: "AST06"
+      gap-description: >
+        Partial coverage. agentic-systems.action-bounds requires sandboxed or scoped
+        execution from the application side, but whether skill execution
+        defaults to a container or to host mode is a platform-runtime
+        default the substrate's first-party-code rules do not own.
+      recommended-action: >
+        Treat default sandboxing as a platform-developer responsibility
+        (AST06 platform guidance); the substrate covers the
+        application-side bound via agentic-systems.action-bounds.
+
+    - source-rule: "AST08"
+      gap-description: >
+        Partial coverage. agentic-systems.tool-and-skill-trust-policy requires behavior review in the
+        vetting gate, but the substrate's own L1 static-analysis bindings
+        (agentic-systems.tool-authorization-scope, agentic-systems.agent-action-audit-record) are pattern-matchers that disclose,
+        in their layer-boundary-disclosure, that they do not detect
+        natural-language instruction manipulation. The semantic and
+        behavioral scanning the threat calls for is a scanner-capability
+        property the substrate references rather than implements.
+      recommended-action: >
+        Combine the substrate L1 patterns with semantic and behavioral
+        skill scanners at publish and install; the substrate is explicit
+        that pattern matching alone is insufficient.
+
+    - source-rule: "AST10"
+      gap-description: >
+        Partial coverage. agentic-systems.tool-and-skill-trust-policy re-vetting and agentic-systems.tool-authorization-scope scope
+        re-declaration catch a skill that arrives without metadata on the
+        target platform, but the substrate has no rule that detects which
+        specific security metadata (signing, risk tier, provenance) was
+        lost or weakened in a cross-platform port.
+      recommended-action: >
+        Adopt a universal skill format that carries security metadata
+        across platforms (AST10 upstream guidance); detect metadata loss
+        at port time outside the substrate first-party-code rules.

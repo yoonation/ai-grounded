@@ -1,0 +1,39 @@
+id: authentication.no-credentials-in-logs
+name: Authentication credentials never appear in logs
+layer: semantic
+characteristic: security
+severity: critical
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-18'
+  entered_stable: '2026-05-18'
+  authored_by: Myoung Hong
+sources:
+- title: OWASP ASVS v5.0.0 V11 (Cryptography) and V16 (Logging and Error Handling) prohibitions
+    on sensitive data in logs
+  url: https://github.com/OWASP/ASVS/blob/v5.0.0/5.0/en/0x1e-V11-Cryptography.md
+- title: CWE-532 Insertion of Sensitive Information into Log File
+  url: https://cwe.mitre.org/data/definitions/532.html
+cwe:
+- CWE-532
+- CWE-200
+- CWE-312
+applies_to:
+  language: any
+  framework: any
+  environment: any-with-credentials
+references: []
+statement: The application does not write authentication credentials to logs at any severity
+  level. Credentials include the same set as authentication.no-credentials-in-urls (passwords, API keys, session
+  and JWT tokens, OAuth tokens, reset and verification tokens). When log context requires
+  referring to a credential, the credential is redacted, masked (showing only a short
+  prefix or hash digest), or omitted entirely. Logging frameworks are configured with
+  filters that catch credential material that leaks through exception stacks or third-party
+  library output.
+rationale: Logs are written to disk, shipped to centralized aggregators, retained for
+  compliance windows, and accessed by operators and developers. Each of these stages widens
+  credential exposure. Logs often outlive the credentials they contain; a token expired
+  weeks ago may still appear in logs that are queryable today. Application logs are also
+  a common breach target; an attacker who reads logs reads every credential logged ever.
+guidance_ref: guidance.md

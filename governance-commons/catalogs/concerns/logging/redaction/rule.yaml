@@ -1,0 +1,50 @@
+id: logging.redaction
+name: Sensitive data is redacted from log records by an explicit, reviewed strategy applied
+  at the call site and at the pipeline
+layer: semantic
+characteristic: maintainability
+severity: high
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-20'
+  entered_stable: '2026-05-22'
+  authored_by: Myoung Hong
+sources:
+- title: OWASP Logging Cheat Sheet (data to exclude)
+  url: https://cheatsheetseries.owasp.org/cheatsheets/Logging_Cheat_Sheet.html
+- title: GDPR Article 5 (data minimization principle, drives redaction discipline for
+    EU-resident user data)
+  url: https://gdpr-info.eu/art-5-gdpr/
+- title: NIST SP 800-122 Guide to Protecting the Confidentiality of PII (Section 4 controls)
+  url: https://csrc.nist.gov/publications/detail/sp/800-122/final
+applies_to:
+  language: any
+  framework: any
+  environment: any
+references: []
+statement: 'The application has a documented redaction strategy that identifies application-specific
+  sensitive fields (beyond the substrate-recognized vocabulary in logging.no-sensitive-data-in-logs) and specifies
+  how each is handled: allow-listed inclusion (explicit fields permitted in logs), redaction-on-emission
+  (the field is replaced with a marker such as [REDACTED] before logging), hashing for
+  join (the field is replaced with a salted hash for cross-record correlation without
+  disclosure), or exclusion (the field is not logged at all). The strategy is enforced
+  at the call site (type-level redaction wrappers or logger plugins) and at the pipeline
+  (aggregator-side scrubbing for defense in depth). The strategy is reviewed periodically
+  and updated as the application''s data classification evolves.'
+rationale: 'logging.no-sensitive-data-in-logs catches the substrate-recognized sensitive vocabulary (password,
+  ssn, credit_card, etc.) but cannot anticipate application-specific sensitive fields:
+  an application''s internal "investigation_status" field may be sensitive even though
+  no industry vocabulary covers it; a B2B application''s "negotiated_rate" may be commercially
+  sensitive; a healthcare application''s "diagnosis_ code" requires PHI treatment even
+  though "diagnosis" is not a generic CWE-tagged vocabulary. Application authors are the
+  only people who can identify these fields; the L2 rule is the procedural place where
+  that identification happens. The substrate prefers strategies that fail safely: allow-list
+  inclusion is preferred over deny-list exclusion because the allow-list approach treats
+  a new field as not-logged by default until reviewed; deny-list approach treats new fields
+  as logged by default and requires the reviewer to remember to add them. The default
+  direction of safety differs. Defense in depth at the pipeline matters because call-site
+  redaction is fragile: a deeply nested serializer, a debug breakpoint, a developer println
+  left in production code can all bypass call-site discipline. Pipeline-side scrubbing
+  is slower (the data has already traveled into the ingest path), but it bounds disclosure
+  to the pre-scrubbing buffer rather than the entire retention window.'

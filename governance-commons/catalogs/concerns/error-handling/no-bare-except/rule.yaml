@@ -1,0 +1,43 @@
+id: error-handling.no-bare-except
+name: Exception handlers specify exception types rather than catching the universal exception
+  class without re-raising
+layer: mechanical
+characteristic: reliability
+severity: high
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-24'
+  entered_stable: '2026-05-26'
+  authored_by: Myoung Hong
+sources:
+- title: OWASP ASVS v5.0.0 V7.4 (Error handling does not expose sensitive information
+    and handles errors consistently)
+  url: https://github.com/OWASP/ASVS/blob/v5.0.0/5.0/en/0x15-V7-Error-Logging.md
+- title: CWE-396 Declaration of Catch for Generic Exception
+  url: https://cwe.mitre.org/data/definitions/396.html
+- title: CWE-755 Improper Handling of Exceptional Conditions
+  url: https://cwe.mitre.org/data/definitions/755.html
+cwe:
+- CWE-396
+- CWE-755
+applies_to:
+  language: any
+  framework: any
+  environment: any
+references: []
+statement: Every exception-handling construct (Python except, Java catch, JavaScript catch,
+  Go error checks, Ruby rescue, C# catch, Kotlin catch) specifies the exception class
+  or classes it intends to handle. Catching the universal exception class (Exception in
+  Python and Java, the bare catch in JavaScript, rescue without class in Ruby, catch in
+  C#) is forbidden unless the handler immediately re-raises the exception after a bounded
+  action (logging, metric increment, resource cleanup) and does not swallow it. The substrate's
+  preferred pattern is to catch the narrowest exception class that represents the failure
+  mode the handler actually addresses.
+rationale: Bare exception catches are the single most common error-handling antipattern
+  in production code. The catch-all surface absorbs everything including programming defects
+  that should propagate to fail-fast or to an outer handler. The result is a system that
+  fails quietly and accumulates corruption over time. The rule operates at L1 because
+  the pattern (catch construct with no exception class or with the universal class plus
+  no re-raise) is locally detectable; whether the chosen narrower class is the semantically
+  correct one for the failure mode is L2.

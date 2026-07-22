@@ -1,0 +1,47 @@
+id: logging.aggregation
+name: Logs are shipped to a centralized aggregator that supports indexed search, time-ranged
+  queries, and cross-service join on correlation identifiers
+layer: semantic
+characteristic: maintainability
+severity: medium
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-20'
+  entered_stable: '2026-05-22'
+  authored_by: Myoung Hong
+sources:
+- title: NIST SP 800-92 Section 3.2 (log management infrastructure)
+  url: https://csrc.nist.gov/publications/detail/sp/800-92/final
+- title: OWASP ASVS v5.0.0 V11 (log centralization requirement)
+  url: https://github.com/OWASP/ASVS/blob/v5.0.0/5.0/en/0x20-V11-BusLogic.md
+- title: OWASP Top 10 2021 A09 (centralization and search readiness)
+  url: https://owasp.org/Top10/A09_2021-Security_Logging_and_Monitoring_Failures/
+applies_to:
+  language: any
+  framework: any
+  environment: any-production
+references: []
+statement: 'All log streams from production services are shipped to a centralized aggregator
+  within an operationally acceptable latency window (substrate-recommended: near-real-time,
+  with a documented upper bound on the producer-to-aggregator latency for security-event
+  streams). The aggregator supports: full-text or structured-field search across the indexed
+  retention window; time-ranged queries with sub-second response for the hot retention
+  tier; cross-service join on correlation identifiers (logging.correlation-ids); access control with
+  roles distinct from application administrative access (logging.integrity separation of duty).
+  The aggregator is documented in the logging architecture ADR (logging.architecture) and its operational
+  health is monitored.'
+rationale: 'Centralization moves log evidence to a place that survives host turnover,
+  supports query patterns the application host cannot, and provides the operational surface
+  for incident response. The substrate''s requirements (search, time-range, join, access
+  control) are the minimum useful capabilities; an aggregator that does not support cross-service
+  join on correlation identifiers cannot answer the most common incident-response question
+  ("what else happened during this user''s session?"). The substrate accepts a wide range
+  of aggregators (cloud-native: CloudWatch Logs Insights, Cloud Logging, Azure Monitor;
+  commercial: Datadog, Splunk, Sumo Logic, New Relic; open source: Elastic stack, Loki,
+  OpenSearch). The choice is documented in the consumer''s ADR; the substrate''s rule
+  is on the capability set, not the vendor. The latency-bound caveat addresses a recurring
+  failure mode: log shipping that batches with hour-scale delay produces an effective
+  operational blackout during which incidents have begun but log evidence has not yet
+  arrived at the aggregator. The substrate-recommended bound for security-event streams
+  is sub-minute; application streams may accept longer.'

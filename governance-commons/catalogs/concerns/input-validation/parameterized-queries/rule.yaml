@@ -1,0 +1,46 @@
+id: input-validation.parameterized-queries
+name: Database queries use parameterized statements rather than string concatenation or
+  interpolation with user-supplied values
+layer: mechanical
+characteristic: security
+severity: critical
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-23'
+  entered_stable: '2026-05-26'
+  authored_by: Myoung Hong
+sources:
+- title: OWASP ASVS v5.0.0 V5.3.4 (Parameterized queries or properly contextually escaped
+    output prevent injection)
+  url: https://github.com/OWASP/ASVS/blob/v5.0.0/5.0/en/0x13-V5-Validation-Sanitization-Encoding.md
+- title: OWASP Top 10 2021 A03:2021 Injection
+  url: https://owasp.org/Top10/A03_2021-Injection/
+- title: CWE-89 Improper Neutralization of Special Elements used in an SQL Command
+  url: https://cwe.mitre.org/data/definitions/89.html
+cwe:
+- CWE-89
+- CWE-564
+applies_to:
+  language: any
+  framework: any
+  environment: any-with-database-access
+references: []
+statement: Every database query that incorporates a value from outside the application's
+  trust boundary uses the database driver's parameterized-query mechanism. The parameterized
+  mechanism keeps query text and parameter values as separate transport-layer elements;
+  the database server treats parameters as data values regardless of their content. String
+  concatenation, string interpolation, f-string composition, template rendering, or any
+  other technique that produces a single query string with user-supplied substrings embedded
+  is forbidden. The rule applies to SQL and to SQL-like languages (HQL, JPQL, Cypher,
+  GraphQL when executed against a backend that interprets it, MongoDB query documents
+  constructed dynamically).
+rationale: 'SQL injection is the canonical injection vulnerability. Parameterized queries
+  solve it structurally: the driver transmits the query template and the parameter values
+  over separate channels and the database server applies the parameters at execution time
+  without re-parsing. Application-layer escaping is fragile: edge cases in character encoding,
+  quoting conventions, and database-specific syntax escape the escape. Parameterized queries
+  do not have these failure modes because the parameter never re-enters the SQL parser.
+  The rule operates at L1 because the pattern (string concatenation in a database call)
+  is locally detectable; semantic correctness (does the parameter represent the right
+  value?) is L2.'

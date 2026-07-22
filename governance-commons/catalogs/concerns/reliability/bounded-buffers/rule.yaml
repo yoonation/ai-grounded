@@ -1,0 +1,50 @@
+id: reliability.bounded-buffers
+name: In-memory buffers, work queues, and caches that grow in response to load are constructed
+  with an explicit capacity bound rather than unbounded
+layer: mechanical
+characteristic: reliability
+severity: high
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-31'
+  entered_stable: '2026-06-01'
+  authored_by: Myoung Hong
+sources:
+- title: Python asyncio.Queue maxsize parameter (a maxsize of 0, the default, means the
+    queue is unbounded; a positive value blocks producers when full, providing backpressure)
+  url: https://docs.python.org/3/library/asyncio-queue.html
+- title: Python queue.Queue maxsize parameter (same unbounded-by-default semantics for
+    the threaded queue)
+  url: https://docs.python.org/3/library/queue.html
+- title: AWS Builders' Library guidance on bounding queues and avoiding unrecoverable
+    backlog (concept reference)
+  url: https://aws.amazon.com/builders-library/avoiding-insurmountable-queue-backlogs/
+applies_to:
+  language: any
+  framework: any
+  environment: any
+references: []
+statement: 'In-memory data structures that accumulate items in response to inbound load
+  (work queues, channels, event buffers, in-process caches, batching accumulators) are
+  constructed with an explicit capacity bound, and the code defines what happens when
+  the bound is reached: block the producer to create backpressure, reject or shed the
+  new item, or evict an existing item by a stated policy (LRU, TTL). The rule applies
+  to structures on a request or event path whose size is a function of load; it does not
+  apply to fixed-size or configuration-derived collections, to bounded structures already
+  carrying a maxsize, or to collections whose size is bounded by the input of a single
+  request (a parsed list) rather than by accumulated load. The bound''s value is profile-and
+  workload-tuned; the rule requires that a bound and an overflow policy exist, not a particular
+  number.'
+rationale: 'Unbounded buffering converts a transient slowdown into a permanent outage.
+  When a consumer falls behind a producer (a downstream dependency slows, a batch job
+  stalls), an unbounded queue absorbs the difference by growing, and memory is the one
+  resource whose exhaustion kills the whole process rather than degrading one operation.
+  A bounded buffer forces the system to make the decision it was avoiding: when the buffer
+  is full, either the producer must slow down (backpressure, the usually-correct answer)
+  or work must be shed (load-shedding, the correct answer when backpressure would propagate
+  a stall upstream). Both are survivable; silent unbounded growth is not. The substrate
+  treats the presence of a bound as a mechanical floor because the absence of one is statically
+  visible and the cost of adding it is trivial, while the cost of discovering its absence
+  in production is an outage. The complementary L2 rule reliability.failure-isolation reviews whether the
+  bound is sized correctly and isolated so that one queue filling does not starve another.'

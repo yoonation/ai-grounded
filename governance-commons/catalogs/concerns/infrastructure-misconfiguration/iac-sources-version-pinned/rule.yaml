@@ -1,0 +1,43 @@
+id: infrastructure-misconfiguration.iac-sources-version-pinned
+name: IaC provider, module, and image sources are explicitly version-pinned (no floating,
+  no 'latest', no unpinned git refs)
+layer: mechanical
+characteristic: security
+severity: high
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-31'
+  entered_stable: '2026-06-01'
+  authored_by: Myoung Hong
+sources:
+- title: CWE-1357 Reliance on Insufficiently Trustworthy Component
+  url: https://cwe.mitre.org/data/definitions/1357.html
+cwe:
+- CWE-1357
+- CWE-829
+applies_to:
+  language: any-iac
+  framework: terraform-pulumi-kubernetes-helm
+  environment: any-iac-with-external-dependencies
+references: []
+statement: IaC source declares versions for all external dependencies. Terraform required_providers
+  declares an explicit version constraint for every provider (no implicit latest); pessimistic-constraint
+  or exact-version expressions are acceptable, range-only constraints without an upper
+  bound are not. Module source attributes use registry-with-version (registry.terraform.io/namespace/name
+  with version attribute) or git-with-ref-pinned-to-tag-or-commit- SHA (git::https://github.com/org/repo.git?ref=v1.2.3
+  or ref=COMMITSHA); branch refs (?ref=main, ?ref= master, ?ref=develop) are violations.
+  Container image references in Kubernetes manifests and Helm values use digest pinning
+  (image@sha256:abc...) or immutable-tag pinning (image:v1.2.3 with image policy preventing
+  tag mutation); the literal tag 'latest' is always a violation. Helm releases declare
+  chart_version. Pulumi package imports declare package versions in package.json or requirements.txt;
+  the dependency-management rule dependency-management.pinned-versions covers the application-package surface and
+  this rule cross-references it for the IaC-source side.
+rationale: 'Unpinned IaC dependencies create non-deterministic infrastructure. Two plans
+  of the same IaC source produce different proposed changes; two applies produce different
+  running infrastructure; a CI pipeline that succeeded yesterday fails today because an
+  upstream provider published a breaking change between the two runs. The substrate''s
+  L1 pinning rule eliminates the silent variability: every external input is named at
+  a version, and a deliberate upgrade is the only path to a version change. The pattern
+  matches the substrate''s application-package pinning (dependency-management.pinned-versions) and the substrate''s
+  supply-chain artifact pinning (supply-chain.no-remote-execution-in-build); this rule completes the picture for IaC.'

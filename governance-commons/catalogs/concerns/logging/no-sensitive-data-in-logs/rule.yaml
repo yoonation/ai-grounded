@@ -1,0 +1,55 @@
+id: logging.no-sensitive-data-in-logs
+name: Sensitive data classes (credentials, PII, PHI, payment card data, session identifiers,
+  full bearer tokens) do not appear as field values in log records
+layer: semantic
+characteristic: maintainability
+severity: critical
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-20'
+  entered_stable: '2026-05-22'
+  authored_by: Myoung Hong
+sources:
+- title: OWASP Logging Cheat Sheet (data to exclude section)
+  url: https://cheatsheetseries.owasp.org/cheatsheets/Logging_Cheat_Sheet.html
+- title: OWASP ASVS v5.0.0 V11 Logging (sensitive data exclusion requirement)
+  url: https://github.com/OWASP/ASVS/blob/v5.0.0/5.0/en/0x20-V11-BusLogic.md
+- title: CWE-532 Insertion of Sensitive Information into Log File
+  url: https://cwe.mitre.org/data/definitions/532.html
+- title: CWE-200 Exposure of Sensitive Information to an Unauthorized Actor
+  url: https://cwe.mitre.org/data/definitions/200.html
+cwe:
+- CWE-532
+- CWE-200
+applies_to:
+  language: any
+  framework: any
+  environment: any
+references: []
+statement: 'Log records produced in any environment do not contain the following data
+  classes as field values: authentication credentials (passwords, secret keys, API tokens,
+  OAuth client secrets, full bearer tokens in headers); session identifiers (full cookie
+  values, full JWT bodies that re-presented would authenticate the user); personally identifiable
+  information (full names paired with identifiers, government identifiers, addresses,
+  dates of birth, phone numbers, email addresses paired with content); protected health
+  information (medical record content, diagnosis codes paired with patient identifiers,
+  treatment data); payment card data (full PAN, CVV, magnetic stripe track data, full
+  PIN block); cryptographic key material (PEM-encoded private keys, symmetric keys, signing
+  material). Where any of these is needed in a log record for operational correlation,
+  the substrate-recommended representation is a one-way hash with a logging-pipeline-specific
+  salt (so the hash is stable within the pipeline and cross-referenceable but does not
+  expose the underlying value).'
+rationale: 'Log records are the longest-retained, broadest-accessed application output.
+  Their retention windows are measured in months or years for compliance (PCI DSS Requirement
+  10.5.1: at least 12 months total with at least 3 months immediately available); operational
+  access is typically broader than application-code access (SREs, on-call rotations, support
+  engineers, security analysts, and increasingly third-party log-analysis SaaS); replication
+  is aggressive across log aggregators, SIEM ingestion, cold storage, and backup. Each
+  of these channels multiplies the disclosure surface of any sensitive value that enters
+  the stream. The substrate''s mechanical rule is that sensitive data does not enter the
+  log record at the call site, not that the log pipeline redacts it after the fact. Pipeline-side
+  redaction is a defense in depth (LOG- L2-003) but is not a substitute for call-site
+  discipline because pipeline failures (misconfiguration, bypassed routes, debug-mode
+  emission) repeatedly produce disclosures even where pipeline redaction is nominally
+  deployed.'

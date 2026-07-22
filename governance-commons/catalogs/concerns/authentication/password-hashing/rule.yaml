@@ -1,0 +1,44 @@
+id: authentication.password-hashing
+name: Password storage uses an approved, computationally intensive password hashing function
+layer: mechanical
+characteristic: security
+severity: critical
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-17'
+  entered_stable: '2026-05-17'
+  authored_by: Myoung Hong
+sources:
+- title: OWASP ASVS v5.0.0-6.6.2 (Password storage hashing algorithm requirement)
+  url: https://github.com/OWASP/ASVS/blob/v5.0.0/5.0/en/0x15-V6-Authentication.md
+- title: NIST SP 800-63B-4 Section 5.1.1.2 (Memorized Secret Verifiers; password hashing
+    requirements)
+  url: https://pages.nist.gov/800-63-4/sp800-63b.html
+cwe:
+- CWE-916
+- CWE-327
+- CWE-256
+- CWE-261
+applies_to:
+  language: any
+  framework: any
+  environment: any-with-credentials
+references: []
+statement: 'The application stores user passwords exclusively using an approved password
+  hashing function. Approved functions are computationally intensive by design and produce
+  irreversible output. Approved functions as of substrate version 0.1.0: Argon2id, bcrypt,
+  scrypt, and PBKDF2. Each stored password value incorporates a unique salt generated
+  by the hashing library. The application does not use general-purpose cryptographic hashes
+  such as MD5, SHA-1, SHA-256, or SHA-512 for password storage. The application does not
+  store passwords in plaintext. The application does not store passwords under reversible
+  encryption.'
+rationale: Password storage is the canonical authentication concern. A breach of the password
+  database is the most common attacker objective and the most damaging authentication
+  outcome. Plaintext storage means every user account is compromised on breach. Fast hashes
+  (MD5, SHA-1, SHA-256) allow attackers to crack substantial portions of leaked databases
+  within hours using commodity GPU hardware. Slow, memory-hard hashes (Argon2id, bcrypt,
+  scrypt, PBKDF2) raise per-hash attack cost by orders of magnitude. The mechanical nature
+  of the rule (algorithm choice and salt usage) makes it Layer 1 checkable. Parameter
+  tuning (work factor, memory cost) is Layer 2 review.
+guidance_ref: guidance.md

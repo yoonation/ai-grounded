@@ -1,0 +1,42 @@
+id: infrastructure-misconfiguration.infrastructure-security-baseline
+name: Infrastructure security baseline and enforcement-model strategy is documented in
+  an ADR
+layer: judgmental
+characteristic: security
+severity: high
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-31'
+  entered_stable: '2026-06-01'
+  authored_by: Myoung Hong
+sources:
+- title: NIST SP 800-207 Zero Trust Architecture
+  url: https://csrc.nist.gov/pubs/sp/800/207/final
+applies_to:
+  language: any-iac
+  framework: any
+  environment: any-iac-consumer
+references: []
+statement: 'Before substantive IaC authoring begins at the consumer''s scale (more than
+  a single small workload in a single cloud account, or any deployment in a regulated
+  environment), the consumer authors an Architecture Decision Record using the substrate''s
+  infrastructure-security-baseline MADR framework as the template. The ADR documents:
+  which baseline benchmark the consumer adopts (CIS AWS Foundations v3.0.0, CIS Azure
+  Foundations v2.1.0, CIS GCP Foundation v2.0.0, NIST 800-53 profile, FedRAMP Moderate
+  / High, HIPAA, PCI DSS, custom internal baseline mapped to one of these); which enforcement-model
+  the consumer adopts (preventive policy-as-code in CI / CD pipeline, cloud-native guardrails
+  such as AWS Service Control Policies / Azure Policy / GCP Organization Policy, detective
+  scanning post-deployment, or a hybrid combining preventive plus detective); how exceptions
+  are governed (who approves, what evidence is recorded, how exception-decay is enforced);
+  the drift-detection cadence per environment (substrate-baseline: daily production, profile-tilt
+  regulated to hourly); the substrate''s L1 and L2 rules apply in addition to the ADR-documented
+  baseline; the ADR cross-references the substrate''s catalog as the detailed rule set.'
+rationale: The substrate's L1 and L2 rules provide the detailed surface; the L3 ADR provides
+  the strategic shape that determines how the L1 and L2 rules are operationalized. Without
+  the L3 strategy, the L1 and L2 rules are applied inconsistently and the substrate's
+  value compounds slowly; with the L3 strategy, the rules compose into a coherent governance
+  posture that survives team turnover and regulatory audit. The substrate treats the ADR
+  as rule-required rather than rule-recommended because consumers who skip the strategic
+  layer consistently re-author the same per-resource decisions in non-documented ways
+  across multiple substrate-authors, drifting from any consistent posture.

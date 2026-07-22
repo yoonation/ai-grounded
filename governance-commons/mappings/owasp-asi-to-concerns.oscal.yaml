@@ -1,0 +1,323 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Myoung Hong
+
+# OWASP Agentic Security Initiative (ASI) Top 10 for 2026 to
+# substrate concern rules.
+#
+# Source taxonomy: governance-commons/catalogs/threats/owasp-agentic-asi-2026.yaml
+# Target catalogs: substrate concern catalogs at
+# governance-commons/catalogs/concerns/.
+
+mapping:
+  uuid: "04a9a3b2-db32-4362-a427-8ae1cf90d6ae"
+
+  metadata:
+    title: "OWASP Agentic ASI Top 10 to Substrate Concerns"
+    version: "1.0.0"
+    last-modified: "2026-05-30T00:00:00Z"
+
+    props:
+      - name: mapping-id
+        ns: governance-commons
+        value: "owasp-asi-to-concerns"
+      - name: lifecycle-status
+        ns: governance-commons
+        value: stable
+      - name: commons-version
+        ns: governance-commons
+        value: "0.6.0"
+      - name: entered-draft-at
+        ns: governance-commons
+        value: "2026-05-28"
+      - name: entered-stable-at
+        ns: governance-commons
+        value: "2026-05-30"
+      - name: reviewer
+        ns: governance-commons
+        value: "myoung-self-attested"
+      - name: reviewed
+        ns: governance-commons
+        value: "2026-05-30"
+      - name: attestation-mechanism
+        ns: governance-commons
+        value: "Charter Section 2.4.1 solo-author attestation; M3 close Path A consolidation"
+        remarks: >
+          Attested under Charter Section 2.4.1 (solo-author
+          attestation) on 2026-05-30. Cooling-off interval honored:
+          mapping drafted 2026-05-28 (M3 Session 2a), attested
+          2026-05-30 (subsequent calendar day or later per Section
+          2.4.1 minimum-interval-one-calendar-day rule). Section 2.4
+          validation criteria applied: relation rationales are
+          defensible; coverage-gap records are honest; target-rule
+          references resolve to live substrate-rule IDs; no relation
+          duplicates another mapping's claim. Promotion executed as
+          part of the M3 close Path A consolidation (1 spec doc + 4
+          mappings + 3 schemas all promoted in one consolidation
+          event).
+      - name: ai-assistance
+        ns: governance-commons
+        value: drafted-and-reviewed
+      - name: ai-assistance-detail
+        ns: governance-commons
+        value: >
+          AI drafted as the second M3 Session 2a mapping. Each ASI
+          item mapped to substrate concern rules. Agentic threats
+          often exceed what architectural concern rules address;
+          coverage-gaps record dimensions where substrate-author
+          anticipates a future agentic-AI concern catalog.
+
+    source-catalog:
+      catalog-id: "owasp-agentic-asi-2026"
+      catalog-version: "2026"
+      href: "../catalogs/threats/owasp-agentic-asi-2026.yaml"
+
+    target-catalog:
+      catalog-id: "concerns"
+      catalog-version: "0.6.0"
+      href: "../catalogs/concerns/"
+
+    methodology: >
+      Same methodology as owasp-llm-to-concerns. For each ASI
+      risk, identify substrate concern rules whose intent
+      materially addresses the threat. Agentic threats often
+      describe runtime patterns the substrate's build-time and
+      static-analysis rules only partially address; partial
+      coverage and explicit coverage gaps recorded.
+
+  relations:
+
+    - id: "ASI01-addressed-by-no-shell-injection"
+      source-rule: "ASI01"
+      target-rule: "input-validation.no-shell-injection"
+      relation-type: addressed-by
+      rationale: >
+        input-validation.no-shell-injection (no shell injection) addresses the
+        injection-vector dimension of goal hijacking where
+        attacker input is parsed as agent instructions. The same
+        instruction-data separation pattern applies.
+      coverage-dimension: "injection-vector"
+
+    - id: "ASI01-addressed-by-authz-before-resource-access"
+      source-rule: "ASI01"
+      target-rule: "authorization.authz-before-resource-access"
+      relation-type: addressed-by
+      rationale: >
+        authorization.authz-before-resource-access (authorization before resource access)
+        bounds the damage from goal hijacking: even if the
+        agent's goals are hijacked, every resource access goes
+        through authorization, so the hijacked agent cannot
+        exceed its granted privileges.
+      coverage-dimension: "post-hijack-privilege-bound"
+
+    - id: "ASI02-addressed-by-protected-route-declares-authz"
+      source-rule: "ASI02"
+      target-rule: "authorization.protected-route-declares-authz"
+      relation-type: addressed-by
+      rationale: >
+        authorization.protected-route-declares-authz (protected route declares authorization)
+        addresses the tool-misuse case where the agent invokes
+        tools without authorization at the tool endpoint;
+        explicit authorization declaration at each tool endpoint
+        blocks unauthorized tool invocation.
+
+    - id: "ASI02-addressed-by-authz-before-resource-access"
+      source-rule: "ASI02"
+      target-rule: "authorization.authz-before-resource-access"
+      relation-type: addressed-by
+      rationale: >
+        authorization.authz-before-resource-access (authorization before resource access)
+        addresses the cascading tool-misuse case where a tool
+        the agent legitimately invoked itself accesses resources
+        without authorization.
+
+    - id: "ASI03-addressed-by-password-hashing"
+      source-rule: "ASI03"
+      target-rule: "authentication.password-hashing"
+      relation-type: addressed-by
+      rationale: >
+        authentication.password-hashing (password hashing) addresses the credential
+        compromise dimension of identity abuse where the agent's
+        credentials or impersonated user credentials are stored
+        insecurely.
+      coverage-dimension: "credential-storage"
+
+    - id: "ASI03-addressed-by-timing-safe-comparison"
+      source-rule: "ASI03"
+      target-rule: "authentication.timing-safe-comparison"
+      relation-type: addressed-by
+      rationale: >
+        authentication.timing-safe-comparison (timing-safe comparison) addresses the
+        credential-discovery dimension where attackers infer
+        valid credentials through timing-side-channels in agent
+        authentication.
+
+    - id: "ASI04-addressed-by-no-unsafe-deserialization"
+      source-rule: "ASI04"
+      target-rule: "input-validation.no-unsafe-deserialization"
+      relation-type: addressed-by
+      rationale: >
+        input-validation.no-unsafe-deserialization (no unsafe deserialization) addresses the
+        memory-poisoning vector where adversarial inputs
+        deserialize into agent memory structures that taint
+        subsequent decisions.
+
+    - id: "ASI04-addressed-by-parameterized-queries"
+      source-rule: "ASI04"
+      target-rule: "input-validation.parameterized-queries"
+      relation-type: addressed-by
+      rationale: >
+        input-validation.parameterized-queries (parameterized queries) addresses the
+        memory-poisoning vector via the vector-store path where
+        adversarial embedding queries write poisoned entries
+        through string-concatenation injection.
+      coverage-dimension: "vector-memory-injection"
+
+    - id: "ASI05-addressed-by-no-bare-except"
+      source-rule: "ASI05"
+      target-rule: "error-handling.no-bare-except"
+      relation-type: addressed-by
+      rationale: >
+        error-handling.no-bare-except (no bare except) prevents the cascading-
+        failure case where agent errors are silently swallowed
+        and the failure propagates undetected through downstream
+        agents.
+
+    - id: "ASI05-addressed-by-no-exception-swallow"
+      source-rule: "ASI05"
+      target-rule: "error-handling.no-exception-swallow"
+      relation-type: addressed-by
+      rationale: >
+        error-handling.no-exception-swallow (no exception swallow) addresses cascading
+        failures by surfacing errors at the boundary where the
+        cascade originates, allowing operators to break the
+        cascade rather than experiencing all downstream
+        failures.
+
+    - id: "ASI06-addressed-by-no-hardcoded-credentials"
+      source-rule: "ASI06"
+      target-rule: "authentication.no-hardcoded-credentials"
+      relation-type: addressed-by
+      rationale: >
+        authentication.no-hardcoded-credentials (credentials hardcoded) addresses the
+        rogue-agent vector where hardcoded credentials allow
+        unauthorized agents to authenticate as legitimate
+        principals; eliminating hardcoded credentials closes
+        this surface.
+
+    - id: "ASI06-addressed-by-protected-route-declares-authz"
+      source-rule: "ASI06"
+      target-rule: "authorization.protected-route-declares-authz"
+      relation-type: addressed-by
+      rationale: >
+        authorization.protected-route-declares-authz (protected route declares authorization)
+        addresses the rogue-agent runtime case where the rogue
+        agent attempts unauthorized access to substrate
+        protected routes.
+
+    - id: "ASI07-addressed-by-no-hardcoded-role-strings"
+      source-rule: "ASI07"
+      target-rule: "authorization.no-hardcoded-role-strings"
+      relation-type: addressed-by
+      rationale: >
+        authorization.no-hardcoded-role-strings (no hardcoded role strings) addresses the
+        cross-agent escalation case where hardcoded role
+        strings in one agent's code are exploited by another
+        agent to gain elevated roles outside the central
+        authorization policy.
+
+    - id: "ASI07-addressed-by-mass-assignment-allowlist"
+      source-rule: "ASI07"
+      target-rule: "authorization.mass-assignment-allowlist"
+      relation-type: addressed-by
+      rationale: >
+        authorization.mass-assignment-allowlist (mass assignment allowlist) addresses
+        cross-agent escalation via the structured-update vector
+        where one agent's update payload includes fields the
+        agent should not be authorized to set, elevating its
+        (or another agent's) privileges.
+
+    - id: "ASI08-addressed-by-structured-format"
+      source-rule: "ASI08"
+      target-rule: "logging.structured-format"
+      relation-type: addressed-by
+      rationale: >
+        logging.structured-format (structured format) addresses the
+        audit-trail inadequacy where unstructured logs cannot be
+        queried or correlated; structured logs make agent
+        decisions traceable post-hoc.
+
+    - id: "ASI08-addressed-by-correlation-ids"
+      source-rule: "ASI08"
+      target-rule: "logging.correlation-ids"
+      relation-type: addressed-by
+      rationale: >
+        logging.correlation-ids (correlation IDs) addresses the cross-agent
+        audit-trail case where actions span multiple agent
+        invocations; correlation IDs make the cross-agent trail
+        traceable.
+
+    - id: "ASI08-addressed-by-trace-context-propagation"
+      source-rule: "ASI08"
+      target-rule: "observability.trace-context-propagation"
+      relation-type: addressed-by
+      rationale: >
+        observability.trace-context-propagation (trace context propagation) addresses the
+        audit-trail dimension at the distributed-trace level,
+        complementing log correlation with trace correlation for
+        full audit reconstruction.
+
+    - id: "ASI10-addressed-by-workload-resource-limits"
+      source-rule: "ASI10"
+      target-rule: "cost-model-selection.workload-resource-limits"
+      relation-type: addressed-by
+      rationale: >
+        cost-model-selection.workload-resource-limits (workload resource limits) directly
+        addresses agent resource exhaustion: agent workloads
+        run under explicit resource limits that prevent
+        unbounded resource consumption.
+
+    - id: "ASI10-addressed-by-cost-attribution-tags"
+      source-rule: "ASI10"
+      target-rule: "cost-model-selection.cost-attribution-tags"
+      relation-type: addressed-by
+      rationale: >
+        cost-model-selection.cost-attribution-tags (cost attribution tags) addresses agent
+        resource exhaustion at the detection layer: tagged
+        consumption is attributable to the specific agent,
+        enabling anomaly detection and per-agent limits.
+
+  coverage-gaps:
+
+    - source-rule: "ASI01"
+      gap-description: >
+        Partial coverage. Substrate addresses architectural
+        injection and post-hijack privilege bounding but does
+        not address agent-specific goal-integrity patterns like
+        goal-confirmation gates, goal-divergence detection, or
+        objective re-validation.
+      recommended-action: >
+        Agentic AI concern catalog anticipated in future
+        milestone.
+
+    - source-rule: "ASI06"
+      gap-description: >
+        Partial coverage. Substrate addresses authentication of
+        agent principals but does not address agent
+        registration, agent identity verification at runtime, or
+        rogue-agent detection (e.g., agents whose behavior
+        diverges from expected patterns).
+      recommended-action: >
+        Agentic AI concern catalog anticipated in future
+        milestone.
+
+    - source-rule: "ASI09"
+      gap-description: >
+        No L1 substrate rules address human-in-the-loop
+        oversight gates, approval workflows for high-stakes
+        agent actions, or human-override capabilities. Human
+        oversight is an agentic-runtime concern the substrate
+        has not yet authored.
+      recommended-action: >
+        Agentic AI concern catalog anticipated in future
+        milestone with rules for tool-use approval, autonomous
+        action limits, and oversight gate patterns.

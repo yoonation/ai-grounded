@@ -1,0 +1,466 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Myoung Hong
+#
+# Healthcare industry-tilt profile. Inherits the production-grade-baseline
+# profile (profile-of-a-profile) and elevates the severities of the
+# concerns that the HIPAA Security Rule, Privacy Rule, and HITECH make
+# critical: minimum-necessary PHI handling and privacy, PHI classification
+# and transmission security, person-or-entity authentication and access
+# control, encryption key management for electronic PHI, guarded PHI and
+# media disposal, and audit-control logging and retention. Third M7
+# industry profile, authored at draft.
+
+profile:
+  uuid: 97eb9284-0346-4fd6-b9b5-699c91fc7314
+  metadata:
+    title: "Healthcare Industry-Tilt Profile"
+    published: "2026-06-06T00:00:00Z"
+    last-modified: "2026-06-07T00:00:00Z"
+    version: "1.0.0"
+    oscal-version: "1.1.2"
+    props:
+      - name: profile-id
+        ns: governance-commons
+        value: healthcare
+      - name: profile-kind
+        ns: governance-commons
+        value: industry-tilt
+      - name: lifecycle-status
+        ns: governance-commons
+        value: stable
+      - name: entered-stable-at
+        ns: governance-commons
+        value: "2026-06-07"
+      - name: profile-attestation
+        ns: governance-commons
+        value: "myoung-self-attested"
+        remarks: >
+          Attested under Charter Section 2.4.1 (solo-author attestation)
+          at the M7 close consolidation on 2026-06-07. Cooling-off
+          honored: the profile was authored at draft on a prior calendar
+          day (2026-06-06). Promotion from profile version 0.1.0 to 1.0.0
+          and lifecycle-status draft to stable as part of the batch
+          promotion of the four M7 industry-tilt profiles at substrate
+          version 0.10.0.
+      - name: commons-version
+        ns: governance-commons
+        value: "0.9.0"
+      - name: industry
+        ns: governance-commons
+        value: healthcare
+      - name: regulatory-basis
+        ns: governance-commons
+        value: HIPAA Security Rule, HIPAA Privacy Rule, HITECH
+      - name: intended-audience
+        ns: governance-commons
+        value: |
+          Organizations handling protected health information
+          subject to the HIPAA Security and Privacy Rules and
+          HITECH. Inherits production-grade-baseline and elevates
+          privacy, data-classification, authentication, secrets,
+          backup, and audit-logging emphasis.
+      - name: ai-assistance
+        ns: governance-commons
+        value: drafted
+      - name: ai-assistance-detail
+        ns: governance-commons
+        value: |
+          AI drafted the industry-tilt profile from substrate-author
+          intent under human direction. Human authored final intent
+          and approved at draft lifecycle. Profile-attestation and
+          stable promotion are deferred to the M7 close
+          consolidation per Section 2.4.1 cooling-off.
+    parties:
+      - uuid: d6a5c45b-7dcd-4eac-a108-59b46ac2101e
+        type: person
+        name: myoung
+        props:
+          - name: role
+            ns: governance-commons
+            value: author
+          - name: authored-on
+            ns: governance-commons
+            value: "2026-06-06"
+    links:
+      - rel: governance-charter
+        href: ../CHARTER.md
+  imports:
+    - href: ../profiles/production-grade-baseline.oscal.yaml
+      include-all: {}
+  modify:
+    alters:
+      - control-id: privacy.personal-data-purpose-annotation
+        adds:
+          - position: ending
+            props:
+              - name: profile-severity-override
+                ns: governance-commons
+                value: high
+              - name: profile-severity-override-rationale
+                ns: governance-commons
+                value: |
+                  Minimum-necessary handling of protected health
+                  information is a core HIPAA control.
+              - name: profile-tilt-basis
+                ns: governance-commons
+                value: HIPAA Privacy Rule (minimum necessary)
+              - name: profile-ai-assistance
+                ns: governance-commons
+                value: drafted-by-ai-approved-by-human
+              - name: profile-ai-assistance-detail
+                ns: governance-commons
+                value: |
+                  AI drafted the industry tilt from substrate-author
+                  intent; human approved at draft lifecycle.
+      - control-id: privacy.no-personal-data-in-url
+        adds:
+          - position: ending
+            props:
+              - name: profile-severity-override
+                ns: governance-commons
+                value: high
+              - name: profile-severity-override-rationale
+                ns: governance-commons
+                value: Lawful handling and disclosure limits for PHI are regulated.
+              - name: profile-tilt-basis
+                ns: governance-commons
+                value: HIPAA Privacy Rule
+              - name: profile-ai-assistance
+                ns: governance-commons
+                value: drafted-by-ai-approved-by-human
+              - name: profile-ai-assistance-detail
+                ns: governance-commons
+                value: |
+                  AI drafted the industry tilt from substrate-author
+                  intent; human approved at draft lifecycle.
+      - control-id: privacy.retention-limitation
+        adds:
+          - position: ending
+            props:
+              - name: profile-severity-override
+                ns: governance-commons
+                value: high
+              - name: profile-severity-override-rationale
+                ns: governance-commons
+                value: |
+                  Patient access and data-subject rights are HIPAA
+                  obligations.
+              - name: profile-tilt-basis
+                ns: governance-commons
+                value: HIPAA Privacy Rule (right of access)
+              - name: profile-ai-assistance
+                ns: governance-commons
+                value: drafted-by-ai-approved-by-human
+              - name: profile-ai-assistance-detail
+                ns: governance-commons
+                value: |
+                  AI drafted the industry tilt from substrate-author
+                  intent; human approved at draft lifecycle.
+      - control-id: privacy.processor-and-transfer-safeguards
+        adds:
+          - position: ending
+            props:
+              - name: profile-severity-override
+                ns: governance-commons
+                value: high
+              - name: profile-severity-override-rationale
+                ns: governance-commons
+                value: PHI retention and disposal discipline is regulated.
+              - name: profile-tilt-basis
+                ns: governance-commons
+                value: HIPAA; HITECH
+              - name: profile-ai-assistance
+                ns: governance-commons
+                value: drafted-by-ai-approved-by-human
+              - name: profile-ai-assistance-detail
+                ns: governance-commons
+                value: |
+                  AI drafted the industry tilt from substrate-author
+                  intent; human approved at draft lifecycle.
+      - control-id: data-classification.model-classification-label
+        adds:
+          - position: ending
+            props:
+              - name: profile-severity-override
+                ns: governance-commons
+                value: high
+              - name: profile-severity-override-rationale
+                ns: governance-commons
+                value: |
+                  PHI must be classified so safeguards apply to the
+                  right data.
+              - name: profile-tilt-basis
+                ns: governance-commons
+                value: HIPAA Security Rule Sec 164.308 (risk analysis)
+              - name: profile-ai-assistance
+                ns: governance-commons
+                value: drafted-by-ai-approved-by-human
+              - name: profile-ai-assistance-detail
+                ns: governance-commons
+                value: |
+                  AI drafted the industry tilt from substrate-author
+                  intent; human approved at draft lifecycle.
+      - control-id: data-classification.closed-vocabulary
+        adds:
+          - position: ending
+            props:
+              - name: profile-severity-override
+                ns: governance-commons
+                value: high
+              - name: profile-severity-override-rationale
+                ns: governance-commons
+                value: PHI data-flow classification underpins safeguard scoping.
+              - name: profile-tilt-basis
+                ns: governance-commons
+                value: HIPAA Security Rule Sec 164.308
+              - name: profile-ai-assistance
+                ns: governance-commons
+                value: drafted-by-ai-approved-by-human
+              - name: profile-ai-assistance-detail
+                ns: governance-commons
+                value: |
+                  AI drafted the industry tilt from substrate-author
+                  intent; human approved at draft lifecycle.
+      - control-id: data-classification.retention-disposal
+        adds:
+          - position: ending
+            props:
+              - name: profile-severity-override
+                ns: governance-commons
+                value: high
+              - name: profile-severity-override-rationale
+                ns: governance-commons
+                value: PHI handling is a regulated safeguard, not discretionary.
+              - name: profile-tilt-basis
+                ns: governance-commons
+                value: HIPAA Security Rule Sec 164.312
+              - name: profile-ai-assistance
+                ns: governance-commons
+                value: drafted-by-ai-approved-by-human
+              - name: profile-ai-assistance-detail
+                ns: governance-commons
+                value: |
+                  AI drafted the industry tilt from substrate-author
+                  intent; human approved at draft lifecycle.
+      - control-id: data-classification.propagation-inheritance
+        adds:
+          - position: ending
+            props:
+              - name: profile-severity-override
+                ns: governance-commons
+                value: high
+              - name: profile-severity-override-rationale
+                ns: governance-commons
+                value: |
+                  Disclosure and transmission of PHI carry
+                  regulatory consequence.
+              - name: profile-tilt-basis
+                ns: governance-commons
+                value: HIPAA Security Rule Sec 164.312(e) (transmission security)
+              - name: profile-ai-assistance
+                ns: governance-commons
+                value: drafted-by-ai-approved-by-human
+              - name: profile-ai-assistance-detail
+                ns: governance-commons
+                value: |
+                  AI drafted the industry tilt from substrate-author
+                  intent; human approved at draft lifecycle.
+      - control-id: authentication.generic-failure-responses
+        adds:
+          - position: ending
+            props:
+              - name: profile-severity-override
+                ns: governance-commons
+                value: high
+              - name: profile-severity-override-rationale
+                ns: governance-commons
+                value: |
+                  Person-or-entity authentication is an explicit
+                  HIPAA technical safeguard.
+              - name: profile-tilt-basis
+                ns: governance-commons
+                value: HIPAA Security Rule Sec 164.312(d)
+              - name: profile-ai-assistance
+                ns: governance-commons
+                value: drafted-by-ai-approved-by-human
+              - name: profile-ai-assistance-detail
+                ns: governance-commons
+                value: |
+                  AI drafted the industry tilt from substrate-author
+                  intent; human approved at draft lifecycle.
+      - control-id: authentication.account-lockout
+        adds:
+          - position: ending
+            props:
+              - name: profile-severity-override
+                ns: governance-commons
+                value: high
+              - name: profile-severity-override-rationale
+                ns: governance-commons
+                value: |
+                  Access-control review for PHI systems is a
+                  regulated safeguard.
+              - name: profile-tilt-basis
+                ns: governance-commons
+                value: HIPAA Security Rule Sec 164.312(a)
+              - name: profile-ai-assistance
+                ns: governance-commons
+                value: drafted-by-ai-approved-by-human
+              - name: profile-ai-assistance-detail
+                ns: governance-commons
+                value: |
+                  AI drafted the industry tilt from substrate-author
+                  intent; human approved at draft lifecycle.
+      - control-id: secrets-management.sensitive-files-gitignored
+        adds:
+          - position: ending
+            props:
+              - name: profile-severity-override
+                ns: governance-commons
+                value: critical
+              - name: profile-severity-override-rationale
+                ns: governance-commons
+                value: Keys protecting electronic PHI are a top-tier safeguard.
+              - name: profile-tilt-basis
+                ns: governance-commons
+                value: HIPAA Security Rule Sec 164.312(a)(2)(iv) (encryption)
+              - name: profile-ai-assistance
+                ns: governance-commons
+                value: drafted-by-ai-approved-by-human
+              - name: profile-ai-assistance-detail
+                ns: governance-commons
+                value: |
+                  AI drafted the industry tilt from substrate-author
+                  intent; human approved at draft lifecycle.
+      - control-id: secrets-management.no-secrets-in-logs
+        adds:
+          - position: ending
+            props:
+              - name: profile-severity-override
+                ns: governance-commons
+                value: critical
+              - name: profile-severity-override-rationale
+                ns: governance-commons
+                value: Key lifecycle for ePHI encryption is a regulated safeguard.
+              - name: profile-tilt-basis
+                ns: governance-commons
+                value: HIPAA Security Rule Sec 164.312(a)(2)(iv)
+              - name: profile-ai-assistance
+                ns: governance-commons
+                value: drafted-by-ai-approved-by-human
+              - name: profile-ai-assistance-detail
+                ns: governance-commons
+                value: |
+                  AI drafted the industry tilt from substrate-author
+                  intent; human approved at draft lifecycle.
+      - control-id: backup-recovery.guarded-destructive-operation
+        adds:
+          - position: ending
+            props:
+              - name: profile-severity-override
+                ns: governance-commons
+                value: high
+              - name: profile-severity-override-rationale
+                ns: governance-commons
+                value: |
+                  Destruction of PHI and media must be guarded under
+                  disposal safeguards.
+              - name: profile-tilt-basis
+                ns: governance-commons
+                value: HIPAA Security Rule Sec 164.310(d) (media disposal)
+              - name: profile-ai-assistance
+                ns: governance-commons
+                value: drafted-by-ai-approved-by-human
+              - name: profile-ai-assistance-detail
+                ns: governance-commons
+                value: |
+                  AI drafted the industry tilt from substrate-author
+                  intent; human approved at draft lifecycle.
+      - control-id: logging.severity-levels
+        adds:
+          - position: ending
+            props:
+              - name: profile-severity-override
+                ns: governance-commons
+                value: high
+              - name: profile-severity-override-rationale
+                ns: governance-commons
+                value: |
+                  Audit-control logging of ePHI access is an
+                  explicit technical safeguard.
+              - name: profile-tilt-basis
+                ns: governance-commons
+                value: HIPAA Security Rule Sec 164.312(b) (audit controls)
+              - name: profile-ai-assistance
+                ns: governance-commons
+                value: drafted-by-ai-approved-by-human
+              - name: profile-ai-assistance-detail
+                ns: governance-commons
+                value: |
+                  AI drafted the industry tilt from substrate-author
+                  intent; human approved at draft lifecycle.
+      - control-id: logging.aggregation
+        adds:
+          - position: ending
+            props:
+              - name: profile-severity-override
+                ns: governance-commons
+                value: high
+              - name: profile-severity-override-rationale
+                ns: governance-commons
+                value: |
+                  Audit-log retention for ePHI access must meet
+                  HIPAA documentation retention.
+              - name: profile-tilt-basis
+                ns: governance-commons
+                value: HIPAA Sec 164.316(b) (six-year retention)
+              - name: profile-ai-assistance
+                ns: governance-commons
+                value: drafted-by-ai-approved-by-human
+              - name: profile-ai-assistance-detail
+                ns: governance-commons
+                value: |
+                  AI drafted the industry tilt from substrate-author
+                  intent; human approved at draft lifecycle.
+      - control-id: logging.architecture
+        adds:
+          - position: ending
+            props:
+              - name: profile-severity-override
+                ns: governance-commons
+                value: high
+              - name: profile-severity-override-rationale
+                ns: governance-commons
+                value: |
+                  The logging strategy is the HIPAA audit-controls
+                  governance control.
+              - name: profile-tilt-basis
+                ns: governance-commons
+                value: HIPAA Security Rule Sec 164.312(b)
+              - name: profile-ai-assistance
+                ns: governance-commons
+                value: drafted-by-ai-approved-by-human
+              - name: profile-ai-assistance-detail
+                ns: governance-commons
+                value: |
+                  AI drafted the industry tilt from substrate-author
+                  intent; human approved at draft lifecycle.
+  back-matter:
+    resources:
+      - uuid: 8483f9f0-e853-4dc3-9adc-79be2ef2e4c4
+        title: "Production-Grade Baseline Profile (parent)"
+        rlinks:
+          - href: ../profiles/production-grade-baseline.oscal.yaml
+        description: |
+          The healthcare industry-tilt profile inherits the
+          production-grade-baseline profile (all 184 baseline rule
+          selections) via a single include-all import, then elevates
+          the severities of the concerns this regime makes critical.
+          Inheritance is profile-of-a-profile per the M7 Session 0
+          decision (the profile schema import href accepts a parent
+          profile). Tilt basis: HIPAA Security Rule, HIPAA Privacy
+          Rule, HITECH. Authored at draft (profile version 0.1.0,
+          lifecycle-status draft) at substrate version 0.9.0; the
+          profile-attestation prop and promotion to lifecycle-status
+          stable are deferred to the M7 close consolidation per the
+          Path A precedent.

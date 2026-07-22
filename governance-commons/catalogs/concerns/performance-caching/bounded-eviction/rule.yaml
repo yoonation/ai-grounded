@@ -1,0 +1,39 @@
+id: performance-caching.bounded-eviction
+name: The cache backend is bounded by a configured maximum size and an eviction policy
+  so it cannot grow without limit
+layer: semantic
+characteristic: performance-efficiency
+severity: medium
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-31'
+  entered_stable: '2026-06-01'
+  authored_by: Myoung Hong
+sources:
+- title: Redis key eviction (maxmemory and the maxmemory-policy eviction strategies such
+    as allkeys-lru and allkeys-lfu)
+  url: https://redis.io/docs/latest/develop/reference/eviction/
+- title: AWS ElastiCache best practices (sizing and eviction policy for a bounded cache
+    cluster)
+  url: https://docs.aws.amazon.com/AmazonElastiCache/latest/dg/BestPractices.html
+applies_to:
+  language: any
+  framework: any
+  environment: any
+references: []
+statement: The cache backend is bounded by a configured maximum size and an explicit eviction
+  policy appropriate to the workload. An in-process cache uses a bounded-capacity structure
+  with eviction rather than an unbounded dictionary. The key cardinality is considered
+  against the bound. The bound is reviewed at deployment and when a new high-cardinality
+  key space is introduced. The unbounded in-process collection itself is governed by reliability.bounded-buffers;
+  this rule governs the cache backend's configured bound.
+rationale: 'A cache is finite memory standing in for an effectively infinite source, so
+  it must have a policy for what to drop when it fills. Without a configured bound and
+  eviction policy, that policy is decided by the operating system at the worst possible
+  time. A time-to-live alone does not bound a cache fed by a high-cardinality key space,
+  because new keys can arrive faster than old ones expire. The substrate requires an explicit
+  maximum and eviction policy so the cache degrades predictably (dropping the least useful
+  entries) rather than catastrophically (exhausting the host). The rule draws a clean
+  boundary with reliability: the unbounded in-process dictionary is a reliability.bounded-buffers finding,
+  while the cache backend''s deployment bound is owned here.'

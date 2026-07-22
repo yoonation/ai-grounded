@@ -1,0 +1,37 @@
+id: agentic-systems.multi-agent-trust
+name: Multi-agent systems have a recorded trust and delegation model
+layer: judgmental
+characteristic: safety
+severity: high
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-06-03'
+  entered_stable: '2026-06-04'
+  authored_by: Myoung Hong
+sources:
+- title: OWASP Agentic Security Initiative, agentic threats and mitigations (multi-agent
+    trust, delegation, and the confused deputy, referenced as a concept)
+  url: https://genai.owasp.org/resource/agentic-ai-threats-and-mitigations/
+- title: Cloud Security Alliance MAESTRO threat-modeling for agentic systems (multi-agent
+    trust boundaries, referenced as a concept)
+  url: https://cloudsecurityalliance.org/research/topics/maestro
+applies_to:
+  language: any
+  framework: any
+  environment: any
+references: []
+statement: A system with more than one agent has a recorded trust and delegation model
+  ADR, current relative to the last significant change, mapping the agents and roles,
+  the trust relationships and who may delegate to whom, the authority each may hold and
+  the rule that delegation only narrows it (agentic-systems.delegation-authority), how caller identity propagates
+  for accountability, and how a compromised agent is contained. A single-agent system
+  records that the model is not applicable. It cross-references the delegation constraint
+  it frames and each agent's agentic-systems.agent-autonomy-policy authority policy.
+rationale: 'Multi-agent systems fail at the seams between agents: authority that accumulates
+  across a delegation chain, a sub-agent trusted as if it were the user, a hand-off that
+  drops accountability. The trust model is the decision that makes those seams explicit
+  and makes the per-call delegation constraint meaningful by saying who may delegate to
+  whom at all. The substrate makes this an L3 ADR because the topology is a design judgment,
+  scopes it to multi-agent systems, and cross-references the delegation rule and the per-agent
+  authority policy rather than restating them.'

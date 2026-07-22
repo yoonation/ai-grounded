@@ -1,0 +1,40 @@
+id: supply-chain.signed-commit-and-protected-branch
+name: Production source repositories enforce signed-commit and protected-branch discipline
+  for release-bearing branches
+layer: semantic
+characteristic: security
+severity: high
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-23'
+  entered_stable: '2026-05-26'
+  authored_by: Myoung Hong
+sources:
+- title: OWASP ASVS v5.0.0 V14.1 (Build pipeline source integrity)
+  url: https://github.com/OWASP/ASVS/blob/v5.0.0/5.0/en/0x22-V14-Configuration.md
+- title: SLSA Source Track (draft) requirements on source authority verification
+  url: https://slsa.dev/spec/v1.1/source-requirements
+- title: OWASP Top 10 CI/CD Security Risks CICD-SEC-1 (Insufficient Flow Control Mechanisms)
+    and CICD-SEC-6 (Insufficient Credential Hygiene)
+  url: https://owasp.org/www-project-top-10-ci-cd-security-risks/
+references: []
+statement: 'The consumer''s release-bearing branches (substrate-default: main, release-*
+  branches, tag refs pointing to release commits) enforce: (a) signed commits via Sigstore-signed
+  (gitsign), GPG-signed, or SSH-signed attribution chains; (b) protected-branch policy
+  requiring pull-request review before merge with substrate-recommended minimum of one
+  reviewer distinct from the author; (c) administrator-bypass discipline (either administrator-bypass
+  disabled entirely, or each bypass logged via audit-trail and reviewed under supply-chain.attestation-and-sbom-retention).
+  The substrate accepts the consumer''s hosting provider''s specific feature names (GitHub
+  branch protection rules, GitLab protected branches, Bitbucket merge checks, Gerrit access
+  controls).'
+rationale: 'Source authority verification is the substrate''s anchor for the question
+  "did this change actually come from the person whose name appears on it?" Signed commits
+  answer the question at the commit level; protected-branch policy answers it at the merge
+  level. Both are required: signed commits alone permit an attacker with valid signing
+  credentials to push directly to the release branch bypassing review; protected branches
+  alone permit unsigned commits to flow through review where attribution is not verifiable.
+  The substrate elects signed-commit verification rather than signed-tag-only verification
+  because the release-bearing branch state at the moment of release is the substrate-relevant
+  integrity surface. A signed tag on an unsigned-commit branch attests that someone authorized
+  the release; signed commits attest that each commit in the release was authorized.'

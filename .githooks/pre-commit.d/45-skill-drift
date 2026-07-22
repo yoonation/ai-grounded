@@ -1,0 +1,60 @@
+#!/bin/sh
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Myoung Hong
+#
+# gate-meta:
+#   order: 45
+#   name: skill-drift
+#   posture: report-only
+#   skip: SKIP_SKILL_DRIFT
+#   strict: SKILL_DRIFT_STRICT
+#   summary: Rendered .claude/skills files must match their canonical extension command sources.
+# end-gate-meta
+#
+# Commit-time skill-drift gate. Chained by the .githooks/pre-commit dispatcher
+# after the quality gate. Rendered skills are derived output of the extension
+# command files (the canon); hand-editing a render is the named anti-pattern
+# because the edit is silently lost on the next render. This gate compares
+# every extension command/skill pair (normalized for the renderer's documented
+# transforms) and flags divergence.
+#
+# Preset-owned pairs (specify, clarify, plan, implement) are covered by
+# bootstrap's marker checks instead; their render transforms are
+# version-dependent content rewrites a textual diff would misread.
+#
+# Report-only by default: surfaces drift and exits 0 so it does not block
+# while the discipline settles. SKILL_DRIFT_STRICT=1 makes drift block.
+# SKIP_SKILL_DRIFT=1 bypasses entirely. Graceful no-op when the tool or the
+# extensions tree is absent.
+
+[ "$SKIP_SKILL_DRIFT" = "1" ] && { echo "skill-drift: skipped (SKIP_SKILL_DRIFT=1)."; exit 0; }
+
+REPO_ROOT=$(git rev-parse --show-toplevel 2>/dev/null) || exit 0
+cd "$REPO_ROOT" || exit 0
+
+[ -f tooling/skill-drift/check.py ] || { echo "skill-drift: tooling/skill-drift/check.py absent; skipped."; exit 0; }
+[ -d .specify/extensions ] || { echo "skill-drift: no .specify/extensions tree; nothing to check."; exit 0; }
+
+# Scope to commits that touch either side of a pair; the check itself is
+# whole-tree (cheap) so a staged canon edit also verifies its render.
+FILES=$(git diff --cached --name-only --diff-filter=ACMR \
+  | grep -E '^(\.claude/skills/|\.specify/extensions/)')
+if [ -z "$FILES" ]; then
+  echo "skill-drift: no staged skill or extension files; nothing to check."
+  exit 0
+fi
+
+if [ "$SKILL_DRIFT_STRICT" = "1" ]; then
+  python3 tooling/skill-drift/check.py --repo-root . --strict --text
+  RC=$?
+  if [ "$RC" != "0" ]; then
+    echo "skill-drift: STRICT - drift blocks the commit (SKILL_DRIFT_STRICT=1)."
+    echo "             Edit the extension command (canon) and sync the render,"
+    echo "             or bypass with SKIP_SKILL_DRIFT=1 git commit ..."
+    exit 1
+  fi
+else
+  python3 tooling/skill-drift/check.py --repo-root . --text
+  echo "skill-drift: report-only - drift above (if any) is not blocking (set SKILL_DRIFT_STRICT=1 to enforce)."
+fi
+exit 0

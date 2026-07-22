@@ -1,0 +1,195 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Myoung Hong
+# ISO/IEC 42001:2023 - AI Management Systems - Reference Only
+#
+# ISO/IEC 42001 is a copyrighted standard published by ISO/IEC.
+# Redistribution of the control text is prohibited under ISO's
+# licensing terms. This file contains citation metadata, structural
+# references, and cross-framework mappings, but no verbatim control
+# text from the standard.
+#
+# Practitioners with licensed access to ISO 42001 can populate
+# control text in a local fork. This file is the upstream-safe
+# reference shared in this commons.
+
+metadata:
+  catalog_id: iso-42001
+  catalog_name: ISO/IEC 42001:2023 - Artificial Intelligence Management System
+  schema_version: 1.0.0
+  last_reviewed: 2026-05-12
+  upstream_source: https://www.iso.org/standard/81230.html
+  upstream_version: "ISO/IEC 42001:2023 (first edition, December 2023)"
+  next_review_due: 2027-05-12
+  maintainer: <set-during-init>
+  review_protocol: governance-commons/MAINTENANCE.md
+  copyright_status: copyrighted
+  redistribution_allowed: false
+  reference_only: true
+  applies_to: [build_time, runtime]
+
+description: >
+  ISO/IEC 42001 is the first international standard for AI management
+  systems. It specifies requirements and provides guidance for
+  establishing, implementing, maintaining, and continually improving
+  an AI management system (AIMS) within the context of an
+  organization. Modeled on the structure of other ISO management
+  system standards (e.g., ISO 27001, ISO 9001), it follows the
+  Annex SL harmonized structure.
+
+  This standard is certifiable - organizations can be audited
+  against it by accredited bodies for ISO 42001 certification.
+  Particularly relevant for organizations selling AI products into
+  regulated markets or to customers requiring third-party AI
+  assurance.
+
+structure:
+  # ISO 42001 follows the Annex SL high-level structure used by
+  # all ISO management system standards. Numbering and titles below
+  # are factual references that are not copyrighted.
+
+  clauses:
+    - number: "1"
+      title: "Scope"
+    - number: "2"
+      title: "Normative references"
+    - number: "3"
+      title: "Terms and definitions"
+    - number: "4"
+      title: "Context of the organization"
+      subclauses:
+        - "4.1 Understanding the organization and its context"
+        - "4.2 Understanding the needs and expectations of interested parties"
+        - "4.3 Determining the scope of the AI management system"
+        - "4.4 AI management system"
+    - number: "5"
+      title: "Leadership"
+      subclauses:
+        - "5.1 Leadership and commitment"
+        - "5.2 AI policy"
+        - "5.3 Roles, responsibilities and authorities"
+    - number: "6"
+      title: "Planning"
+      subclauses:
+        - "6.1 Actions to address risks and opportunities"
+        - "6.2 AI objectives and planning to achieve them"
+        - "6.3 Planning of changes"
+    - number: "7"
+      title: "Support"
+      subclauses:
+        - "7.1 Resources"
+        - "7.2 Competence"
+        - "7.3 Awareness"
+        - "7.4 Communication"
+        - "7.5 Documented information"
+    - number: "8"
+      title: "Operation"
+      subclauses:
+        - "8.1 Operational planning and control"
+        - "8.2 AI risk assessment"
+        - "8.3 AI risk treatment"
+        - "8.4 AI system impact assessment"
+    - number: "9"
+      title: "Performance evaluation"
+      subclauses:
+        - "9.1 Monitoring, measurement, analysis and evaluation"
+        - "9.2 Internal audit"
+        - "9.3 Management review"
+    - number: "10"
+      title: "Improvement"
+      subclauses:
+        - "10.1 Continual improvement"
+        - "10.2 Nonconformity and corrective action"
+
+  annexes:
+    - id: "Annex A"
+      title: "Reference control objectives and controls (normative)"
+      description: >
+        Lists ~38 controls organized into 9 control objectives. Specific
+        control IDs (A.2.x through A.10.x) and titles are referenced by
+        practitioners and auditors but the verbatim text is copyrighted.
+        Implementers obtain the full text via licensed ISO purchase.
+    - id: "Annex B"
+      title: "Implementation guidance for AI controls (informative)"
+    - id: "Annex C"
+      title: "Potential AI-related organizational objectives and risk sources (informative)"
+    - id: "Annex D"
+      title: "Use of AI management system across domains or sectors (informative)"
+
+# Cross-framework mappings (our analysis, not copyrighted ISO text)
+mappings:
+
+  - target_framework: nist-ai-rmf
+    relationship: complementary
+    notes: >
+      AI RMF provides voluntary risk management guidance; ISO 42001
+      provides certifiable management system requirements. Organizations
+      commonly use AI RMF to inform their ISO 42001 AIMS design.
+      Significant conceptual overlap in risk assessment, governance,
+      and continuous improvement.
+
+  - target_framework: eu-ai-act
+    relationship: supports-compliance
+    notes: >
+      ISO 42001 certification can serve as evidence of AI governance
+      maturity for EU AI Act conformity assessments, particularly for
+      high-risk AI systems under Title III. Not a substitute for
+      Article 17 quality management system requirements but heavily
+      overlapping.
+
+  - target_framework: iso-27001
+    relationship: harmonized-structure
+    notes: >
+      Both follow Annex SL high-level structure (clauses 4-10).
+      Organizations with ISO 27001 implementations can extend their
+      ISMS to include AI management with reduced incremental effort.
+
+  - target_framework: nist-800-53-rev5
+    relationship: partial-overlap
+    notes: >
+      ISO 42001 Annex A controls overlap with selected 800-53 controls
+      (particularly PM-, RA-, SA-, and SR- family controls). Detailed
+      mapping requires licensed access to ISO 42001 to complete.
+
+# When to use ISO 42001 in this commons
+applicability:
+  recommended_when:
+    - Organization sells AI products into regulated markets
+    - Customer contracts require ISO certification for AI systems
+    - Organization wants certifiable AIMS aligned with other ISO standards
+    - EU AI Act compliance is a goal and ISO 42001 evidence supports it
+    - Targeting roles at companies with mature compliance programs
+
+  less_critical_when:
+    - Pure technical work with no AI governance scope
+    - Pre-product-market AI research
+    - Internal-only AI tools not subject to certification demands
+
+# Access information
+access:
+  full_text_source: ISO website (purchase required)
+  purchase_url: https://www.iso.org/standard/81230.html
+  approximate_cost: USD ~190-220 for PDF/print (varies by ISO regional reseller)
+  cheaper_access:
+    - National standards bodies sometimes offer subsidized access (ANSI in US, BSI in UK)
+    - Academic institutions often have institutional ISO licenses
+    - Some employers maintain organizational ISO subscriptions
+
+# What to do with this reference
+usage_in_framework:
+  - Cross-reference target for OSCAL mappings (cite by clause number)
+  - Threat catalog `related_compliance` field can reference ISO 42001 clauses
+  - Project teams targeting ISO 42001 certification can populate full
+    control text in a private fork; never commit verbatim ISO text to
+    public repositories
+  - Audit conversations - cite this reference file's clause/control IDs;
+    if the auditor needs verbatim text they will have licensed access
+
+# Common gotchas
+gotchas:
+  - Do not reproduce ISO control text in public commits, even paraphrased,
+    even with attribution. ISO licensing is strict about derivative works.
+  - The Annex A controls have IDs like A.2.2, A.3.1 - these are public
+    references. The descriptive text of each control is copyrighted.
+  - ISO publishes amendments and revisions; check for updates annually.
+    A revision of ISO 42001 (potentially 42001:2026 or similar) is likely
+    within 3-5 years as the field matures.

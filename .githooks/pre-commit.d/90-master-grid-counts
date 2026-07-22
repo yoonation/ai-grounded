@@ -1,0 +1,60 @@
+#!/bin/sh
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Myoung Hong
+#
+# gate-meta:
+#   order: 90
+#   name: master-grid-counts
+#   posture: report-only
+#   skip: SKIP_MASTER_GRID_COUNTS
+#   strict: MASTER_GRID_COUNTS_STRICT
+#   summary: governance-commons/docs/MASTER-GRID.md section-4 counts match the substrate on disk (no index drift).
+# end-gate-meta
+#
+# Commit-time drift guard for the MASTER-GRID index. Chained after 80-reconcile.
+# Runs tooling/grid-counts/counts.py --check, which recomputes every section-4
+# count directly from the filesystem (concerns, rules by layer, threat catalogs,
+# profiles, mappings, design-pattern catalogs, test templates) and compares them
+# to the numbers committed in docs/MASTER-GRID.md.
+#
+# This is the same generated-inventory-plus-drift-check idiom as 00-gate-inventory:
+# because the counts are recomputed rather than trusted, the authoritative index
+# cannot silently fall behind the substrate it indexes (the failure that produced
+# the L2 130-vs-131 and design-pattern 4-vs-9 drift).
+#
+# Only runs when a commit touches a section-4 count source (concern catalogs,
+# threat/design-pattern catalogs, profiles, mappings) or MASTER-GRID itself, so
+# it is
+# a no-op on unrelated commits. Report-only by default: surfaces drift and exits 0.
+# MASTER_GRID_COUNTS_STRICT=1 makes drift block. SKIP_MASTER_GRID_COUNTS=1 bypasses.
+# Graceful no-op when the tool is absent (an unconfigured clone is never broken).
+
+[ "$SKIP_MASTER_GRID_COUNTS" = "1" ] && { echo "master-grid-counts: skipped (SKIP_MASTER_GRID_COUNTS=1)."; exit 0; }
+
+REPO_ROOT=$(git rev-parse --show-toplevel 2>/dev/null) || exit 0
+cd "$REPO_ROOT" || exit 0
+
+TOOL=governance-commons/tooling/grid-counts/counts.py
+[ -f "$TOOL" ] || { echo "master-grid-counts: $TOOL absent; skipped."; exit 0; }
+
+# Only relevant when concern catalogs or the index are staged.
+TOUCHED=$(git diff --cached --name-only --diff-filter=AM \
+  | grep -E '^governance-commons/catalogs/concerns/|^governance-commons/catalogs/threats/|^governance-commons/catalogs/design-patterns/|^governance-commons/profiles/|^governance-commons/mappings/|^governance-commons/docs/MASTER-GRID\.md$')
+if [ -z "$TOUCHED" ]; then
+  echo "master-grid-counts: no staged count sources or MASTER-GRID; nothing to check."
+  exit 0
+fi
+
+if [ "$MASTER_GRID_COUNTS_STRICT" = "1" ]; then
+  python3 "$TOOL" --check --strict
+  RC=$?
+  if [ "$RC" != "0" ]; then
+    echo "master-grid-counts: STRICT - index drift blocks the commit (MASTER_GRID_COUNTS_STRICT=1)."
+    echo "         Regenerate section 4 with: python3 $TOOL   (then update docs/MASTER-GRID.md)"
+    exit 1
+  fi
+else
+  python3 "$TOOL" --check
+  echo "master-grid-counts: report-only - drift above (if any) is not blocking (set MASTER_GRID_COUNTS_STRICT=1 to enforce)."
+fi
+exit 0

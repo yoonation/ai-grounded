@@ -1,0 +1,39 @@
+id: agentic-systems.agent-autonomy-policy
+name: The agent has a recorded authorization and autonomy policy
+layer: judgmental
+characteristic: safety
+severity: high
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-06-03'
+  entered_stable: '2026-06-04'
+  authored_by: Myoung Hong
+sources:
+- title: OWASP Agentic Security Initiative, agentic threats and mitigations (defining
+    agent authority and autonomy bounds, referenced as a concept)
+  url: https://genai.owasp.org/resource/agentic-ai-threats-and-mitigations/
+- title: NIST AI Risk Management Framework (the GOVERN function, policy for an AI system's
+    authority and use, referenced as a concept)
+  url: https://www.nist.gov/itl/ai-risk-management-framework
+applies_to:
+  language: any
+  framework: any
+  environment: any
+references: []
+statement: The agent has a recorded authorization and autonomy policy ADR, discoverable
+  from its documentation and current relative to the last significant capability change,
+  setting the agent's purpose and authorized tasks, the authority it is granted, the trust
+  boundary it operates within, the degree of autonomy it has (bounded by the agentic-systems.human-action-gating-policy
+  gating policy), and the actions it must not take. The local tool-use, bounds, gating,
+  and delegation choices cohere with the policy. It cross-references the gating, multi-agent-trust,
+  and tool-and-skill-trust decisions and is the agent-side counterpart to the responsible-ai
+  policy.
+rationale: 'An agent fails as a pile of locally reasonable capability choices that do
+  not cohere: tools added one at a time, autonomy extended for convenience, a trust boundary
+  nobody drew, until the agent can do far more than anyone decided it should. The policy
+  ADR is where the purpose, the authority, the trust boundary, and the autonomy bounds
+  are made explicit and owned, and it is the standard the conformance rules check against.
+  The substrate requires it recorded and complete, not long; a narrow agent''s policy
+  is short, but written down and updatable rather than rediscovered after an incident.
+  It is the agent-side anchor parallel to the responsible-ai policy for the model.'

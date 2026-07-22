@@ -1,0 +1,39 @@
+id: agentic-systems.agent-action-audit-record
+name: Every agent action or tool-invocation path attaches an audit record
+layer: semantic
+characteristic: safety
+severity: medium
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-06-03'
+  entered_stable: '2026-06-04'
+  authored_by: Myoung Hong
+sources:
+- title: OWASP Agentic Security Initiative, agentic threats and mitigations (traceability
+    and accountability of agent actions, referenced as a concept)
+  url: https://genai.owasp.org/resource/agentic-ai-threats-and-mitigations/
+- title: NIST AI Risk Management Framework (the MANAGE function, tracking and documenting
+    AI system actions, referenced as a concept)
+  url: https://www.nist.gov/itl/ai-risk-management-framework
+applies_to:
+  language: any
+  framework: any
+  environment: any
+references: []
+statement: Every agent action or tool-invocation path attaches an audit record capturing
+  the action taken, so that what the agent did can be reconstructed. The rule applies
+  to the action-dispatch and tool-invocation paths through which the agent acts; read-only
+  introspection with no side effect may be exempted by marker. The presence of an audit
+  record on the action path is the finding; whether the record is sufficient to reconstruct
+  the action, and how it is written, retained, and redacted, are assessed in review and
+  owned by logging (agentic-systems.tool-use-authorization context and the logging concern).
+rationale: 'Accountability for an agent''s actions is a function of a recorded trail,
+  so an action path that records nothing is one the delegation, gating, and trust rules
+  cannot lean on after an incident. The dominant first failure is not an incomplete record
+  but no record: an agent wired to call tools with no audit hook on the dispatch path.
+  The substrate makes the presence of an audit record a mechanical floor because the absence
+  is statically visible and almost always an oversight, while the sufficiency of the record
+  is a judgment shared with logging. The rule is deliberately modest about what it proves
+  (a record is attached, not that it is complete) and defers the logging mechanism, retention,
+  and redaction to the logging concern.'

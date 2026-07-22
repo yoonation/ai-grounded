@@ -1,0 +1,53 @@
+#!/bin/sh
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Myoung Hong
+#
+# gate-meta:
+#   order: 85
+#   name: staleness
+#   posture: report-only
+#   skip: SKIP_STALENESS
+#   strict: STALENESS_STRICT
+#   summary: The north-star current-objective still resolves to an active feature under specs/ or an open PROJECT-LOG item.
+# end-gate-meta
+#
+# North-star staleness gate. Chained by the .githooks/pre-commit dispatcher after
+# the reconcile gate. A north-star is loaded first on every agent run, so a
+# current-objective that no longer points at real work silently misdirects every
+# agent. This gate runs tooling/staleness/check.py, which resolves the objective
+# against the active features under specs/ and the open items in PROJECT-LOG.md.
+#
+# Fires only when the north-star, a spec, or the project log is staged (the inputs
+# that can drift the objective). In this template repo NORTH-STAR.md ships as an
+# unfilled placeholder, so the check correctly reports no active feature and this
+# gate stays advisory; it does its real work in consumer repos once the north-star
+# is filled. Report-only by default; STALENESS_STRICT=1 makes an unresolved
+# objective block; SKIP_STALENESS=1 bypasses. Stdlib python3 only, no dependency.
+set -u
+
+[ "${SKIP_STALENESS:-}" = "1" ] && { echo "staleness: skipped (SKIP_STALENESS=1)."; exit 0; }
+
+REPO_ROOT=$(git rev-parse --show-toplevel 2>/dev/null) || exit 0
+cd "$REPO_ROOT" || exit 0
+
+[ -f tooling/staleness/check.py ] || { echo "staleness: tooling/staleness/check.py absent; skipped."; exit 0; }
+
+git diff --cached --name-only --diff-filter=AM \
+  | grep -qE '^(NORTH-STAR\.md|PROJECT-LOG\.md|specs/)' || {
+  echo "staleness: north-star, specs, and project log unstaged; nothing to check."
+  exit 0
+}
+
+OUT=$(python3 tooling/staleness/check.py --text 2>/dev/null)
+printf '%s\n' "$OUT"
+
+if [ "${STALENESS_STRICT:-}" = "1" ]; then
+  if printf '%s\n' "$OUT" | grep -q 'resolves: False'; then
+    echo "staleness: STRICT - the north-star current-objective resolves to no active feature or open log item (STALENESS_STRICT=1)."
+    echo "           Update NORTH-STAR.md current-objective, or open the work it names; or bypass with SKIP_STALENESS=1 git commit ..."
+    exit 1
+  fi
+else
+  echo "staleness: report-only - a drifted objective above (if any) is not blocking (set STALENESS_STRICT=1 to enforce)."
+fi
+exit 0

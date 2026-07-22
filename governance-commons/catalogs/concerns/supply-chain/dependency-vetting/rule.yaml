@@ -1,0 +1,47 @@
+id: supply-chain.dependency-vetting
+name: New production dependencies undergo substrate-documented vetting before adoption
+  with an artifact recording the assessment outcome
+layer: semantic
+characteristic: security
+severity: high
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-23'
+  entered_stable: '2026-05-26'
+  authored_by: Myoung Hong
+sources:
+- title: OWASP ASVS v5.0.0 V14.2 (Build dependency selection discipline)
+  url: https://github.com/OWASP/ASVS/blob/v5.0.0/5.0/en/0x22-V14-Configuration.md
+- title: OWASP SCVS Software Component Verification Standard v1.0 (component vetting checklist
+    anchored in the SBOM surface)
+  url: https://owasp.org/www-project-software-component-verification-standard/
+- title: NIST SP 800-218 SSDF v1.1 PW.4 (Reuse Existing, Well-Secured Software)
+  url: https://csrc.nist.gov/pubs/sp/800/218/final
+- title: OpenSSF Scorecard (substrate-recommended automated signal for upstream-project
+    supply-chain posture)
+  url: https://github.com/ossf/scorecard
+references: []
+statement: 'Before a new dependency enters the consumer''s production surface, it undergoes
+  a substrate-documented vetting process. The vetting produces an artifact (a committed
+  markdown file, a tracker issue, an ADR, or a substrate-recommended template) recording:
+  the dependency identity (name, version pin, ecosystem); the substrate-recognized supply-chain
+  signals (maintainer activity, OpenSSF Scorecard score, last release recency, signing
+  posture, SBOM availability); the consumer''s rationale for adoption (problem solved,
+  alternatives considered, decision driver); the consumer-side audit obligations going
+  forward (audit cadence per supply-chain.critical-dependency-audit, deprecation triggers); and the approver identity
+  (who in the consumer organization signed off). The artifact format is substrate-recommended;
+  the substrate ships a template at examples/supply-chain/dependency-vetting-template.md.
+  The rule applies to production dependencies: test-only, build-tooling-only, and exploratory
+  adoptions are exempt.'
+rationale: 'Most supply-chain incidents in the past five years trace to dependencies that
+  entered the production surface without per-adoption review. The substrate''s vetting
+  discipline does not promise to catch every malicious dependency at adoption time; it
+  does guarantee an audit trail for each adoption that anchors the consumer''s incident
+  response. When an advisory drops on a dependency the consumer adopted, the vetting artifact
+  is the consumer''s documentation of why the dependency was chosen, who chose it, what
+  alternatives were considered, and what audit obligations followed. The substrate accepts
+  that vetting adds friction. The friction is the point: dependencies are not free. Each
+  adoption commits the consumer to ongoing audit burden (supply-chain.critical-dependency-audit) and incident response
+  obligation (supply-chain.vulnerability-disclosure-response). The vetting artifact makes the burden visible at adoption
+  rather than at advisory time.'

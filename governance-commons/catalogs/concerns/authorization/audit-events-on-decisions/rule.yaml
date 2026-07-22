@@ -1,0 +1,52 @@
+id: authorization.audit-events-on-decisions
+name: Authorization decisions emit structured audit events including principal, resource,
+  action, decision, and timestamp; deny events are captured at security-monitoring severity
+layer: semantic
+characteristic: security
+severity: high
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-22'
+  entered_stable: '2026-05-26'
+  authored_by: Myoung Hong
+sources:
+- title: OWASP ASVS v5.0.0 V8.6.1 (Authorization decisions logged with sufficient detail
+    for forensic analysis)
+  url: https://github.com/OWASP/ASVS/blob/v5.0.0/5.0/en/0x17-V8-Authorization.md
+- title: NIST SP 800-53 AU-2 Event Logging and AU-3 Content of Audit Records
+  url: https://csrc.nist.gov/projects/cprt/catalog#/cprt/framework/version/SP_800_53_5_1_1/home
+- title: CWE-778 Insufficient Logging
+  url: https://cwe.mitre.org/data/definitions/778.html
+cwe:
+- CWE-778
+applies_to:
+  language: any
+  framework: any
+  environment: any-with-authorization
+references: []
+statement: 'Authorization decisions (both allow and deny) emit structured audit events.
+  The event content includes: principal identity (identifier; substrate-recommended: subject
+  identifier from authoritative session, not from request fields), resource identifier
+  (the specific object or resource class on which the decision was made), action attempted
+  (read, write, delete, or application-specific verb), decision (allow or deny), and timestamp.
+  Deny events are emitted at a severity sufficient for security monitoring (substrate-recommended:
+  WARN or ERROR per logging.severity-levels severity assignment). Allow events are emitted at lower
+  severity (INFO substrate-recommended) for completeness. The structural properties of
+  the events (structured format, sensitive-data exclusion, retention) inherit from the
+  logging concern''s rules (logging.structured-format, logging.no-sensitive-data-in-logs, logging.retention-policy).'
+rationale: 'Post-incident investigation of access-control failures requires the audit
+  trail. The investigator''s questions are uniform across incidents: who accessed this
+  resource, when, with what authorization decision, and were there denied attempts before
+  the eventual allow? Authorization audit events answer all of these directly. The events''
+  absence means investigations rely on inference from application logs and database access
+  patterns, which is slow and incomplete. Deny events at security-monitoring severity
+  surface anomalous patterns: a sudden spike of denied attempts on the same resource indicates
+  an attempted enumeration; denied attempts from a single principal across many resources
+  indicate either an over-permissive role being trimmed or a compromised principal probing
+  access. Security monitoring (SIEM, application security platform) consumes the deny
+  events and alerts on patterns. The substrate cross-references logging rules rather than
+  restating them. The audit events are log events; logging.structured-format structured format applies;
+  logging.no-sensitive-data-in-logs sensitive-data exclusion applies; logging.retention-policy retention applies. The authorization
+  concern adds the authorization-specific requirements (which events, which fields, which
+  severity) without duplicating the logging-concern rules.'

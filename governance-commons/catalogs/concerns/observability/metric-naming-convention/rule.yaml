@@ -1,0 +1,46 @@
+id: observability.metric-naming-convention
+name: Metric names follow a consistent naming convention (lowercase snake_case, semantic
+  suffix, no high-cardinality embedding in name) appropriate to the consumer's metric
+  backend
+layer: mechanical
+characteristic: maintainability
+severity: medium
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-21'
+  entered_stable: '2026-05-22'
+  authored_by: Myoung Hong
+sources:
+- title: Prometheus Metric and Label Naming Best Practices (substrate default convention
+    base)
+  url: https://prometheus.io/docs/practices/naming/
+- title: 'OpenTelemetry Semantic Conventions: General Metrics (instrument naming conventions)'
+  url: https://opentelemetry.io/docs/specs/semconv/general/metrics/
+- title: 'OpenTelemetry Specification: Instrument Naming Rule'
+  url: https://opentelemetry.io/docs/specs/otel/metrics/api/#instrument-naming-rule
+applies_to:
+  language: any
+  framework: any
+  environment: any-production
+references: []
+statement: 'Metric registration calls use names that match the substrate''s default naming
+  convention: lowercase snake_case characters only; a measurement-semantic suffix indicating
+  the unit and aggregation kind (_total for monotonic counters, _seconds for duration
+  histograms, _bytes for size measurements, _ratio for unit-bounded ratios, _count for
+  monotonic event counters where _total is inappropriate); no customer-identifier or other
+  high-cardinality value embedded in the metric name (those are label keys, governed by
+  observability.cardinality-discipline). The convention is the substrate default; consumers may select an alternative
+  consistent convention through profile tailoring and the binding''s rule-format-override
+  hook.'
+rationale: Inconsistent metric naming defeats cross-service discovery. An operator investigating
+  an incident searches metrics by name fragment; finding api_request_total in service
+  A but APIRequestsCount in service B and request_count in service C forces the operator
+  to learn each service's convention instead of relying on naming as a navigation tool.
+  Stored queries (PromQL, Datadog queries) that aggregate across services break when names
+  diverge. Dashboards that rely on naming patterns to fill rows automatically fail silently.
+  The Prometheus convention is the substrate default because it is the most widely adopted,
+  has explicit guidance from the Prometheus project, and aligns with OpenTelemetry semantic
+  conventions (which themselves reference Prometheus practice). Consumers using a different
+  metric backend may inherit a different convention through profile tailoring; substrate
+  provides the regex hook for the binding to accept the consumer's alternative.

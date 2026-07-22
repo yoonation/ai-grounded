@@ -1,0 +1,41 @@
+id: monitoring-alerting.silence-carries-expiry
+name: No alert silence, mute, or inhibition is open-ended; every suppression carries an
+  explicit expiry
+layer: mechanical
+characteristic: reliability
+severity: medium
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-06-03'
+  entered_stable: '2026-06-04'
+  authored_by: Myoung Hong
+sources:
+- title: Prometheus Alertmanager (silences and inhibition, the model of a time-bounded
+    suppression, referenced as a concept)
+  url: https://prometheus.io/docs/alerting/latest/alertmanager/
+- title: Google SRE Workbook Alerting on SLOs (suppression is a temporary operational
+    tool, not a permanent state, referenced as a concept)
+  url: https://sre.google/workbook/alerting-on-slos/
+applies_to:
+  language: any
+  framework: any
+  environment: any
+references: []
+statement: 'Every alert silence, mute, or inhibition recorded in tracked alerting configuration
+  carries an explicit expiry: a bounded window after which the suppression lapses and
+  the condition is re-evaluated. A genuinely permanent suppression is expressed as a disabled
+  alert rule with a documented rationale, not as an unbounded silence. The rule operates
+  on suppression entries in config. The presence of a suppression with no expiry is the
+  finding; whether a suppression should exist at all, and whether runtime UI silences
+  are swept, are the monitoring-alerting.alert-lifecycle lifecycle review.'
+rationale: 'Suppression is a temporary operational tool: it stops the noise from a known
+  condition while it is being worked, and then it should lapse so the alert is live again.
+  An open-ended silence inverts that, turning a temporary mute into a permanent blind
+  spot that no one remembers to lift. The substrate makes the presence of an expiry a
+  mechanical floor because the absence is statically visible in config and is almost always
+  an oversight under incident pressure rather than a deliberate permanent decision. The
+  rule is modest about what it proves: that a suppression will lapse, not that it should
+  exist, which is the lifecycle judgment monitoring-alerting.alert-lifecycle owns. Where a permanent suppression
+  really is intended, the honest expression is a disabled rule with a rationale, which
+  is the observability.alerting-discipline remediation for an alert no one acts on.'

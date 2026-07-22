@@ -1,0 +1,42 @@
+id: configuration-management.no-swallowing-default
+name: A required configuration value is read without a swallowing default that lets the
+  workload start misconfigured
+layer: mechanical
+characteristic: flexibility
+severity: medium
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-06-04'
+  entered_stable: '2026-06-06'
+  authored_by: Myoung Hong
+sources:
+- title: 'The Twelve-Factor App, Factor III (Config): configuration is read from the environment;
+    a missing required value is a deploy-time error, not a silently defaulted runtime
+    value'
+  url: https://12factor.net/config
+- title: 'OWASP Top 10 A05:2021 Security Misconfiguration: insecure default initialization
+    of configuration is a misconfiguration class'
+  url: https://owasp.org/Top10/A05_2021-Security_Misconfiguration/
+cwe:
+- CWE-1188
+applies_to:
+  language: any
+  framework: any
+  environment: any
+references: []
+statement: 'A read of a required configuration value does not supply a fallback that silently
+  substitutes a placeholder when the value is absent. The read either returns the configured
+  value or surfaces the absence as a failure: it raises, it returns a sentinel that the
+  startup validation of configuration-management.startup-validation treats as missing, or it is routed through a required
+  accessor that the configuration module defines to fail on absence. Optional configuration
+  values may and should carry deliberate, documented defaults; this rule applies only
+  to values that are required for the workload to function correctly.'
+rationale: The harm in a swallowing default is that it manufactures a plausible-looking
+  value out of a missing one. An empty database host is not a database host; a zero timeout
+  is not a timeout; a placeholder base URL is not an endpoint. Each lets the process initialize
+  and pass a shallow health check, then fail at the first real use, by which point the
+  signal is a runtime error far from the configuration mistake. The fail-fast alternative,
+  surfacing the absence at the read or at startup validation, turns a production incident
+  into a deploy-time error message that names the missing key. The rule is mechanical
+  because the swallowing-default shape on a required read is a recognizable source pattern.

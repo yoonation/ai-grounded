@@ -1,0 +1,31 @@
+id: documentation.public-api-documented
+name: Every public or exported API surface carries a doc comment
+layer: mechanical
+characteristic: interaction-capability
+severity: medium
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-06-05'
+  entered_stable: '2026-06-06'
+  authored_by: Myoung Hong
+sources:
+- title: Diataxis documentation framework, on reference documentation that describes the
+    public surface of a system.
+  url: https://diataxis.fr/
+applies_to:
+  language: any
+  framework: any
+  environment: any
+references: []
+statement: Every public or exported API surface in first-party code (an exported function,
+  method, class, type, module, or package, per the language's visibility rules and the
+  consumer's public-surface definition) MUST carry a doc comment. An exported symbol with
+  no doc comment is a violation.
+rationale: 'The public surface is the contract a codebase offers its consumers, and a
+  contract with no description forces every consumer to reverse-engineer it from the implementation.
+  Requiring a doc comment at the point of definition makes the contract self-describing,
+  keeps the description next to the code so it is more likely to stay current, and gives
+  the accuracy rule a target to verify. The rule deliberately targets only the public
+  surface: internal helpers are not in scope, because documenting everything indiscriminately
+  produces noise that degrades rather than aids understanding.'

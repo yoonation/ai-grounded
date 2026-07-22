@@ -1,0 +1,3 @@
+binding_status: capability-bound
+rule: infrastructure-misconfiguration.iac-sources-version-pinned
+gate: dep-pinning

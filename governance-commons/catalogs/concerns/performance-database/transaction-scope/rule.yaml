@@ -1,0 +1,43 @@
+id: performance-database.transaction-scope
+name: 'Database transactions are kept short and narrow: they perform no network or external
+  I/O, hold no user think-time, and use the lowest isolation level sufficient for correctness'
+layer: semantic
+characteristic: performance-efficiency
+severity: high
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-31'
+  entered_stable: '2026-06-01'
+  authored_by: Myoung Hong
+sources:
+- title: Postgres transaction isolation levels (choosing the lowest level sufficient for
+    correctness)
+  url: https://www.postgresql.org/docs/current/transaction-iso.html
+- title: Postgres explicit locking and lock duration (locks are held until the transaction
+    ends)
+  url: https://www.postgresql.org/docs/current/explicit-locking.html
+applies_to:
+  language: any
+  framework: any
+  environment: any
+references: []
+statement: Transactions enclose only the database work that must be atomic, and nothing
+  else. They do not span calls to external systems (HTTP requests, message publishes,
+  third-party APIs), do not wait on user input or other think-time, and do not perform
+  expensive in-process computation that could be done outside the transaction. The isolation
+  level is the lowest that preserves the operation's correctness, escalated deliberately
+  only where a specific anomaly (a lost update, a phantom read) would otherwise occur.
+  Where stronger guarantees are needed under contention, the review considers optimistic
+  concurrency (a version column) before a longer or stricter transaction.
+rationale: 'The duration a transaction is open is the duration its locks are held and
+  its connection is occupied, and both are shared, contended resources. A long transaction
+  does not slow only itself; it slows everything that needs the rows it holds or the connection
+  it occupies. Wrapping an external call in a transaction is the acute form: the database
+  now holds locks for as long as a remote system takes to respond, which under that system''s
+  slow path can be seconds, and a deadlock or pool exhaustion can follow. The remedy is
+  almost always to restructure so the external effect happens outside the transaction
+  (publish an event after commit, or use an outbox), keeping the transaction to the local
+  writes that must be atomic. Isolation level is the second axis: stronger isolation buys
+  correctness at the cost of more aborts and contention, so the discipline is to take
+  the least that is correct.'

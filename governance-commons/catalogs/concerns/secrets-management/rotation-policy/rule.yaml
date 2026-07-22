@@ -1,0 +1,45 @@
+id: secrets-management.rotation-policy
+name: Secrets have a defined rotation policy and are rotated on a documented schedule
+  and on compromise indicators
+layer: semantic
+characteristic: security
+severity: high
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-20'
+  entered_stable: '2026-05-22'
+  authored_by: Myoung Hong
+sources:
+- title: OWASP Secrets Management Cheat Sheet (rotation section)
+  url: https://cheatsheetseries.owasp.org/cheatsheets/Secrets_Management_Cheat_Sheet.html
+- title: OWASP ASVS v5.0.0 V13 Configuration (secret lifecycle including rotation expectations)
+  url: https://github.com/OWASP/ASVS/blob/v5.0.0/5.0/en/0x22-V13-Configuration.md
+- title: NIST SP 800-57 Part 1 Rev. 5 (cryptoperiod recommendations; key-lifecycle context)
+  url: https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-57pt1r5.pdf
+cwe:
+- CWE-798
+- CWE-1391
+applies_to:
+  language: any
+  framework: any
+  environment: any-handling-secrets
+references: []
+statement: 'Every secret managed by the application has a documented rotation policy stating:
+  the rotation interval; whether rotation is automatic or manual; the owner responsible
+  for executing manual rotation; the runbook reference for manual rotation; the response
+  procedure when a compromise indicator triggers off-schedule rotation. Secrets that the
+  platform supports for automatic rotation (dynamic database credentials, IAM access keys,
+  cloud-managed certificates) are configured for automatic rotation. Secrets that require
+  coordination with a third party (vendor API keys, partner-issued credentials) have a
+  manual rotation runbook and a calendar-tracked schedule.'
+rationale: A secret that is never rotated remains exploitable indefinitely after any past
+  disclosure. Disclosure events are not always detected, and a static secret outlives
+  the disclosure-detection window. Periodic rotation bounds the exploitable window regardless
+  of detection efficacy; emergency rotation on indicators caps the window when detection
+  does occur. The substrate distinguishes scheduled rotation from compromise rotation
+  because they operate on different cadences and require different automation. Scheduled
+  rotation runs on calendar (e.g., 90 days for long-lived API keys, 24 hours for dynamic
+  database credentials, on session for workload identity tokens). Compromise rotation
+  runs on indicator (secret scanner finding, security alert, employee separation, vendor
+  breach disclosure) within hours.

@@ -1,0 +1,47 @@
+id: authorization.no-client-side-only-authz
+name: Privileged actions are not authorized only in client code; server-side enforcement
+  is present and observable
+layer: semantic
+characteristic: security
+severity: high
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-22'
+  entered_stable: '2026-05-26'
+  authored_by: Myoung Hong
+sources:
+- title: OWASP ASVS v5.0.0 V8.1.4 (Authorization controls fail securely and cannot be
+    bypassed by manipulating client-side state)
+  url: https://github.com/OWASP/ASVS/blob/v5.0.0/5.0/en/0x17-V8-Authorization.md
+- title: OWASP Top 10 2021 A01:2021 Broken Access Control (client-side enforcement examples)
+  url: https://owasp.org/Top10/A01_2021-Broken_Access_Control/
+- title: CWE-602 Client-Side Enforcement of Server-Side Security
+  url: https://cwe.mitre.org/data/definitions/602.html
+cwe:
+- CWE-602
+- CWE-285
+applies_to:
+  language: any
+  framework: client-server-architectures
+  environment: web-applications-and-mobile-applications
+references: []
+statement: Privileged actions (state-mutating operations, sensitive-data reads, role-changing
+  operations, administrative operations) are not authorized only in client code. Client-side
+  authorization mechanisms (JavaScript role-conditional UI hiding, mobile-app view-controller
+  branching by role, single-page-app route guards, attribute-driven element visibility)
+  are acceptable as UX hints but never as the only enforcement layer. The server-side
+  handler for the same action independently enforces the same authorization decision;
+  the server-side check does not trust client-supplied role assertions, client-supplied
+  permission claims, or client-supplied authorization tokens that have not been validated
+  against an authoritative source.
+rationale: Client code is fully under attacker control. Browser developer tools allow
+  runtime modification of any JavaScript variable, override of any conditional, and arbitrary
+  fetch invocation. Mobile app binaries are trivially reverse-engineered and modified.
+  API calls may be issued directly from curl, Postman, or custom scripts that never load
+  the client UI at all. Any authorization decision visible only in client code is bypassed
+  by the most basic penetration-test techniques. The pattern's frequency in production
+  systems comes from developer assumption that hiding the UI hides the capability. Hiding
+  the UI hides the discovery path for legitimate users; it does not prevent exploitation
+  by attackers. The substrate's stance is that client-side hiding is acceptable as UX
+  (so users don't see disabled buttons) but server-side enforcement is mandatory.

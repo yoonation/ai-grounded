@@ -1,0 +1,366 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Myoung Hong
+
+
+# Code smells
+# Surface indications that usually correspond to a deeper design problem.
+# A smell is not a bug and not always wrong; it is a prompt to look closer
+# and, often, to refactor. Grouped using the common five-family taxonomy
+# (bloaters, object-orientation abusers, change preventers, dispensables,
+# couplers). Each entry names the smell, why it tends to hurt, and the
+# refactorings that usually address it. Descriptions are substrate-original
+# paraphrase of widely-taught concepts; no source text is reproduced.
+# Pairs naturally with solid.yaml and gang-of-four.yaml: smells are what an
+# agent detects during review, the refactorings and patterns are the fix.
+
+metadata:
+  catalog_id: code-smells
+  catalog_name: Code Smells
+  schema_version: 1.0.0
+  category_system: bloaters | object-orientation abusers | change preventers | dispensables | couplers
+  upstream_source: https://en.wikipedia.org/wiki/Code_smell
+  last_reviewed: 2026-06-14
+  next_review_due: 2027-06-14
+  maintainer: <set-during-init>
+  review_protocol: governance-commons/MAINTENANCE.md
+
+patterns:
+
+  # --- Bloaters: code that has grown too large to work with ---
+
+  - id: SMELL-LONG-METHOD
+    name: Long Method
+    category: bloaters
+    smell: >
+      A method or function that has grown long enough that you must read all
+      of it to understand any of it.
+    why_it_hurts: >
+      Long methods bury intent, mix levels of abstraction, and are hard to
+      name, test, and reuse; they are the most common home of duplicated
+      logic.
+    refactorings: >
+      Extract Method to name coherent fragments; Replace Temp with Query;
+      Introduce Parameter Object; Decompose Conditional. Favor many small,
+      well-named methods over one narrated procedure.
+
+  - id: SMELL-LARGE-CLASS
+    name: Large Class
+    category: bloaters
+    smell: >
+      A class trying to do too much, signalled by too many fields, methods,
+      or responsibilities.
+    why_it_hurts: >
+      Violates single responsibility, concentrates change, and resists reuse
+      and testing.
+    refactorings: >
+      Extract Class along a cohesive subset of fields and methods; Extract
+      Subclass or Extract Interface where behavior varies. See SOLID-SRP.
+
+  - id: SMELL-PRIMITIVE-OBSESSION
+    name: Primitive Obsession
+    category: bloaters
+    smell: >
+      Using primitives (strings, ints, maps) to represent domain concepts
+      that deserve their own type (money, email, date range).
+    why_it_hurts: >
+      Validation and behavior scatter across the codebase, and invalid states
+      become representable.
+    refactorings: >
+      Replace Data Value with Object; Replace Type Code with Class or
+      Subclasses; introduce small value objects that own their invariants.
+
+  - id: SMELL-LONG-PARAMETER-LIST
+    name: Long Parameter List
+    category: bloaters
+    smell: >
+      A method that takes so many parameters that callers struggle to get the
+      order and meaning right.
+    why_it_hurts: >
+      Hard to read, easy to misorder, and often a sign that related data
+      should travel together.
+    refactorings: >
+      Introduce Parameter Object; Preserve Whole Object; Replace Parameter
+      with Method Call where a value is derivable.
+
+  - id: SMELL-DATA-CLUMPS
+    name: Data Clumps
+    category: bloaters
+    smell: >
+      The same group of fields or parameters appearing together in many
+      places (for example, x and y, or start and end).
+    why_it_hurts: >
+      Repetition of the grouping and missed behavior that belongs on the
+      group as a whole.
+    refactorings: >
+      Extract Class for the clump; Introduce Parameter Object; move behavior
+      onto the new type.
+
+  # --- Object-orientation abusers: incomplete or incorrect use of OO ---
+
+  - id: SMELL-SWITCH-STATEMENTS
+    name: Switch Statements (Type-Based Conditionals)
+    category: object-orientation abusers
+    smell: >
+      A switch or long if-else on a type code that recurs in several places.
+    why_it_hurts: >
+      Each new case forces edits in every copy of the conditional, the
+      opposite of open/closed.
+    refactorings: >
+      Replace Conditional with Polymorphism; Replace Type Code with
+      Subclasses or with State/Strategy. See SOLID-OCP and GOF-STRATEGY.
+
+  - id: SMELL-TEMPORARY-FIELD
+    name: Temporary Field
+    category: object-orientation abusers
+    smell: >
+      A field set only in certain circumstances and empty or meaningless the
+      rest of the time.
+    why_it_hurts: >
+      Readers cannot tell when the field is valid; the object carries hidden
+      modes.
+    refactorings: >
+      Extract Class for the field and its associated logic; Introduce Null
+      Object or a dedicated state type.
+
+  - id: SMELL-REFUSED-BEQUEST
+    name: Refused Bequest
+    category: object-orientation abusers
+    smell: >
+      A subclass inherits methods or data it does not want or use.
+    why_it_hurts: >
+      Signals an inheritance relationship that is not really an is-a, often
+      breaking substitutability.
+    refactorings: >
+      Replace Inheritance with Delegation; push the unwanted members down or
+      restructure the hierarchy. See SOLID-LSP.
+
+  - id: SMELL-ALTERNATIVE-CLASSES
+    name: Alternative Classes with Different Interfaces
+    category: object-orientation abusers
+    smell: >
+      Two classes do similar things but expose different method names and
+      shapes.
+    why_it_hurts: >
+      Prevents interchangeable use and hides a missing shared abstraction.
+    refactorings: >
+      Rename Method and align signatures; Extract Superclass or Extract
+      Interface; consider GOF-ADAPTER if you cannot change one side.
+
+  # --- Change preventers: one change forces many others ---
+
+  - id: SMELL-DIVERGENT-CHANGE
+    name: Divergent Change
+    category: change preventers
+    smell: >
+      One class is changed for many different reasons (a new database, a new
+      report, a new rule all touch the same class).
+    why_it_hurts: >
+      The class has too many responsibilities; every kind of change risks it.
+    refactorings: >
+      Extract Class to split the axes of change so each class has one reason
+      to change. See SOLID-SRP.
+
+  - id: SMELL-SHOTGUN-SURGERY
+    name: Shotgun Surgery
+    category: change preventers
+    smell: >
+      A single conceptual change forces small edits across many classes.
+    why_it_hurts: >
+      The responsibility is smeared across the codebase; changes are easy to
+      miss.
+    refactorings: >
+      Move Method and Move Field to gather the scattered behavior; Inline
+      Class to consolidate. The inverse problem of Divergent Change.
+
+  - id: SMELL-PARALLEL-INHERITANCE
+    name: Parallel Inheritance Hierarchies
+    category: change preventers
+    smell: >
+      Every time you add a subclass to one hierarchy you must add one to
+      another.
+    why_it_hurts: >
+      The two hierarchies are coupled and grow in lockstep.
+    refactorings: >
+      Move Method and Move Field to make one hierarchy refer to the other,
+      then collapse the redundant one.
+
+  # --- Dispensables: things whose removal makes code cleaner ---
+
+  - id: SMELL-DUPLICATE-CODE
+    name: Duplicate Code
+    category: dispensables
+    smell: >
+      The same or near-identical code structure in more than one place.
+    why_it_hurts: >
+      Changes must be made in every copy; copies drift apart and bugs get
+      fixed unevenly.
+    refactorings: >
+      Extract Method and pull up; Extract Class or Extract Superclass; Form
+      Template Method for similar-but-not-identical sequences. Balance against
+      premature abstraction (see SMELL-SPECULATIVE-GENERALITY).
+
+  - id: SMELL-LAZY-CLASS
+    name: Lazy Class
+    category: dispensables
+    smell: >
+      A class that no longer does enough to justify its existence.
+    why_it_hurts: >
+      Every class costs understanding and navigation; one that earns nothing
+      is pure overhead.
+    refactorings: >
+      Inline Class into its caller; Collapse Hierarchy if it is a needless
+      subclass.
+
+  - id: SMELL-DATA-CLASS
+    name: Data Class
+    category: dispensables
+    smell: >
+      A class that is only fields and accessors, with the behavior that uses
+      them living elsewhere.
+    why_it_hurts: >
+      Behavior and the data it operates on are separated, a common root of
+      Feature Envy.
+    refactorings: >
+      Move Method to bring behavior to the data; Encapsulate Field and
+      Encapsulate Collection so the class owns its invariants.
+
+  - id: SMELL-DEAD-CODE
+    name: Dead Code
+    category: dispensables
+    smell: >
+      Code that is never executed: unreachable branches, unused variables,
+      methods no one calls.
+    why_it_hurts: >
+      Adds reading cost and false signal, and obscures what actually runs.
+    refactorings: >
+      Delete it. Version control is the archive; keeping dead code "just in
+      case" is the anti-pattern.
+
+  - id: SMELL-SPECULATIVE-GENERALITY
+    name: Speculative Generality
+    category: dispensables
+    smell: >
+      Hooks, abstract classes, and parameters added for a future that has not
+      arrived ("we might need it someday").
+    why_it_hurts: >
+      Carries complexity with no current payoff and often guesses the future
+      wrong.
+    refactorings: >
+      Collapse Hierarchy; Inline Class; Remove Parameter. Add the seam when
+      the second real case appears, not before. See SOLID-OCP (avoid_when).
+
+  - id: SMELL-COMMENTS-AS-DEODORANT
+    name: Comments as Deodorant
+    category: dispensables
+    smell: >
+      Comments used to explain code that is confusing because it is badly
+      structured.
+    why_it_hurts: >
+      The comment masks rather than fixes the underlying smell, and drifts out
+      of sync with the code.
+    refactorings: >
+      Extract Method with an intention-revealing name; Rename to make the
+      code say what the comment said. Keep comments that explain why, not
+      what.
+
+  # --- Couplers: excessive coupling between classes ---
+
+  - id: SMELL-FEATURE-ENVY
+    name: Feature Envy
+    category: couplers
+    smell: >
+      A method more interested in another class's data than its own, calling
+      many of that class's accessors.
+    why_it_hurts: >
+      Behavior lives apart from the data it needs, raising coupling and
+      lowering cohesion.
+    refactorings: >
+      Move Method to the class it envies; Extract Method then move the envious
+      fragment.
+
+  - id: SMELL-INAPPROPRIATE-INTIMACY
+    name: Inappropriate Intimacy
+    category: couplers
+    smell: >
+      Two classes that reach deep into each other's private parts.
+    why_it_hurts: >
+      Tight bidirectional coupling makes each class hard to change or test
+      alone.
+    refactorings: >
+      Move Method and Move Field to reduce the shared surface; Change
+      Bidirectional Association to Unidirectional; Extract Class for the
+      shared concern.
+
+  - id: SMELL-MESSAGE-CHAINS
+    name: Message Chains
+    category: couplers
+    smell: >
+      A client navigates a long chain of calls (a.getB().getC().getD()) to
+      reach what it needs.
+    why_it_hurts: >
+      Couples the client to the structure of the whole chain; any link change
+      breaks it.
+    refactorings: >
+      Hide Delegate so the client asks one object; Extract Method for the
+      navigation. Beware turning every chain into a Middle Man.
+
+  - id: SMELL-MIDDLE-MAN
+    name: Middle Man
+    category: couplers
+    smell: >
+      A class that does little but delegate almost everything to another.
+    why_it_hurts: >
+      Adds an indirection layer that earns nothing; the inverse risk of
+      over-applying Hide Delegate.
+    refactorings: >
+      Remove Middle Man and let clients call the real object; Inline Method
+      for the pass-through methods.
+
+  # --- Additional dispensables ---
+
+  - id: SMELL-COMMENTED-OUT-CODE
+    name: Commented-Out Code
+    category: dispensables
+    smell: >
+      Blocks of code left in the source disabled by comments rather than deleted,
+      often kept in case it is needed later.
+    why_it_hurts: >
+      It rots silently: never compiled, tested, or refactored alongside live code, so
+      it drifts out of correctness while implying it is still relevant. Readers cannot
+      tell whether it is a note, a plan, or dead weight.
+    refactorings: >
+      Delete it; version control remembers. If it captures intent worth keeping,
+      replace it with a short comment explaining why, or a tracked ticket, not the
+      disabled code itself.
+
+  - id: SMELL-ORPHANED-TODO
+    name: Ownerless TODO or FIXME
+    category: dispensables
+    smell: >
+      A TODO, FIXME, or HACK marker with no owner, no ticket reference, and no date,
+      recording an intention that nothing tracks.
+    why_it_hurts: >
+      Untracked markers accumulate into background noise everyone learns to ignore, so
+      the real ones hide among the stale ones and the work is never scheduled.
+    refactorings: >
+      Tie each marker to a tracked item (ticket id or owner), do the work now if it is
+      small, or delete the marker if it no longer matters. A marker that survives
+      review should point at something that will act on it.
+
+  - id: SMELL-REINVENTED-WHEEL
+    name: Reinventing the Standard Library
+    category: dispensables
+    smell: >
+      Hand-rolled code that duplicates a well-tested capability already provided by
+      the language standard library or an established dependency (custom date parsing,
+      custom sorting, a bespoke collection mirroring a built-in).
+    why_it_hurts: >
+      The custom version carries a permanent maintenance and security burden to
+      reproduce, usually less completely and less correctly, what a maintained
+      implementation already provides; its edge cases are the ones the standard
+      version already handles.
+    refactorings: >
+      Replace the bespoke implementation with the standard-library or established
+      dependency equivalent. Reserve a custom implementation for a genuine
+      differentiator with no acceptable off-the-shelf option (see the
+      technology-selection build-in-house stance).

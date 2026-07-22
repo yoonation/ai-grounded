@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "governance-commons/schemas/selection.schema.json",
+  "title": "L1 capability selection map",
+  "description": "Maps ecosystem to capability to a list of registry tool-ids. The single place a tool is swapped for a capability. Lists carry AND semantics: every resolved tool must pass.",
+  "type": "object",
+  "minProperties": 1,
+  "patternProperties": {
+    "^[a-z0-9][a-z0-9-]*$": {
+      "type": "object",
+      "minProperties": 1,
+      "propertyNames": {
+        "enum": ["format", "lint", "type-check", "test", "dep-vuln", "dep-pinning", "sast", "secrets", "iac-scan", "schema-validate", "license-scan", "provenance-verify"]
+      },
+      "additionalProperties": {
+        "type": "array",
+        "minItems": 1,
+        "uniqueItems": true,
+        "items": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$" }
+      }
+    }
+  },
+  "additionalProperties": false
+}

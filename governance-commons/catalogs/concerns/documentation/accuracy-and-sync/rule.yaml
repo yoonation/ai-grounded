@@ -1,0 +1,30 @@
+id: documentation.accuracy-and-sync
+name: Documentation stays accurate and in sync with the code it describes
+layer: semantic
+characteristic: interaction-capability
+severity: high
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-06-05'
+  entered_stable: '2026-06-06'
+  authored_by: Myoung Hong
+sources:
+- title: Diataxis documentation framework, on documentation that stays correct and serves
+    the reader's task.
+  url: https://diataxis.fr/
+applies_to:
+  language: any
+  framework: any
+  environment: any
+references: []
+statement: Documentation MUST be kept accurate and in sync with the code it describes.
+  A change that alters a documented contract or behavior MUST update the corresponding
+  documentation as part of the same change, and documented usage examples MUST be verified
+  to run against the current code rather than left to drift.
+rationale: Documentation decays the moment the code it describes changes and the document
+  does not. A reader cannot tell a current document from a stale one by looking, so an
+  inaccurate document is trusted and acted on, which is how stale docs cause misintegration,
+  extend incidents, and block onboarding. Treating the documentation update as part of
+  the change, and verifying examples by executing them, keeps documentation a source that
+  can be trusted rather than one that must be second-guessed.

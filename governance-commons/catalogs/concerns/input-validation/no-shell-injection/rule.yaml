@@ -1,0 +1,45 @@
+id: input-validation.no-shell-injection
+name: Shell commands constructed for execution do not interpolate values from outside
+  the application's trust boundary
+layer: mechanical
+characteristic: security
+severity: critical
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-23'
+  entered_stable: '2026-05-26'
+  authored_by: Myoung Hong
+sources:
+- title: OWASP ASVS v5.0.0 V5.3.8 (Operating system command injection prevented)
+  url: https://github.com/OWASP/ASVS/blob/v5.0.0/5.0/en/0x13-V5-Validation-Sanitization-Encoding.md
+- title: OWASP Top 10 2021 A03:2021 Injection
+  url: https://owasp.org/Top10/A03_2021-Injection/
+- title: CWE-78 Improper Neutralization of Special Elements used in an OS Command
+  url: https://cwe.mitre.org/data/definitions/78.html
+cwe:
+- CWE-78
+- CWE-77
+- CWE-94
+applies_to:
+  language: any
+  framework: any
+  environment: any-with-subprocess-execution
+references: []
+statement: Every subprocess invocation passes its command and arguments as a structured
+  argument list rather than as a single shell-interpreted string. Functions that spawn
+  a shell to interpret the command (Python's subprocess with shell=True, os.system, os.popen;
+  Node.js child_process.exec; Ruby's Kernel.system with a single string argument; Java's
+  Runtime.exec with a single string; Go's exec.Command via a shell wrapper) must not receive
+  any value from outside the application's trust boundary. The rule's preferred form is
+  to use shell-free invocation methods (Python subprocess.run with a list and shell=False;
+  Node.js child_process.execFile or spawn; Java ProcessBuilder; Go exec.Command with separate
+  arguments).
+rationale: 'The shell parses its input as a command pipeline with metacharacter interpretation
+  (semicolons separating commands, backticks performing substitution, pipes routing output,
+  redirections opening files). When user input is interpolated into a shell-interpreted
+  string, the user controls the command pipeline, not just the command''s arguments. Shell-free
+  invocation eliminates this risk structurally: the operating system''s exec syscall receives
+  a fixed argv array and never re-parses the arguments. Application-layer escaping of
+  shell metacharacters is fragile because the metacharacter set varies across shells and
+  contexts. Argument-list invocation removes the need for escaping entirely.'

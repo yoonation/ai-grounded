@@ -1,0 +1,38 @@
+id: responsible-ai.fitness-evaluation
+name: The system is evaluated for fitness for its intended use, including disaggregated
+  performance across the subgroups that matter, before deployment and on significant change
+layer: semantic
+characteristic: safety
+severity: high
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-06-02'
+  entered_stable: '2026-06-04'
+  authored_by: Myoung Hong
+sources:
+- title: EU AI Act Regulation 2024/1689 (Article 15 accuracy, robustness, and the testing
+    obligations, referenced as a concept)
+  url: https://eur-lex.europa.eu/eli/reg/2024/1689/oj
+- title: NIST AI Risk Management Framework (the MEASURE function, evaluation and disaggregated
+    performance, referenced as a concept)
+  url: https://www.nist.gov/itl/ai-risk-management-framework
+applies_to:
+  language: any
+  framework: any
+  environment: any
+references: []
+statement: The system is evaluated against acceptance criteria tied to its intended use
+  before deployment and before a significant model or data change reaches production.
+  Performance is reported disaggregated across the subgroups identified as relevant, not
+  only in aggregate, and the acceptance thresholds are met or the gaps accepted with a
+  recorded rationale. The disaggregated metrics are measured against the fairness objective
+  decided in responsible-ai.fairness-objective. The evaluation is a deployment gate, not a post-hoc report.
+rationale: Fitness is demonstrated, not assumed, and the demonstration that matters is
+  disaggregated, because an aggregate number is the average of the people the system serves
+  well and the people it fails, and it is the second group the responsible-AI concern
+  exists to protect. Making evaluation a gate before deployment and before significant
+  change is what keeps unmeasured risk out of production, and tying the criteria to the
+  intended use is what makes the evaluation about the right thing. The substrate keeps
+  this an L2 review with a test gate because the choice of criteria and subgroups is a
+  judgment while the running of the suite and the threshold check are executable.

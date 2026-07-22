@@ -1,0 +1,43 @@
+id: feature-flags.strategy-adr
+name: The feature-flags strategy is decided and recorded in an Architecture Decision Record
+layer: judgmental
+characteristic: maintainability
+severity: high
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-06-04'
+  entered_stable: '2026-06-06'
+  authored_by: Myoung Hong
+sources:
+- title: 'Martin Fowler, Feature Toggles: the toggle taxonomy and longevity model a flag
+    strategy operationalizes'
+  url: https://martinfowler.com/articles/feature-toggles.html
+- title: 'The OpenFeature specification: the vendor-neutral evaluation and evaluation-context
+    model a flag strategy can standardize on'
+  url: https://openfeature.dev/specification/
+applies_to:
+  language: any
+  framework: any
+  environment: any
+references: []
+statement: 'The consumer decides and records, in an Architecture Decision Record, its
+  feature-flags strategy. The ADR addresses, at minimum: the flag-management approach
+  (a managed provider, a self-hosted system, or an in-process mechanism, and when each
+  is used); the flag taxonomy (release, experiment, operational or kill-switch, permission)
+  and the lifecycle and expiry policy for each type; the fail-static and default-polarity
+  convention (feature-flags.fail-static-default); the evaluation-context schema, its stable targeting key, and
+  its personal-data and secret boundary (feature-flags.staged-rollout-and-context); the rollout approach (feature-flags.staged-rollout-and-context);
+  the inventory and testing cadence for operational kill switches (feature-flags.lifecycle-and-kill-switch); the change-control
+  and audit approach for flag changes; the boundary with configuration-management (static
+  configuration versus dynamic flag) and with secrets-management (no secrets in flag values
+  or context); and ownership and review cadence. The ADR follows the MADR format and is
+  reviewed against the substrate''s checklist.'
+rationale: Flags are individually trivial to add and collectively capable of making a
+  system's behavior unknowable, which is exactly the profile of a decision that needs
+  to be made once, centrally, and written down. The management approach, taxonomy, lifecycle,
+  context schema, and kill-switch discipline are choices with real trade-offs (a managed
+  provider's convenience versus its runtime dependency and data-sharing surface, aggressive
+  retirement versus rollout flexibility) that depend on the consumer's context. Recording
+  the decision lets every service inherit one coherent flag discipline and lets reviewers
+  check a flag against a written standard rather than reinventing the rules per team.

@@ -1,0 +1,40 @@
+id: configuration-management.startup-validation
+name: Configuration is validated at startup and the workload fails fast on missing or
+  invalid required configuration
+layer: semantic
+characteristic: flexibility
+severity: high
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-06-04'
+  entered_stable: '2026-06-06'
+  authored_by: Myoung Hong
+sources:
+- title: 'The Twelve-Factor App, Factor III (Config): configuration is validated at startup;
+    a missing required value is a deploy-time failure'
+  url: https://12factor.net/config
+- title: 'OWASP Application Security Verification Standard, Configuration requirements:
+    the application validates configuration and fails securely when configuration is missing
+    or invalid'
+  url: https://owasp.org/www-project-application-security-verification-standard/
+applies_to:
+  language: any
+  framework: any
+  environment: any
+references: []
+statement: 'Before the workload begins serving, it validates its configuration: every
+  required key is present, every value parses to its declared type, and values with constraints
+  (numeric ranges, enumerated choices, URL or host well-formedness, mutually-required
+  groups) satisfy them. On any failure the workload refuses to start and emits a single
+  aggregated, actionable error that names the offending keys, rather than starting and
+  failing later. The validation covers the full required set, runs in every environment,
+  and is part of the bootstrap path so it cannot be skipped in production.'
+rationale: 'The value of validating at startup is locality in time: the failure happens
+  at the moment and place the configuration is wrong, not at some later request that happens
+  to exercise the unconfigured path. Aggregating the errors matters because configuration
+  mistakes cluster (a forgotten environment file omits several keys at once), and reporting
+  them one boot at a time turns a single fix into a frustrating sequence. Validation also
+  documents the contract: the required set and its constraints, expressed as code that
+  runs, are the authoritative statement of what the workload needs, which is why configuration-management.no-swallowing-default
+  defers the definition of requiredness to this rule.'

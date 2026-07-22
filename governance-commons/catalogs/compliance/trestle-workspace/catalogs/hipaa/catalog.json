@@ -1,0 +1,335 @@
+{
+  "catalog": {
+    "uuid": "53941000-cef8-4b3b-bfea-bd56343d3927",
+    "metadata": {
+      "title": "HIPAA Security Rule - 45 CFR Part 164 Subpart C (Security Standards for Electronic Protected Health Information)",
+      "last-modified": "2026-06-28T00:00:00Z",
+      "version": "1.0",
+      "oscal-version": "1.2.1",
+      "remarks": "Hand-authored OSCAL representation of the HIPAA Security Rule, 45 CFR Part 164, Subpart C, which sets the standards for protecting electronic protected health information. Scope: the administrative, physical, and technical safeguards and the organizational and documentation requirements (Sections 164.308, 164.310, 164.312, 164.314, and 164.316), modelled one control per standard, with the implementation specifications summarised in each statement and marked required or addressable. The HIPAA Privacy Rule (Subpart E) and the Breach Notification Rule (Subpart D) are out of scope for this build-time security commons. United States federal regulations are in the public domain. The statements are faithful authored representations of each standard's requirement in original prose, normalised and not verbatim; consult the eCFR for the authoritative text. Citation: 45 CFR Part 164, Subpart C.",
+      "parties": [
+        {
+          "uuid": "42b0b365-d0eb-401b-a02c-ac423c6e1d78",
+          "type": "person",
+          "name": "Catalog Maintainer",
+          "remarks": "Set to actual maintainer name during project init."
+        }
+      ],
+      "links": [
+        {
+          "href": "https://www.ecfr.gov/current/title-45/subtitle-A/subchapter-C/part-164/subpart-C",
+          "rel": "canonical",
+          "text": "45 CFR Part 164 Subpart C - eCFR current text"
+        },
+        {
+          "href": "https://www.hhs.gov/hipaa/for-professionals/security/index.html",
+          "rel": "reference",
+          "text": "HHS HIPAA Security Rule guidance"
+        }
+      ]
+    },
+    "groups": [
+      {
+        "id": "administrative-safeguards",
+        "class": "section",
+        "title": "Section 164.308 - Administrative Safeguards",
+        "controls": [
+          {
+            "id": "sec-164.308-a-1",
+            "class": "standard",
+            "title": "Section 164.308(a)(1) - Security management process",
+            "parts": [
+              {
+                "name": "statement",
+                "prose": "Implement policies and procedures to prevent, detect, contain, and correct security violations. The required implementation specifications are a risk analysis to identify risks to the confidentiality, integrity, and availability of electronic protected health information, risk management to reduce those risks to a reasonable and appropriate level, a sanction policy for workforce members who fail to comply, and regular review of information system activity such as audit logs and access reports."
+              }
+            ]
+          },
+          {
+            "id": "sec-164.308-a-2",
+            "class": "standard",
+            "title": "Section 164.308(a)(2) - Assigned security responsibility",
+            "parts": [
+              {
+                "name": "statement",
+                "prose": "Identify the security official who is responsible for the development and implementation of the policies and procedures required by the Security Rule for the covered entity or business associate."
+              }
+            ]
+          },
+          {
+            "id": "sec-164.308-a-3",
+            "class": "standard",
+            "title": "Section 164.308(a)(3) - Workforce security",
+            "parts": [
+              {
+                "name": "statement",
+                "prose": "Implement policies and procedures to ensure that all workforce members have appropriate access to electronic protected health information and to prevent those workforce members who do not have authorization from obtaining access. Addressable specifications include authorization and supervision, a workforce clearance procedure, and termination procedures that remove access when employment ends."
+              }
+            ]
+          },
+          {
+            "id": "sec-164.308-a-4",
+            "class": "standard",
+            "title": "Section 164.308(a)(4) - Information access management",
+            "parts": [
+              {
+                "name": "statement",
+                "prose": "Implement policies and procedures for authorizing access to electronic protected health information consistent with the minimum necessary principle. This includes isolating health care clearinghouse functions where applicable, and establishing and modifying access rights to systems and applications based on role."
+              }
+            ]
+          },
+          {
+            "id": "sec-164.308-a-5",
+            "class": "standard",
+            "title": "Section 164.308(a)(5) - Security awareness and training",
+            "parts": [
+              {
+                "name": "statement",
+                "prose": "Implement a security awareness and training program for all members of the workforce, including management. Addressable specifications include periodic security reminders, protection from malicious software, monitoring of log-in attempts, and procedures for creating, changing, and safeguarding passwords."
+              }
+            ]
+          },
+          {
+            "id": "sec-164.308-a-6",
+            "class": "standard",
+            "title": "Section 164.308(a)(6) - Security incident procedures",
+            "parts": [
+              {
+                "name": "statement",
+                "prose": "Implement policies and procedures to address security incidents. The required specification is response and reporting: identify and respond to suspected or known security incidents, mitigate to the extent practicable their harmful effects, and document incidents and their outcomes."
+              }
+            ]
+          },
+          {
+            "id": "sec-164.308-a-7",
+            "class": "standard",
+            "title": "Section 164.308(a)(7) - Contingency plan",
+            "parts": [
+              {
+                "name": "statement",
+                "prose": "Establish and implement policies and procedures for responding to an emergency or other occurrence that damages systems containing electronic protected health information. Required specifications are a data backup plan, a disaster recovery plan, and an emergency mode operation plan; addressable specifications are testing and revision procedures and an analysis of the criticality of applications and data."
+              }
+            ]
+          },
+          {
+            "id": "sec-164.308-a-8",
+            "class": "standard",
+            "title": "Section 164.308(a)(8) - Evaluation",
+            "parts": [
+              {
+                "name": "statement",
+                "prose": "Perform periodic technical and nontechnical evaluations, initially based on the Security Rule standards and subsequently in response to environmental or operational changes, that establish the extent to which security policies and procedures meet the requirements of the rule."
+              }
+            ]
+          },
+          {
+            "id": "sec-164.308-b-1",
+            "class": "standard",
+            "title": "Section 164.308(b)(1) - Business associate contracts and other arrangements",
+            "parts": [
+              {
+                "name": "statement",
+                "prose": "A covered entity may permit a business associate to create, receive, maintain, or transmit electronic protected health information on its behalf only if it obtains satisfactory assurances, documented in a written contract or other arrangement, that the business associate will appropriately safeguard the information."
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "physical-safeguards",
+        "class": "section",
+        "title": "Section 164.310 - Physical Safeguards",
+        "controls": [
+          {
+            "id": "sec-164.310-a-1",
+            "class": "standard",
+            "title": "Section 164.310(a)(1) - Facility access controls",
+            "parts": [
+              {
+                "name": "statement",
+                "prose": "Implement policies and procedures to limit physical access to electronic information systems and the facilities in which they are housed, while ensuring that properly authorized access is allowed. Addressable specifications include contingency operations, a facility security plan, access control and validation procedures, and maintenance records."
+              }
+            ]
+          },
+          {
+            "id": "sec-164.310-b",
+            "class": "standard",
+            "title": "Section 164.310(b) - Workstation use",
+            "parts": [
+              {
+                "name": "statement",
+                "prose": "Implement policies and procedures that specify the proper functions to be performed, the manner in which they are performed, and the physical attributes of the surroundings of a specific workstation or class of workstation that can access electronic protected health information."
+              }
+            ]
+          },
+          {
+            "id": "sec-164.310-c",
+            "class": "standard",
+            "title": "Section 164.310(c) - Workstation security",
+            "parts": [
+              {
+                "name": "statement",
+                "prose": "Implement physical safeguards for all workstations that access electronic protected health information so that access is restricted to authorized users."
+              }
+            ]
+          },
+          {
+            "id": "sec-164.310-d-1",
+            "class": "standard",
+            "title": "Section 164.310(d)(1) - Device and media controls",
+            "parts": [
+              {
+                "name": "statement",
+                "prose": "Implement policies and procedures that govern the receipt and removal of hardware and electronic media containing electronic protected health information into and out of a facility, and the movement of these items within the facility. Required specifications are disposal and media re-use; addressable specifications are accountability tracking and data backup and storage before equipment is moved."
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "technical-safeguards",
+        "class": "section",
+        "title": "Section 164.312 - Technical Safeguards",
+        "controls": [
+          {
+            "id": "sec-164.312-a-1",
+            "class": "standard",
+            "title": "Section 164.312(a)(1) - Access control",
+            "parts": [
+              {
+                "name": "statement",
+                "prose": "Implement technical policies and procedures for electronic information systems that maintain electronic protected health information to allow access only to those persons or software programs that have been granted access rights. Required specifications are unique user identification and an emergency access procedure; addressable specifications are automatic logoff and encryption and decryption of stored information."
+              }
+            ]
+          },
+          {
+            "id": "sec-164.312-b",
+            "class": "standard",
+            "title": "Section 164.312(b) - Audit controls",
+            "parts": [
+              {
+                "name": "statement",
+                "prose": "Implement hardware, software, and procedural mechanisms that record and examine activity in information systems that contain or use electronic protected health information."
+              }
+            ]
+          },
+          {
+            "id": "sec-164.312-c-1",
+            "class": "standard",
+            "title": "Section 164.312(c)(1) - Integrity",
+            "parts": [
+              {
+                "name": "statement",
+                "prose": "Implement policies and procedures to protect electronic protected health information from improper alteration or destruction. The addressable specification is a mechanism to authenticate electronic protected health information so that unauthorized changes can be detected."
+              }
+            ]
+          },
+          {
+            "id": "sec-164.312-d",
+            "class": "standard",
+            "title": "Section 164.312(d) - Person or entity authentication",
+            "parts": [
+              {
+                "name": "statement",
+                "prose": "Implement procedures to verify that a person or entity seeking access to electronic protected health information is the one claimed."
+              }
+            ]
+          },
+          {
+            "id": "sec-164.312-e-1",
+            "class": "standard",
+            "title": "Section 164.312(e)(1) - Transmission security",
+            "parts": [
+              {
+                "name": "statement",
+                "prose": "Implement technical security measures to guard against unauthorized access to electronic protected health information that is being transmitted over an electronic communications network. Addressable specifications are integrity controls to ensure data is not improperly modified in transit and encryption of the information being transmitted."
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "organizational-requirements",
+        "class": "section",
+        "title": "Section 164.314 - Organizational Requirements",
+        "controls": [
+          {
+            "id": "sec-164.314-a-1",
+            "class": "standard",
+            "title": "Section 164.314(a)(1) - Business associate contracts or other arrangements",
+            "parts": [
+              {
+                "name": "statement",
+                "prose": "The contract or other arrangement between a covered entity and its business associate must require the business associate to comply with the applicable requirements of the Security Rule, to implement safeguards that reasonably protect electronic protected health information, and to ensure that any subcontractors that create, receive, maintain, or transmit such information on its behalf agree to the same requirements."
+              }
+            ]
+          },
+          {
+            "id": "sec-164.314-b-1",
+            "class": "standard",
+            "title": "Section 164.314(b)(1) - Requirements for group health plans",
+            "parts": [
+              {
+                "name": "statement",
+                "prose": "A group health plan must ensure that its plan documents require the plan sponsor to reasonably and appropriately safeguard the electronic protected health information that it creates, receives, maintains, or transmits on behalf of the group health plan, including the separation between the plan and the sponsor."
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "documentation-requirements",
+        "class": "section",
+        "title": "Section 164.316 - Policies and Procedures and Documentation Requirements",
+        "controls": [
+          {
+            "id": "sec-164.316-a",
+            "class": "standard",
+            "title": "Section 164.316(a) - Policies and procedures",
+            "parts": [
+              {
+                "name": "statement",
+                "prose": "Implement reasonable and appropriate policies and procedures to comply with the standards, implementation specifications, and other requirements of the Security Rule, taking into account the entity's size, complexity, capabilities, technical infrastructure, and the costs and risks involved."
+              }
+            ]
+          },
+          {
+            "id": "sec-164.316-b-1",
+            "class": "standard",
+            "title": "Section 164.316(b)(1) - Documentation",
+            "parts": [
+              {
+                "name": "statement",
+                "prose": "Maintain the policies and procedures implemented to comply with the Security Rule in written form, and maintain a written record of any action, activity, or assessment that the rule requires to be documented. Required specifications are retaining documentation for six years from creation or last effective date, making it available to those responsible for implementation, and reviewing and updating it as needed."
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "back-matter": {
+      "resources": [
+        {
+          "uuid": "4f2fffbd-da3d-41e3-9b20-5feae37519b0",
+          "title": "45 CFR Part 164 Subpart C - eCFR current text",
+          "description": "Electronic Code of Federal Regulations current version. Authoritative public-domain source.",
+          "rlinks": [
+            {
+              "href": "https://www.ecfr.gov/current/title-45/subtitle-A/subchapter-C/part-164/subpart-C"
+            }
+          ]
+        },
+        {
+          "uuid": "7f3e6ea2-034b-4a3e-aae6-caa1f0583c0d",
+          "title": "HHS HIPAA Security Rule guidance",
+          "description": "US Department of Health and Human Services guidance. Useful reference, not the regulatory text itself.",
+          "rlinks": [
+            {
+              "href": "https://www.hhs.gov/hipaa/for-professionals/security/index.html"
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

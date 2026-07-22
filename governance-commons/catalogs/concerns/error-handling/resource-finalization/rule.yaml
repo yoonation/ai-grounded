@@ -1,0 +1,47 @@
+id: error-handling.resource-finalization
+name: Resource acquisition uses language-native finalization constructs rather than bare
+  try/catch with manual cleanup
+layer: mechanical
+characteristic: reliability
+severity: high
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-24'
+  entered_stable: '2026-05-26'
+  authored_by: Myoung Hong
+sources:
+- title: OWASP ASVS v5.0.0 V7.4.3 (Resource cleanup on exception paths)
+  url: https://github.com/OWASP/ASVS/blob/v5.0.0/5.0/en/0x15-V7-Error-Logging.md
+- title: CWE-404 Improper Resource Shutdown or Release
+  url: https://cwe.mitre.org/data/definitions/404.html
+- title: CWE-460 Improper Cleanup on Thrown Exception
+  url: https://cwe.mitre.org/data/definitions/460.html
+- title: CWE-772 Missing Release of Resource after Effective Lifetime
+  url: https://cwe.mitre.org/data/definitions/772.html
+cwe:
+- CWE-404
+- CWE-460
+- CWE-772
+applies_to:
+  language: any
+  framework: any
+  environment: any
+references: []
+statement: 'Resource acquisition (file open, database connection, network socket, lock,
+  temporary file, subprocess pipe) uses the language''s native finalization construct:
+  Python with statement, Java try-with-resources, Go defer, C# using, Kotlin use, Ruby
+  ensure or block-with-cleanup, Rust Drop trait. Bare try/catch with manual cleanup in
+  catch and finally blocks is the fallback pattern, used only where the language-native
+  construct does not apply (legacy APIs that predate the construct, multi-resource acquire-release
+  where the cleanup order matters beyond LIFO).'
+rationale: 'Language-native finalization is exception-safe by construction. The runtime
+  guarantees the cleanup runs whether the body of the construct returns normally, throws,
+  or is interrupted (where the language supports interruption). Manual cleanup in catch/finally
+  blocks is exception-safe only when authored carefully: nested exceptions during cleanup,
+  cleanup-block exceptions hiding the original exception, and partial cleanup on multi-resource
+  acquisition are all common bugs in manual patterns that the language-native construct
+  eliminates. The rule operates at L1 because resource acquisition outside a language-native
+  finalization construct is locally detectable for the standard library types (file, socket,
+  connection). Custom resource wrappers that delegate to language-native constructs satisfy
+  the rule; the binding''s complementary tools cover the wrapper case.'

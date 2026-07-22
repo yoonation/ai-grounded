@@ -1,0 +1,41 @@
+id: monitoring-alerting.alert-lifecycle
+name: Alerts can be acknowledged, silenced with an expiry, and auto-resolve when the condition
+  clears, with resolution signaled to the same destination
+layer: semantic
+characteristic: reliability
+severity: medium
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-06-03'
+  entered_stable: '2026-06-04'
+  authored_by: Myoung Hong
+sources:
+- title: Prometheus Alertmanager (alert state, silences, and resolved notifications, referenced
+    as a concept)
+  url: https://prometheus.io/docs/alerting/latest/alertmanager/
+- title: Google SRE Book Chapter 6 Practical Alerting (an alert that does not clear erodes
+    trust in alerting, referenced as a concept)
+  url: https://sre.google/sre-book/practical-alerting/
+applies_to:
+  language: any
+  framework: any
+  environment: any
+references: []
+statement: 'Alerts support a lifecycle: a firing alert can be acknowledged so responders
+  do not duplicate work, can be silenced with a bounded expiry (monitoring-alerting.silence-carries-expiry), auto-resolves
+  when its underlying condition clears, and signals that resolution to the same destination
+  the firing alert reached. The rule owns these operations; it cross-references monitoring-alerting.silence-carries-expiry
+  for the expiry floor on silences and observability.alerting-discipline for the deduplication that keeps notifications
+  legible. An alert that cannot be acknowledged, that relies on open-ended silencing,
+  or that does not auto-resolve and signal resolution is the finding.'
+rationale: The lifecycle is what makes alerting trustworthy over time. Acknowledgement
+  prevents two responders from chasing the same page. Bounded silencing lets a responder
+  quiet known noise during an incident without creating the permanent blind spot monitoring-alerting.silence-carries-expiry
+  forbids. Auto-resolution and a resolved notification close the loop so a responder is
+  never left staring at a firing alert whose condition cleared an hour ago, the kind of
+  staleness that teaches a team to ignore alerts. The rule is medium severity because,
+  unlike coverage and routing, a missing lifecycle degrades the response rather than dropping
+  the incident, but it is the difference between an alerting system operators trust and
+  one they learn to tune out. It defers the expiry floor to monitoring-alerting.silence-carries-expiry and dedup to observability.alerting-discipline,
+  owning the operational lifecycle itself.

@@ -1,0 +1,39 @@
+id: infrastructure-misconfiguration.state-backend-hardening
+name: 'Terraform state and IaC backend are hardened: remote, encrypted, locked, access-restricted'
+layer: semantic
+characteristic: security
+severity: high
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-31'
+  entered_stable: '2026-06-01'
+  authored_by: Myoung Hong
+sources:
+- title: NIST SP 800-53 Rev. 5 SC-28 Protection of Information at Rest, AC-3 Access Enforcement
+  url: https://csrc.nist.gov/projects/cprt/catalog#/cprt/framework/version/SP_800_53_5_1_1/home
+cwe:
+- CWE-312
+- CWE-922
+applies_to:
+  language: terraform-pulumi
+  framework: terraform-pulumi-crossplane
+  environment: iac-with-external-state
+references: []
+statement: Terraform state is stored in a remote backend (AWS S3 with DynamoDB locking,
+  Azure Storage with blob lease locking, GCS with object versioning, HCP Terraform / Terraform
+  Enterprise managed state, Pulumi Cloud, or self-hosted HTTP backend with equivalent
+  properties). The backend is encrypted at rest (cross-references infrastructure-misconfiguration.data-resource-encryption-at-rest for the resource-level
+  rule); locking is enabled and tested; access to the backend is restricted to the principals
+  legitimately running plan and apply (the CI runner's role, the on-call substrate-author's
+  role for break-glass); versioning is enabled (S3 versioning, GCS versioning, Azure Storage
+  blob versioning) so state history is recoverable; access logging is enabled (cross-references
+  infrastructure-misconfiguration.audit-and-flow-logging-enabled); the backend resources are themselves declared in a bootstrap IaC module
+  whose own state is in the same backend or in a documented secondary backend. Local-state
+  IaC is not committed to source control. Pulumi state backends follow the same pattern
+  in the Pulumi-equivalent constructs.
+rationale: Terraform state is the IaC's authoritative record of what infrastructure exists;
+  an attacker who can modify state can inject phantom resources, alter attribute values
+  to bypass other controls, or exfiltrate credentials that exist in state attributes.
+  The substrate's L2 review confirms the backend's hardening posture; the test template
+  exercises the locking and access-restriction properties so they do not silently regress.

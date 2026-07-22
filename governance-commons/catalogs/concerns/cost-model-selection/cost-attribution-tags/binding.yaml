@@ -1,0 +1,3 @@
+binding_status: capability-bound
+rule: cost-model-selection.cost-attribution-tags
+gate: iac-scan

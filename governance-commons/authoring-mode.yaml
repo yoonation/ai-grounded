@@ -1,0 +1,4 @@
+# Lifecycle enforcement posture for the substrate.
+# solo:      in-place edits allowed, no deprecation windows, validator warns.
+# published: full Charter discipline, immutable stable ids, validator blocks.
+mode: solo

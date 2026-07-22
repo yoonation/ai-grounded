@@ -1,0 +1,43 @@
+id: configuration-management.strategy-adr
+name: The configuration-management strategy is decided and recorded in an Architecture
+  Decision Record
+layer: judgmental
+characteristic: flexibility
+severity: high
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-06-04'
+  entered_stable: '2026-06-06'
+  authored_by: Myoung Hong
+sources:
+- title: 'The Twelve-Factor App, Factor III (Config): the principles a configuration strategy
+    operationalizes'
+  url: https://12factor.net/config
+- title: 'NIST SP 800-53 Configuration Management (CM) control family, CM-2 Baseline Configuration
+    and CM-6 Configuration Settings: the decision to establish and document configuration
+    baselines'
+  url: https://csrc.nist.gov/projects/risk-management/about-rmf/configuration-management
+applies_to:
+  language: any
+  framework: any
+  environment: any
+references: []
+statement: 'The consumer decides and records, in an Architecture Decision Record, its
+  configuration-management strategy. The ADR addresses, at minimum: the configuration
+  source model (environment variables, configuration files, a configuration service, or
+  a combination, and when each is used); the layering and precedence rules across sources;
+  the validation approach and where it runs (the configuration-management.startup-validation startup gate); the environment-parity
+  policy and how it is enforced; the boundary with secrets-management (what is configuration
+  versus what is a secret reference); the static-versus-dynamic split and the boundary
+  with the feature-flags concern; the change-control and audit approach for configuration
+  changes; and ownership and review cadence. The ADR follows the MADR format and is reviewed
+  against the substrate''s checklist.'
+rationale: Configuration strategy is exactly the kind of decision that is cheap to make
+  once and expensive to discover was never made. The source model, precedence, and boundaries
+  with secrets and flags are choices with real trade-offs (operational simplicity versus
+  dynamic reconfigurability, file-based clarity versus service-based centralization) that
+  the substrate cannot make for the consumer because they depend on the consumer's deployment
+  model and risk posture. Recording the decision lets every service inherit one coherent
+  approach and lets reviewers check a service against a written standard rather than relitigating
+  the basics each time.

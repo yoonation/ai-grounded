@@ -1,0 +1,45 @@
+id: privacy.personal-data-purpose-annotation
+name: Every field or model holding personal data carries a processing-purpose and lawful-basis
+  annotation so its use is declared rather than assumed
+layer: semantic
+characteristic: security
+severity: medium
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-06-03'
+  entered_stable: '2026-06-04'
+  authored_by: Myoung Hong
+sources:
+- title: EU GDPR Regulation 2016/679 (Article 5(1)(b) purpose limitation and Article 6
+    lawfulness of processing, the requirement that a purpose and a basis exist for personal-data
+    processing, referenced as a concept)
+  url: https://eur-lex.europa.eu/eli/reg/2016/679/oj
+- title: ISO/IEC 27701 privacy information management (recording the purpose and lawful
+    basis of processing for each category of personal data, referenced as a concept)
+  url: https://www.iso.org/standard/71670.html
+applies_to:
+  language: any
+  framework: any
+  environment: any
+references: []
+statement: 'Every persisted field or data model that holds personal data carries a processing-purpose
+  annotation naming the declared purpose of the processing and a lawful-basis annotation
+  naming the basis on which the processing relies. The rule builds on the data-classification
+  label (data-classification.model-classification-label): a personal datum already carries a sensitivity class, and this
+  rule adds the purpose and basis the personal-data regime requires. It applies to persisted
+  personal data; transient non-persisted shapes are exempted by marker or directory. The
+  presence of the purpose-and-basis annotation is the finding; whether the basis is valid
+  and the field is within the purpose is assessed in review (privacy.lawful-basis-and-consent and privacy.purpose-limitation-and-minimization).'
+rationale: 'Purpose limitation and minimization are functions whose input is the declared
+  purpose, so personal data with no declared purpose is data those rules cannot be applied
+  to. The dominant first failure is not a wrong purpose but a missing one: personal data
+  that accreted into a store without anyone recording why it is held or on what basis,
+  so it is later used for whatever seems useful. The substrate makes the presence of a
+  purpose-and-basis annotation a mechanical floor because the absence is statically visible
+  and almost always an oversight, while the validity of the basis and the fit of the field
+  to the purpose are judgments. The rule is deliberately modest about what it proves (a
+  declaration was recorded, not that it is valid) and honest that identifying personal
+  data heuristically makes it imperfect. It does not restate the sensitivity labeling
+  that data-classification owns; it adds the regulatory dimension on top of the class
+  a datum already carries.'

@@ -1,0 +1,60 @@
+id: cost-model-selection.cost-emission-pipeline
+name: Cost telemetry flows through a structured cost-attribution pipeline with per-workload
+  and (where applicable) per-tenant attribution; the pipeline produces a reconciled view
+  that matches the provider's billing system
+layer: semantic
+characteristic: performance-efficiency
+severity: high
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-21'
+  entered_stable: '2026-05-22'
+  authored_by: Myoung Hong
+sources:
+- title: 'FinOps Foundation Framework: Data Ingestion and Normalization capability (the
+    discipline of getting cost data into a structured form fit for attribution)'
+  url: https://www.finops.org/framework/capabilities/data-ingestion-and-normalization/
+- title: 'FinOps Foundation Framework: Allocation capability (the discipline of attributing
+    cost to consumers of the spend)'
+  url: https://www.finops.org/framework/capabilities/allocation/
+- title: 'FinOps Foundation Framework: Reporting and Analytics capability'
+  url: https://www.finops.org/framework/capabilities/reporting-and-analytics/
+applies_to:
+  language: any
+  framework: any
+  environment: any-cloud-deployed
+references: []
+statement: The consumer operates a cost-emission pipeline that ingests provider billing
+  data on a substrate-recommended cadence (daily for the primary cloud provider; on-publication
+  for vendor invoices outside the cloud), applies consumer-defined allocation rules to
+  attribute spend to services, teams, tenants, and other cost dimensions, and produces
+  a reconciled view that matches the provider's billing system within a substrate-recommended
+  variance threshold (2 percent absolute variance against the monthly invoice; consumers
+  may tighten). Multi-tenant workloads (a single service serving multiple tenants from
+  shared infrastructure) declare per-tenant cost attribution via labeled metrics or consumer-side
+  accounting (the substrate-recommended pattern is OpenCost or equivalent for Kubernetes;
+  cloud-native cost-allocation tags plus split rules for non-Kubernetes workloads). The
+  per-tenant attribution sums to the workload's total cost; the reconciliation check covers
+  both the workload total and the per-tenant sum. The pipeline output is consumed by the
+  consumer's chargeback or showback ledger, by the cost dashboards (cost-model-selection.cost-anomaly-alerting alerting
+  depends on the same pipeline), and by the cost-model ADR (cost-model-selection.cost-model-selection-policy) when the ADR
+  reviews trade-offs at the service or tenant level.
+rationale: 'Cost attribution is only as good as the pipeline that reconciles it. An attribution
+  view that diverges from the provider''s billing system erodes operator trust: when the
+  team is told "you owe X" and the provider invoice says "Y" without explanation, the
+  attribution mechanism loses authority and decisions revert to estimate-driven judgment.
+  The pipeline is also the substrate-recognized cross-cutting layer where the cost-model-selection.cost-attribution-tags
+  tag discipline actually translates into operational signal. Resources tagged at the
+  IaC layer but unreferenced in the pipeline''s allocation rules produce no visible attribution;
+  resources untagged at the IaC layer but defaulted by the pipeline into a generic bucket
+  produce attribution that does not survive audit. The L2 review checks the pipeline against
+  both directions: every tag the L1 rule emits is consumed by an allocation rule, and
+  every allocation rule''s reach is bounded by the tags actually present in the pipeline''s
+  input. Per-tenant attribution is the multi-tenant cost rule. A multi-tenant service
+  that does not attribute per-tenant cost cannot tier its pricing, cannot answer "is tenant
+  X cost-positive," cannot detect a tenant whose usage drives the service''s spend out
+  of band. Where the consumer''s business model has multi-tenant cost relevance (SaaS
+  providers; platform-as-service providers; internal platform teams chargebacking to tenant
+  teams), per-tenant attribution is operational discipline; the L2 review confirms its
+  presence.'

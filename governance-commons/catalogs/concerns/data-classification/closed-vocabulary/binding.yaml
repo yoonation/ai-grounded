@@ -1,0 +1,3 @@
+binding_status: capability-bound
+rule: data-classification.closed-vocabulary
+gate: lint

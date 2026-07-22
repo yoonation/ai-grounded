@@ -1,0 +1,44 @@
+id: performance-database.pool-sizing
+name: The connection pool is sized and configured for the workload and the datastore's
+  own connection ceiling, including the serverless and high-concurrency fan-out case
+layer: semantic
+characteristic: performance-efficiency
+severity: high
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-31'
+  entered_stable: '2026-06-01'
+  authored_by: Myoung Hong
+sources:
+- title: Postgres max_connections (the hard ceiling that the sum of all application pools
+    must respect)
+  url: https://www.postgresql.org/docs/current/runtime-config-connection.html
+- title: PgBouncer (an external connection pooler for the serverless and high-fan-out
+    case)
+  url: https://www.pgbouncer.org/
+applies_to:
+  language: any
+  framework: any
+  environment: any
+references: []
+statement: The connection pool's maximum size is chosen so that the sum of all application
+  instances' pools stays within the datastore's connection ceiling with headroom for administrative
+  and replica connections, and so that a single instance has enough connections to serve
+  its concurrent workload without serializing on the pool. The pool is configured with
+  a bounded acquire timeout (so a starved pool fails fast rather than hanging), a maximum
+  connection lifetime (so connections recycle and rebalance), and, in serverless or high-fan-out
+  deployments, an external pooler between the application and the database so that instance
+  churn does not breach the ceiling.
+rationale: 'More connections are not faster. A database serves connections with a bounded
+  number of backend processes or threads, and beyond the point where active connections
+  match available cores, additional connections add context-switching and contention rather
+  than throughput, which is why the empirically right pool is often surprisingly small.
+  The constraint that makes sizing hard is that it is global: each instance''s pool is
+  local, but they all draw on one shared ceiling, so a pool size that is fine for one
+  instance becomes an outage at fifty. Serverless makes this acute because instance count
+  is elastic and largely outside the application''s control, which is the canonical reason
+  to interpose an external pooler that multiplexes many client connections onto few database
+  connections. The acquire timeout and max lifetime are the safety valves: the former
+  converts pool starvation into a fast, visible error, and the latter keeps connections
+  from pinning to a single database node after a failover or scaling event.'

@@ -1,0 +1,48 @@
+id: input-validation.no-unsafe-deserialization
+name: Deserialization of data crossing the trust boundary uses safe loaders that do not
+  execute embedded code
+layer: mechanical
+characteristic: security
+severity: critical
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-23'
+  entered_stable: '2026-05-26'
+  authored_by: Myoung Hong
+sources:
+- title: OWASP ASVS v5.0.0 V5.5.1 (Deserialization of untrusted data uses safe formats
+    and loaders)
+  url: https://github.com/OWASP/ASVS/blob/v5.0.0/5.0/en/0x13-V5-Validation-Sanitization-Encoding.md
+- title: OWASP Top 10 2021 A08:2021 Software and Data Integrity Failures
+  url: https://owasp.org/Top10/A08_2021-Software_and_Data_Integrity_Failures/
+- title: CWE-502 Deserialization of Untrusted Data
+  url: https://cwe.mitre.org/data/definitions/502.html
+cwe:
+- CWE-502
+applies_to:
+  language: any
+  framework: any
+  environment: any-accepting-serialized-input
+references: []
+statement: 'The application does not deserialize data crossing the trust boundary using
+  mechanisms that can execute code embedded in the serialized stream. Specifically: Python
+  pickle.loads, pickle.load, cPickle equivalent calls, and shelve.open with untrusted
+  data are prohibited; yaml.load without the SafeLoader argument is prohibited (use yaml.safe_load);
+  Java ObjectInputStream.readObject is prohibited unless the stream is from a trusted
+  source or a lookahead-based class whitelist is in effect; Ruby Marshal.load with untrusted
+  data is prohibited; PHP unserialize is prohibited (use json_decode); Node.js node-serialize
+  is prohibited. The substrate-recommended safe formats for cross-boundary deserialization
+  are JSON, MessagePack with explicit type schema, Protocol Buffers, Apache Avro, and
+  YAML (with safe_load). The substrate-recommended cross-boundary contract is that the
+  wire format is JSON or a schema-validated binary format; the application never accepts
+  language-native serialization across the trust boundary.'
+rationale: 'Language-native serialization formats (pickle, Java serialization, Ruby Marshal,
+  PHP unserialize, default YAML) include code-execution hooks: the format allows the serialized
+  stream to specify a class constructor or callback that the loader invokes at deserialization
+  time. An attacker who controls the serialized bytes controls those constructors and
+  callbacks. The known gadget chains for Python pickle, Java ObjectInputStream, and PHP
+  unserialize have produced numerous RCE incidents. Safe formats (JSON, MessagePack with
+  schema, Protocol Buffers, yaml.safe_load) do not include code-execution hooks: the parser
+  produces values from the bytes without invoking any application code. The substrate''s
+  L1 rule eliminates the dangerous category mechanically by forbidding the call sites.'

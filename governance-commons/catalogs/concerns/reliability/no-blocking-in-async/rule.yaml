@@ -1,0 +1,48 @@
+id: reliability.no-blocking-in-async
+name: Synchronous blocking calls are not made on an async or single-threaded event-loop
+  execution path; blocking work is offloaded to an executor or thread
+layer: mechanical
+characteristic: reliability
+severity: high
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-31'
+  entered_stable: '2026-06-01'
+  authored_by: Myoung Hong
+sources:
+- title: Ruff flake8-async (ASYNC) rule family, including blocking-open-call-in-async-function,
+    blocking-sleep-in-async-function, and blocking-http-call-in-async-function
+  url: https://docs.astral.sh/ruff/rules/#flake8-async-async
+- title: ESLint no-sync rule (flags the synchronous filesystem and other *Sync methods
+    that block the Node event loop)
+  url: https://eslint.org/docs/latest/rules/no-sync
+- title: Python asyncio developer guidance on running blocking code in an executor (loop.run_in_executor,
+    asyncio.to_thread) rather than on the event loop
+  url: https://docs.python.org/3/library/asyncio-dev.html#running-blocking-code
+applies_to:
+  language: any
+  framework: any
+  environment: any
+references: []
+statement: 'On an async or single-threaded event-loop execution path, code does not invoke
+  synchronous blocking operations: blocking network or file I/O, blocking sleeps, blocking
+  subprocess waits, or unbounded CPU-bound computation. I/O uses the ecosystem''s async-native
+  client (the await-able HTTP client, the async file API); unavoidable blocking or CPU-bound
+  work is dispatched to a thread or process executor (Python asyncio.to_thread or run_in_executor,
+  a Node worker thread, an offloaded goroutine on a separate pool) so the event loop remains
+  free to serve other work. The rule applies to code reachable on an async path; it does
+  not apply to synchronous code in a synchronous program, to startup or shutdown paths
+  that run before the loop serves traffic, or to a CPU-bound step short and bounded enough
+  that offloading would cost more than it saves (a tuning exemption, documented).'
+rationale: 'An event loop achieves concurrency by interleaving many operations on one
+  thread, which works precisely because each operation yields the thread while it waits.
+  A blocking call breaks that contract: it holds the thread through the wait, so every
+  other operation the loop is cooperatively scheduling is frozen until the blocking call
+  returns. The damage is not local to the slow operation; it is borne by all the traffic
+  sharing that loop, which is why the symptom is diffuse tail latency and periodic stalls
+  rather than a clean failure of one request. The substrate treats the presence of a known
+  blocking call on an async path as a mechanical floor because the linters detect the
+  common forms directly and the fix is well understood. The judgment the mechanical rule
+  defers to L2 is the offload strategy and the recognition of blocking hidden inside a
+  synchronous dependency, which a tool cannot see and a reviewer must.'

@@ -1,0 +1,34 @@
+id: documentation.decisions-and-operations
+name: Significant decisions and operational knowledge are recorded and discoverable
+layer: semantic
+characteristic: interaction-capability
+severity: medium
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-06-05'
+  entered_stable: '2026-06-06'
+  authored_by: Myoung Hong
+sources:
+- title: Keep a Changelog, on recording consumer-visible changes in a discoverable, human-readable
+    change record.
+  url: https://keepachangelog.com/en/1.1.0/
+- title: MADR, on recording architecturally significant decisions as durable decision
+    records.
+  url: https://adr.github.io/madr/
+applies_to:
+  language: any
+  framework: any
+  environment: any
+references: []
+statement: 'A team MUST record and keep discoverable the decisions and operational knowledge
+  needed to operate and evolve the system: architecturally significant decisions captured
+  as decision records, consumer-visible changes captured in a changelog, and the minimum
+  operational documentation (a setup or onboarding guide and a runbook for the system''s
+  on-call surface).'
+rationale: 'The most expensive documentation gap is the knowledge that was never written
+  down: the reason a design was chosen, the difference between two releases, the steps
+  to bring the system up, and the response to a known failure. When that knowledge lives
+  only with individuals, onboarding is slow, settled debates reopen, and incidents run
+  long. Recording decisions, changes, and operations, and keeping them where a reader
+  will find them, makes the team resilient to the absence of any one person.'

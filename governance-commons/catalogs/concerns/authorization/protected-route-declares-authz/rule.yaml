@@ -1,0 +1,48 @@
+id: authorization.protected-route-declares-authz
+name: Every protected route handler declares a server-side authorization check observable
+  to static analysis
+layer: semantic
+characteristic: security
+severity: critical
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-22'
+  entered_stable: '2026-05-26'
+  authored_by: Myoung Hong
+sources:
+- title: 'OWASP ASVS v5.0.0 V8.1.1 (General access control: every endpoint enforces an
+    access control decision before processing)'
+  url: https://github.com/OWASP/ASVS/blob/v5.0.0/5.0/en/0x17-V8-Authorization.md
+- title: OWASP Top 10 2021 A01:2021 Broken Access Control
+  url: https://owasp.org/Top10/A01_2021-Broken_Access_Control/
+- title: NIST SP 800-53 AC-3 Access Enforcement
+  url: https://csrc.nist.gov/projects/cprt/catalog#/cprt/framework/version/SP_800_53_5_1_1/home
+- title: CWE-862 Missing Authorization
+  url: https://cwe.mitre.org/data/definitions/862.html
+cwe:
+- CWE-862
+- CWE-285
+applies_to:
+  language: any
+  framework: any
+  environment: any-with-protected-endpoints
+references: []
+statement: Every route handler whose path is protected (not explicitly public) declares
+  a server-side authorization check before processing the request. The check is declarative
+  (framework decorator, middleware registration, attribute annotation, or controller metadata)
+  or imperative (explicit call to an authorization function within the handler body).
+  The check appears in source code observable to static analysis. Routes that lack such
+  a check are treated as implicitly public; the substrate requires public routes to be
+  tagged explicitly via comment, decorator, or framework attribute so that the absence
+  of an authorization check is a deliberate, documented choice rather than an omission.
+rationale: 'Missing authorization is the most common access-control failure mode in production
+  systems. The pattern is consistent across many incident reports: a new route handler
+  is added during feature work, the author relies on framework conventions or shared middleware
+  that does not cover the new route, and the omission is invisible at code review because
+  the route appears to work correctly for authorized test users. Static detection of authorization-check
+  presence catches the omission before deployment. The deny-by-default principle requires
+  that authorization absence be treated as failure, not as success. Tagging public routes
+  explicitly inverts the default: the failure mode becomes false-positive flagging of
+  legitimately public routes, which surfaces immediately at code review and is corrected
+  with a one-line annotation.'

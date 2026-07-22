@@ -1,0 +1,44 @@
+id: input-validation.schema-validation-at-boundary
+name: Every input boundary parses request data against an explicit schema before any domain
+  logic runs
+layer: semantic
+characteristic: security
+severity: high
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-23'
+  entered_stable: '2026-05-26'
+  authored_by: Myoung Hong
+sources:
+- title: OWASP ASVS v5.0.0 V5.1.3 (Input fields are validated with positive validation,
+    allow-lists)
+  url: https://github.com/OWASP/ASVS/blob/v5.0.0/5.0/en/0x13-V5-Validation-Sanitization-Encoding.md
+- title: NIST SP 800-53 SI-10 Information Input Validation
+  url: https://csrc.nist.gov/projects/cprt/catalog#/cprt/framework/version/SP_800_53_5_1_1/home
+- title: CWE-20 Improper Input Validation
+  url: https://cwe.mitre.org/data/definitions/20.html
+cwe:
+- CWE-20
+- CWE-1287
+applies_to:
+  environment: any-with-network-input-boundary
+references: []
+statement: Every input boundary in the application (HTTP request handler, RPC endpoint,
+  message queue consumer, file processor, CLI argument parser) runs the incoming bytes
+  through an explicit schema that declares the expected fields, types, and value constraints,
+  before any domain logic inspects the values. The schema rejects requests that do not
+  match (returns a structured error; does not partially-process). The schema is declarative
+  (Pydantic model, JSON Schema, Joi schema, Zod schema, Marshmallow schema, attribute
+  annotation on a typed request DTO) rather than imperative (handler-body isinstance checks,
+  manual field-by-field validation).
+rationale: 'Schema-at-boundary moves validation from a cross-cutting handler-body concern
+  into a declarative contract. The benefits compose: type narrowing (input-validation.type-narrowing-at-boundary) becomes
+  automatic at the parse step; canonical encoding (input-validation.canonical-encoding-before-validation) can be applied as a schema-level
+  transformation; the schema becomes the source of truth for API documentation and client-side
+  validation. Handlers that operate on a parsed schema instance can assume the input conforms;
+  runtime defensive checks within the handler shrink to domain invariants rather than
+  shape validation. The "parse don''t validate" principle (Alexis King, widely cited in
+  the substrate''s recommended reading) frames the choice: a parser that returns a domain
+  type is structurally stronger than a validator that returns a boolean. The substrate
+  adopts this framing as the rule''s structural pattern.'

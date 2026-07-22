@@ -1,0 +1,46 @@
+id: reliability.failure-isolation
+name: Shared resources are partitioned so that one slow or failing dependency cannot exhaust
+  the capacity unrelated paths need
+layer: semantic
+characteristic: reliability
+severity: high
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-31'
+  entered_stable: '2026-06-01'
+  authored_by: Myoung Hong
+sources:
+- title: The Bulkhead pattern (partition resources so a failure in one partition does
+    not exhaust the others; concept reference)
+  url: https://learn.microsoft.com/en-us/azure/architecture/patterns/bulkhead
+- title: Backpressure (bounding intake to match capacity; the producer-side complement
+    to bounded pools; concept reference)
+  url: https://en.wikipedia.org/wiki/Backpressure
+applies_to:
+  language: any
+  framework: any
+  environment: any
+references: []
+statement: Shared, finite resources (connection pools, thread pools and executors, worker
+  concurrency, rate-limit budgets) are partitioned so that demand from one dependency
+  or class of work cannot consume the capacity another class needs. Each bounded resource
+  reliability.bounded-buffers requires is sized against its workload, and the partitioning ensures that
+  a dependency which becomes slow holds only its own partition's capacity while it waits,
+  leaving unrelated paths their own. The rule covers the bulkhead boundary (separate pools
+  or concurrency limits per dependency or per work class), the sizing of each partition,
+  and the producer-side bound (backpressure or admission control) that keeps intake within
+  the partition's capacity. The rule does not mandate a fixed number of partitions; it
+  requires that the partitioning reflect the actual blast-radius boundaries the system
+  needs and that no single dependency can drain a pool shared with unrelated work.
+rationale: 'A ship survives a hull breach because its hold is divided into watertight
+  compartments; one flooded compartment does not sink the ship. Shared resource pools
+  are the undivided hold: when one dependency floods the pool by holding connections through
+  its slow responses, every caller of that pool goes down with it, including callers that
+  have nothing to do with the slow dependency. The bulkhead pattern restores the compartments.
+  The substrate places this at L2 because the right partitioning is contextual: which
+  dependencies deserve their own pool, how large each should be, and where the backpressure
+  boundary belongs depend on the system''s load shape and criticality map, which a tool
+  cannot read. This rule is also where the mechanical bounds of reliability.bounded-buffers are reviewed
+  for correct sizing and where the supervision structure of reliability.tracked-async-tasks is checked for
+  correct isolation, so the L1 floors and the L2 design meet here.'

@@ -1,0 +1,3 @@
+binding_status: capability-bound
+rule: performance-database.explicit-column-projection
+gate: sast

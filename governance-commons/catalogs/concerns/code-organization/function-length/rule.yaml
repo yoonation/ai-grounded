@@ -1,0 +1,48 @@
+id: code-organization.function-length
+name: Functions and methods do not exceed the substrate-default length threshold of logical
+  source lines, excluding blank lines and comments
+layer: mechanical
+characteristic: maintainability
+severity: medium
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-31'
+  entered_stable: '2026-06-01'
+  authored_by: Myoung Hong
+sources:
+- title: Ruff PLR0915 too-many-statements rule (Python function statement-count ceiling;
+    substrate-default detector for the Python ecosystem)
+  url: https://docs.astral.sh/ruff/rules/too-many-statements/
+- title: ESLint max-lines-per-function rule (JavaScript and TypeScript function length
+    ceiling)
+  url: https://eslint.org/docs/latest/rules/max-lines-per-function
+- title: golangci-lint funlen linter (Go function length ceiling in lines and statements)
+  url: https://golangci-lint.run/usage/linters/#funlen
+applies_to:
+  language: any
+  framework: any
+  environment: any
+references: []
+statement: Functions and methods in first-party production source do not exceed the substrate-default
+  length threshold of 50 logical lines of code, where logical lines count executable statements
+  and exclude blank lines, comments, import or use statements, and the signature line.
+  The threshold is a profile-tunable parameter; consumers raise or lower it to fit their
+  language's idiom (a higher ceiling is defensible for languages with verbose error handling,
+  a lower one for terse functional styles) but the rule's intent (bound the amount a single
+  function asks a reader to hold at once) is constant. The rule applies to named functions,
+  methods, lambdas with bodies, and closures; it does not apply to declarative data literals
+  (a long list, a long match table) that happen to live inside a function, which the binding
+  excludes.
+rationale: 'Length is the cheapest structural signal to measure and one of the most reliable
+  early warnings that a function has accreted responsibilities. The substrate treats it
+  as a mechanical floor precisely because it is cheap: a linter can enforce it on every
+  commit at no review cost, and the act of keeping functions short pushes authors toward
+  naming the steps of a computation, which is the single highest-leverage readability
+  practice available. The substrate does not claim that 50 lines is a magic number; it
+  claims that a codebase which never measures length will drift toward functions that
+  only their author can change, and that a measured threshold with documented exemptions
+  is strictly better than no threshold. The complementary rule code-organization.cyclomatic-complexity (complexity)
+  catches the case of a short function that is nonetheless hard to follow because of dense
+  branching; the two L1 rules together bound both the volume and the tangledness of a
+  single scope.'

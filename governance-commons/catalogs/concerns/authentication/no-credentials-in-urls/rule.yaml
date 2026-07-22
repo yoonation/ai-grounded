@@ -1,0 +1,39 @@
+id: authentication.no-credentials-in-urls
+name: Authentication credentials never appear in URLs
+layer: mechanical
+characteristic: security
+severity: critical
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-18'
+  entered_stable: '2026-05-18'
+  authored_by: Myoung Hong
+sources:
+- title: OWASP ASVS v5.0.0-6.2 (Password security requirements including transmission
+    protections)
+  url: https://github.com/OWASP/ASVS/blob/v5.0.0/5.0/en/0x15-V6-Authentication.md
+- title: CWE-598 Use of GET Request Method With Sensitive Query Strings
+  url: https://cwe.mitre.org/data/definitions/598.html
+cwe:
+- CWE-598
+- CWE-200
+applies_to:
+  language: any
+  framework: any
+  environment: any-with-credentials
+references: []
+statement: The application does not transmit authentication credentials in URL query strings,
+  URL paths, or URL fragments. Credentials include passwords, API keys, session tokens,
+  JWT tokens, OAuth access tokens, OAuth refresh tokens, password reset tokens, email
+  verification tokens, and any other material whose disclosure grants authentication.
+  Credentials are transmitted in Authorization headers, POST request bodies, or secure
+  cookies.
+rationale: URLs are logged in many places by default. Web servers log full URLs including
+  query strings. Reverse proxies, load balancers, CDNs, and observability tooling similarly
+  log URLs. Browsers store URLs in history. When the user navigates from one site to another,
+  the Referer header contains the source URL, leaking credentials to the destination site.
+  Application analytics and error monitoring tools often capture URLs in their telemetry.
+  Credentials in URLs leak to all of these locations passively, with no active attacker
+  involvement required.
+guidance_ref: guidance.md

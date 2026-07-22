@@ -1,0 +1,10 @@
+id: configuration-management
+name: Configuration Management
+characteristic: flexibility
+status: stable
+summary: >
+  How configuration is sourced and validated: explicit layering and
+  precedence with environment parity, values read from a configuration
+  source rather than hardcoded, no swallowing defaults on required values,
+  startup validation that fails fast, and a recorded configuration
+  strategy.

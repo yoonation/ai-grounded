@@ -1,0 +1,427 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Myoung Hong
+
+
+# LangGraph library context for AI tools.
+#
+# LangGraph is the primary enterprise agent orchestration framework
+# in 2026. It's the leading hiring signal for AI engineer roles in
+# the LangChain ecosystem. Rapid evolution; AI tools frequently
+# produce outdated patterns from early versions.
+#
+# Maintenance cadence: monthly (high velocity, new project)
+
+library:
+  name: langgraph
+  ecosystem: python
+  current_version: "0.4.x"
+  last_reviewed: "2026-05-12"
+  review_cadence: monthly
+  primary_docs: https://langchain-ai.github.io/langgraph/
+
+# ============================================================
+# What LangGraph is
+# ============================================================
+
+description: |
+  LangGraph is a graph-based orchestration library for stateful,
+  multi-agent applications. Key concepts:
+
+  - Graph: a directed graph of nodes
+  - Node: a function that reads and writes state
+  - Edge: connection between nodes; conditional or direct
+  - State: typed dict shared across the graph
+  - Checkpointer: persistence layer enabling pause/resume
+
+  Compared to LangChain LCEL chains:
+
+  - LCEL is for linear (or simple branching) data flow
+  - LangGraph is for cyclic state machines (agent loops,
+    multi-agent coordination)
+
+# ============================================================
+# Current imports
+# ============================================================
+
+current_imports:
+  - module: langgraph.graph
+    exports:
+      - StateGraph
+      - START
+      - END
+      - MessagesState
+    notes: >
+      StateGraph is the primary builder class. START and END are
+      sentinel node identifiers. MessagesState is a pre-built state
+      schema for message-based agents.
+
+  - module: langgraph.checkpoint.memory
+    exports:
+      - MemorySaver
+    notes: >
+      In-memory checkpointer for development. Not persistent.
+
+  - module: langgraph.checkpoint.sqlite
+    exports:
+      - SqliteSaver
+    notes: >
+      SQLite-backed checkpointer for local persistence.
+      pip install langgraph-checkpoint-sqlite.
+
+  - module: langgraph.checkpoint.postgres
+    exports:
+      - PostgresSaver
+    notes: >
+      Postgres-backed checkpointer for production.
+      pip install langgraph-checkpoint-postgres.
+
+  - module: langgraph.prebuilt
+    exports:
+      - create_react_agent
+      - ToolNode
+    notes: >
+      Prebuilt agent helpers. create_react_agent for a quick
+      tool-calling agent without building the graph manually.
+      ToolNode is a graph node that executes tools.
+
+  - module: langgraph.types
+    exports:
+      - Command
+      - Send
+      - Interrupt
+    notes: >
+      Special return types for control flow. Command for
+      multi-destination routing. Send for parallel branching.
+      Interrupt for human-in-the-loop pauses.
+
+# ============================================================
+# Current API: core patterns
+# ============================================================
+
+current_api:
+  - name: "Basic StateGraph definition"
+    description: >
+      Define state, add nodes, connect edges, compile to a runnable.
+    example: |
+      from typing import TypedDict
+      from langgraph.graph import StateGraph, START, END
+
+      class State(TypedDict):
+          input: str
+          output: str
+
+      def my_node(state: State) -> dict:
+          return {"output": f"Processed: {state['input']}"}
+
+      builder = StateGraph(State)
+      builder.add_node("processor", my_node)
+      builder.add_edge(START, "processor")
+      builder.add_edge("processor", END)
+
+      graph = builder.compile()
+      result = graph.invoke({"input": "hello"})
+    notes: >
+      Nodes return partial state updates (dict). The graph merges
+      these into the full state. Nodes can return Command for
+      conditional routing.
+
+  - name: "MessagesState for chat agents"
+    description: >
+      Pre-built state with messages list and reducer that handles
+      message appending and updates.
+    example: |
+      from langgraph.graph import StateGraph, START, END, MessagesState
+      from langchain_core.messages import AIMessage
+
+      def chatbot(state: MessagesState) -> dict:
+          response = llm.invoke(state["messages"])
+          return {"messages": [response]}
+
+      builder = StateGraph(MessagesState)
+      builder.add_node("chatbot", chatbot)
+      builder.add_edge(START, "chatbot")
+      builder.add_edge("chatbot", END)
+      graph = builder.compile()
+    notes: >
+      MessagesState["messages"] is a list of BaseMessage. The reducer
+      appends new messages by default; supports updates via message
+      ID matching.
+
+  - name: "Conditional edges"
+    description: >
+      Route from a node to one of several possible next nodes based
+      on state.
+    example: |
+      def should_continue(state: MessagesState) -> str:
+          last_msg = state["messages"][-1]
+          if hasattr(last_msg, "tool_calls") and last_msg.tool_calls:
+              return "tools"
+          return END
+
+      builder.add_conditional_edges("agent", should_continue, {
+          "tools": "tools",
+          END: END
+      })
+    notes: >
+      The conditional function returns the next node name. The
+      mapping dict translates return values to node names (allowing
+      the function to return convenient symbols).
+
+  - name: "Tool execution with ToolNode"
+    description: >
+      Use the prebuilt ToolNode to execute tools from an AIMessage's
+      tool_calls.
+    example: |
+      from langgraph.prebuilt import ToolNode
+      from langchain_core.tools import tool
+
+      @tool
+      def search(query: str) -> str:
+          return f"Search results for: {query}"
+
+      tools = [search]
+      tool_node = ToolNode(tools)
+
+      builder.add_node("tools", tool_node)
+      builder.add_edge("tools", "agent")  # loop back
+    notes: >
+      ToolNode reads state["messages"][-1].tool_calls and produces
+      ToolMessage instances for each call. Pair with conditional
+      edges that route back to the agent.
+
+  - name: "Checkpointing for persistence"
+    description: >
+      Add a checkpointer to enable pause/resume and durability.
+    example: |
+      from langgraph.checkpoint.memory import MemorySaver
+
+      checkpointer = MemorySaver()
+      graph = builder.compile(checkpointer=checkpointer)
+
+      # Now invocations need a thread_id in config
+      config = {"configurable": {"thread_id": "user-123"}}
+      result = graph.invoke({"input": "hello"}, config=config)
+
+      # Resume the same thread later:
+      result2 = graph.invoke({"input": "follow up"}, config=config)
+      # State from the prior invocation is loaded automatically
+    notes: >
+      Each thread_id is an independent conversation/session. State
+      persists across invocations using the same thread_id.
+
+  - name: "Streaming graph execution"
+    description: >
+      Stream events as the graph executes. Multiple stream modes
+      provide different granularity.
+    example: |
+      # Stream node outputs
+      for event in graph.stream({"input": "hello"}, stream_mode="updates"):
+          print(event)
+
+      # Stream individual tokens from LLM nodes
+      for event in graph.stream({"input": "hello"}, stream_mode="messages"):
+          print(event)
+
+      # Stream multiple modes simultaneously
+      for event in graph.stream({"input": "hello"},
+                                stream_mode=["updates", "messages"]):
+          mode, data = event
+          print(f"{mode}: {data}")
+    notes: >
+      stream_mode options: "values" (full state), "updates"
+      (per-node changes), "messages" (LLM tokens), "debug"
+      (everything). Combine with a list.
+
+  - name: "Human-in-the-loop with Interrupt"
+    description: >
+      Pause the graph for human input before continuing.
+    example: |
+      from langgraph.types import Interrupt
+
+      def review_node(state: State) -> dict:
+          # Pause and wait for human input
+          decision = Interrupt({
+              "action": "Please review",
+              "proposal": state["proposed_action"]
+          })
+          return {"approval": decision}
+
+      # Resume by passing input matching the interrupt
+      result = graph.invoke({"input": "..."}, config=config)
+      # If result contains interrupt, surface to human, then:
+      result = graph.invoke(
+          Command(resume={"approved": True}),
+          config=config
+      )
+    notes: >
+      Interrupt is one of the most important LangGraph patterns for
+      governance workflows requiring human oversight.
+
+  - name: "Subgraphs"
+    description: >
+      Compose graphs by using a compiled graph as a node in another
+      graph.
+    example: |
+      # Inner graph
+      inner_builder = StateGraph(InnerState)
+      # ... add nodes ...
+      inner_graph = inner_builder.compile()
+
+      # Outer graph uses inner as a node
+      outer_builder = StateGraph(OuterState)
+      outer_builder.add_node("inner_subgraph", inner_graph)
+
+      # State mapping handled via configurable keys or shared schema
+    notes: >
+      Subgraphs are a key composition pattern for multi-agent
+      systems. Each agent can be its own subgraph.
+
+  - name: "create_react_agent (prebuilt)"
+    description: >
+      Quick path to a tool-calling agent without building the graph
+      manually.
+    example: |
+      from langgraph.prebuilt import create_react_agent
+
+      agent = create_react_agent(
+          model=llm,
+          tools=[search, calculator],
+          checkpointer=MemorySaver()
+      )
+
+      result = agent.invoke(
+          {"messages": [("user", "What's 2+2?")]},
+          config={"configurable": {"thread_id": "1"}}
+      )
+    notes: >
+      Good for prototypes and simple agents. For production agents
+      with custom state management or complex flows, build the graph
+      manually.
+
+# ============================================================
+# Common hallucination patterns
+# ============================================================
+
+common_hallucinations:
+  - pattern: "from langgraph import Graph"
+    problem: >
+      Wrong import. Graph class doesn't exist at the top level.
+    correct: "from langgraph.graph import StateGraph"
+
+  - pattern: "graph = Graph(state=State)"
+    problem: >
+      Constructor signature wrong, and class name wrong.
+    correct: "builder = StateGraph(State)"
+
+  - pattern: "builder.run() or builder.execute()"
+    problem: >
+      The builder is not invocable. Compile first.
+    correct: |
+      graph = builder.compile()
+      graph.invoke(input)
+
+  - pattern: "def node(state): return state"
+    problem: >
+      Returning the full state works but is wasteful and can cause
+      unintended overwrites. Nodes should return partial updates.
+    correct: |
+      def node(state: State) -> dict:
+          return {"specific_field": new_value}
+
+  - pattern: "builder.add_conditional_edge(...)  # singular"
+    problem: >
+      Method name is add_conditional_edges (plural).
+    correct: "builder.add_conditional_edges(source, router, mapping)"
+
+  - pattern: "Manual message history tracking outside MessagesState"
+    problem: >
+      Building your own message list and reducer when MessagesState
+      already does this correctly.
+    correct: >
+      Use MessagesState or extend it. Don't reinvent the message
+      reducer logic.
+
+  - pattern: "Invoking without thread_id when checkpointer is set"
+    problem: >
+      Compiling with a checkpointer requires thread_id in config
+      for every invocation. Missing thread_id raises an error.
+    correct: |
+      config = {"configurable": {"thread_id": "some-unique-id"}}
+      graph.invoke(input, config=config)
+
+  - pattern: "ToolNode(tools=tools)"
+    problem: >
+      ToolNode takes tools as positional argument, not keyword.
+    correct: "ToolNode(tools)"
+
+  - pattern: "Using LangChain memory classes (ConversationBufferMemory)"
+    problem: >
+      LangChain memory classes are deprecated. In LangGraph, state
+      itself is the memory, persisted via checkpointers.
+    correct: >
+      Use MessagesState (or your own state schema) plus a checkpointer.
+      No separate memory class needed.
+
+  - pattern: "from langgraph.checkpoint import MemorySaver"
+    problem: >
+      Path is langgraph.checkpoint.memory, not langgraph.checkpoint.
+    correct: "from langgraph.checkpoint.memory import MemorySaver"
+
+# ============================================================
+# Multi-agent patterns
+# ============================================================
+
+multi_agent_patterns:
+  - pattern_name: "Supervisor"
+    description: >
+      A supervisor agent routes tasks to specialist agents and
+      returns their results.
+    structure: |
+      supervisor → researcher → supervisor
+      supervisor → coder → supervisor
+      supervisor → END
+    state_management: >
+      Single shared state. Supervisor reads outputs from specialists,
+      decides next step.
+
+  - pattern_name: "Hierarchical teams"
+    description: >
+      Multiple supervisor agents, each managing a sub-team. A top-level
+      supervisor coordinates between teams.
+    structure: |
+      top_supervisor → research_team_supervisor → researchers
+      top_supervisor → coding_team_supervisor → coders
+    state_management: >
+      Subgraphs per team. Top-level state maps to subgraph state via
+      configurable keys.
+
+  - pattern_name: "Collaborative agents"
+    description: >
+      Multiple peer agents collaborate without a central supervisor.
+      Each agent decides when to hand off.
+    structure: |
+      agent_a ↔ agent_b ↔ agent_c
+    state_management: >
+      Shared state with handoff conventions. Each agent reads recent
+      messages to determine if it's their turn.
+
+  - pattern_name: "Pipeline"
+    description: >
+      Sequential specialist agents, each processing the output of
+      the previous.
+    structure: |
+      planner → researcher → writer → reviewer → END
+    state_management: >
+      Linear state flow. No cycles needed; could be LCEL chain
+      except for the typed state advantages.
+
+# ============================================================
+# References
+# ============================================================
+
+references:
+  - https://langchain-ai.github.io/langgraph/
+  - https://langchain-ai.github.io/langgraph/tutorials/
+  - https://langchain-ai.github.io/langgraph/concepts/
+  - https://github.com/langchain-ai/langgraph
+  - https://langchain-ai.github.io/langgraph/reference/

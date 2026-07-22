@@ -1,0 +1,52 @@
+id: authorization.step-up-and-audit-for-privilege-changes
+name: Privilege-changing operations require step-up authentication and emit immutable
+  audit events; operations affecting other users' privileges follow an approval pattern
+  where the context warrants
+layer: semantic
+characteristic: security
+severity: high
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-22'
+  entered_stable: '2026-05-26'
+  authored_by: Myoung Hong
+sources:
+- title: OWASP ASVS v5.0.0 V8.4.3 (Privilege-changing operations require step-up authentication)
+  url: https://github.com/OWASP/ASVS/blob/v5.0.0/5.0/en/0x17-V8-Authorization.md
+- title: NIST SP 800-53 AC-3(7) Role-Based Access Control and AU-2 Event Logging
+  url: https://csrc.nist.gov/projects/cprt/catalog#/cprt/framework/version/SP_800_53_5_1_1/home
+- title: CWE-269 Improper Privilege Management
+  url: https://cwe.mitre.org/data/definitions/269.html
+cwe:
+- CWE-269
+- CWE-285
+applies_to:
+  language: any
+  framework: any
+  environment: any-with-privilege-granting-operations
+references: []
+statement: 'Operations that grant, revoke, or modify roles or permissions require step-up
+  authentication: the application re-prompts for credentials or a strong authentication
+  factor regardless of the current session''s authentication recency. Such operations
+  emit structured audit events to an append-only or otherwise tamper-evident store. The
+  audit events capture the requesting principal, the target principal (if different),
+  the role or permission being changed, the direction of change (grant/revoke/modify),
+  timestamp, and request-correlation identifier. For applications where the context warrants
+  (regulated industries, applications with high-privilege administrative roles), operations
+  affecting other users'' privileges follow an approval workflow that requires a second
+  principal to authorize the change before it takes effect.'
+rationale: 'Privilege-change operations are the attacker''s escalation path. A compromised
+  low-privilege session that can be used to grant administrative roles to attacker-controlled
+  accounts becomes a full compromise. Step-up authentication interrupts the simple-session-hijack
+  pattern by requiring fresh authenticator evidence at the privilege-change moment, not
+  just at session start. Audit events are the post-incident investigation surface. An
+  incident response asking "who granted this role and when?" requires the audit events
+  to exist. The events must be tamper-evident because the attacker''s interest in erasing
+  the trail is high. Approval workflow adds a second-principal requirement: even with
+  step-up auth on a compromised principal, the privilege change does not take effect without
+  a second principal''s approval. Approval workflow is application-context-dependent;
+  not every application warrants the operational overhead. The substrate recommends approval
+  workflow for applications whose privilege-grants have high blast radius (administrative
+  roles in regulated systems, privilege-grants that enable financial-impact operations,
+  privilege-grants in multi-tenant systems where escalation reaches other tenants).'

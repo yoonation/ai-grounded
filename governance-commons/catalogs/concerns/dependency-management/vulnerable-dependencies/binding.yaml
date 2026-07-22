@@ -1,0 +1,3 @@
+binding_status: capability-bound
+rule: dependency-management.vulnerable-dependencies
+gate: dep-vuln

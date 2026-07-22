@@ -1,0 +1,359 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Myoung Hong
+
+# MITRE ATLAS (selected techniques) to substrate concern rules.
+#
+# Source taxonomy: governance-commons/catalogs/threats/mitre-atlas.yaml
+# Target catalogs: substrate concern catalogs at
+# governance-commons/catalogs/concerns/.
+
+mapping:
+  uuid: "27fe6fea-e4f3-4189-ab82-b455836d16cb"
+
+  metadata:
+    title: "MITRE ATLAS (Selected) to Substrate Concerns"
+    version: "1.0.0"
+    last-modified: "2026-05-30T00:00:00Z"
+
+    props:
+      - name: mapping-id
+        ns: governance-commons
+        value: "mitre-atlas-to-concerns"
+      - name: lifecycle-status
+        ns: governance-commons
+        value: stable
+      - name: commons-version
+        ns: governance-commons
+        value: "0.6.0"
+      - name: entered-draft-at
+        ns: governance-commons
+        value: "2026-05-28"
+      - name: entered-stable-at
+        ns: governance-commons
+        value: "2026-05-30"
+      - name: reviewer
+        ns: governance-commons
+        value: "myoung-self-attested"
+      - name: reviewed
+        ns: governance-commons
+        value: "2026-05-30"
+      - name: attestation-mechanism
+        ns: governance-commons
+        value: "Charter Section 2.4.1 solo-author attestation; M3 close Path A consolidation"
+        remarks: >
+          Attested under Charter Section 2.4.1 (solo-author
+          attestation) on 2026-05-30. Cooling-off interval honored:
+          mapping drafted 2026-05-28 (M3 Session 2a), attested
+          2026-05-30 (subsequent calendar day or later per Section
+          2.4.1 minimum-interval-one-calendar-day rule). Section 2.4
+          validation criteria applied: relation rationales are
+          defensible; coverage-gap records are honest; target-rule
+          references resolve to live substrate-rule IDs; no relation
+          duplicates another mapping's claim. Promotion executed as
+          part of the M3 close Path A consolidation (1 spec doc + 4
+          mappings + 3 schemas all promoted in one consolidation
+          event).
+      - name: ai-assistance
+        ns: governance-commons
+        value: drafted-and-reviewed
+      - name: ai-assistance-detail
+        ns: governance-commons
+        value: >
+          AI drafted as the third M3 Session 2a mapping. Each ATLAS
+          technique in the substrate's selected subset mapped to
+          substrate concern rules whose controls defeat or detect
+          the technique. ATLAS-specific patterns (model
+          extraction, adversarial examples, ML model evasion)
+          frequently lack direct substrate L1 coverage and are
+          recorded as coverage gaps.
+
+    source-catalog:
+      catalog-id: "mitre-atlas"
+      catalog-version: "as of 2026-Q1"
+      href: "../catalogs/threats/mitre-atlas.yaml"
+
+    target-catalog:
+      catalog-id: "concerns"
+      catalog-version: "0.6.0"
+      href: "../catalogs/concerns/"
+
+    methodology: >
+      Same methodology as the OWASP mappings. For each ATLAS
+      technique in the substrate's selected subset, identify
+      substrate concern rules whose intent materially addresses
+      (mitigates, detects, or prevents exploitation of) the
+      technique.
+
+  relations:
+
+    - id: "AML.T0040-addressed-by-protected-route-declares-authz"
+      source-rule: "AML.T0040"
+      target-rule: "authorization.protected-route-declares-authz"
+      relation-type: addressed-by
+      rationale: >
+        authorization.protected-route-declares-authz (protected route declares authorization)
+        addresses adversarial inference-API reconnaissance by
+        requiring authorization on inference endpoints, raising
+        the barrier to anonymous reconnaissance and enabling
+        per-principal anomaly detection.
+
+    - id: "AML.T0040-addressed-by-cost-attribution-tags"
+      source-rule: "AML.T0040"
+      target-rule: "cost-model-selection.cost-attribution-tags"
+      relation-type: addressed-by
+      rationale: >
+        cost-model-selection.cost-attribution-tags (cost attribution tags) supports detection
+        of model-inference reconnaissance by attributing
+        inference consumption to specific principals; high-
+        volume reconnaissance produces detectable consumption
+        anomalies.
+      coverage-dimension: "anomaly-detection"
+
+    - id: "AML.T0043-addressed-by-contextual-output-encoding"
+      source-rule: "AML.T0043"
+      target-rule: "input-validation.contextual-output-encoding"
+      relation-type: addressed-by
+      rationale: >
+        input-validation.contextual-output-encoding (contextual output encoding) addresses the
+        downstream-impact dimension of adversarial-data crafting
+        where the adversarial output is rendered or executed;
+        encoding for the destination context defeats the
+        downstream injection vector.
+      coverage-dimension: "downstream-impact"
+
+    - id: "AML.T0048-addressed-by-authz-before-resource-access"
+      source-rule: "AML.T0048"
+      target-rule: "authorization.authz-before-resource-access"
+      relation-type: addressed-by
+      rationale: >
+        authorization.authz-before-resource-access (authorization before resource access)
+        addresses external-harm scenarios where the ML system
+        is leveraged to act on external resources without
+        authorization; gating external actions on authorization
+        bounds the harm.
+
+    - id: "AML.T0048-addressed-by-correlation-ids"
+      source-rule: "AML.T0048"
+      target-rule: "logging.correlation-ids"
+      relation-type: addressed-by
+      rationale: >
+        logging.correlation-ids (correlation IDs) addresses the forensic-
+        attribution dimension of external harms by making
+        cross-system action chains traceable through correlation
+        IDs propagated to external systems.
+      coverage-dimension: "forensic-attribution"
+
+    - id: "AML.T0051-addressed-by-no-shell-injection"
+      source-rule: "AML.T0051"
+      target-rule: "input-validation.no-shell-injection"
+      relation-type: addressed-by
+      rationale: >
+        input-validation.no-shell-injection (no shell injection) addresses the
+        injection-context dimension of LLM prompt injection
+        where the attacker terminates the instruction context
+        and injects new instructions.
+      coverage-dimension: "injection-context-separation"
+
+    - id: "AML.T0051-addressed-by-no-client-side-only-authz"
+      source-rule: "AML.T0051"
+      target-rule: "authorization.no-client-side-only-authz"
+      relation-type: addressed-by
+      rationale: >
+        authorization.no-client-side-only-authz (no client-side-only authorization) bounds
+        the damage from successful prompt injection: server-side
+        authorization re-verification defeats the post-injection
+        privilege escalation pattern.
+      coverage-dimension: "post-injection-privilege-bound"
+
+    - id: "AML.T0052-addressed-by-generic-failure-responses"
+      source-rule: "AML.T0052"
+      target-rule: "authentication.generic-failure-responses"
+      relation-type: addressed-by
+      rationale: >
+        authentication.generic-failure-responses (generic error messages) addresses the
+        LLM-phishing reconnaissance vector where LLM-generated
+        phishing pretexts exploit information leaked through
+        verbose auth error messages; generic messages defeat
+        this reconnaissance.
+      coverage-dimension: "phishing-reconnaissance"
+
+    - id: "AML.T0052-addressed-by-timing-safe-comparison"
+      source-rule: "AML.T0052"
+      target-rule: "authentication.timing-safe-comparison"
+      relation-type: addressed-by
+      rationale: >
+        authentication.timing-safe-comparison (timing-safe comparison) addresses the
+        credential-discovery dimension where LLM-generated
+        phishing leverages timing side-channels to validate
+        guessed credentials at scale.
+      coverage-dimension: "credential-discovery"
+
+    - id: "AML.T0053-addressed-by-digest-pinned-artifacts"
+      source-rule: "AML.T0053"
+      target-rule: "supply-chain.digest-pinned-artifacts"
+      relation-type: addressed-by
+      rationale: >
+        supply-chain.digest-pinned-artifacts (digest-pinned artifacts) addresses the
+        plugin-substitution dimension of LLM plugin compromise
+        by ensuring plugin artifacts are digest-pinned and thus
+        tamper-detectable.
+
+    - id: "AML.T0053-addressed-by-signature-verification"
+      source-rule: "AML.T0053"
+      target-rule: "supply-chain.signature-verification"
+      relation-type: addressed-by
+      rationale: >
+        supply-chain.signature-verification (signature verification) addresses the
+        plugin-trust dimension by requiring cryptographic
+        signature verification for plugin artifacts at install
+        and load time.
+
+    - id: "AML.T0053-addressed-by-protected-route-declares-authz"
+      source-rule: "AML.T0053"
+      target-rule: "authorization.protected-route-declares-authz"
+      relation-type: addressed-by
+      rationale: >
+        authorization.protected-route-declares-authz (protected route declares authorization)
+        bounds the post-compromise impact: a compromised
+        plugin's outbound calls still go through authorization
+        and cannot exceed the plugin's granted privileges.
+      coverage-dimension: "post-compromise-privilege-bound"
+
+    - id: "AML.T0054-addressed-by-authz-before-resource-access"
+      source-rule: "AML.T0054"
+      target-rule: "authorization.authz-before-resource-access"
+      relation-type: addressed-by
+      rationale: >
+        authorization.authz-before-resource-access (authorization before resource access)
+        bounds the damage from successful jailbreak: the
+        jailbroken LLM still operates under the authorization
+        constraints of its calling principal at every resource
+        access.
+      coverage-dimension: "post-jailbreak-privilege-bound"
+
+    - id: "AML.T0054-addressed-by-structured-format"
+      source-rule: "AML.T0054"
+      target-rule: "logging.structured-format"
+      relation-type: addressed-by
+      rationale: >
+        logging.structured-format (structured format) supports detection of
+        jailbreak attempts post-hoc: structured logs of LLM
+        prompts and outputs are queryable for jailbreak-
+        indicative patterns.
+      coverage-dimension: "post-hoc-detection"
+
+    - id: "AML.T0055-addressed-by-no-secrets-in-source"
+      source-rule: "AML.T0055"
+      target-rule: "secrets-management.no-secrets-in-source"
+      relation-type: addressed-by
+      rationale: >
+        secrets-management.no-secrets-in-source (no secrets in source) directly addresses
+        unsecured-credentials in the source-code exposure path:
+        credentials in source are accessible to anyone with repo
+        access, including AI training pipelines that consume the
+        source.
+
+    - id: "AML.T0055-addressed-by-sensitive-files-gitignored"
+      source-rule: "AML.T0055"
+      target-rule: "secrets-management.sensitive-files-gitignored"
+      relation-type: addressed-by
+      rationale: >
+        secrets-management.sensitive-files-gitignored (sensitive files gitignored) addresses
+        the credential-exposure path via committed config files
+        that contain credentials; gitignoring sensitive files
+        prevents accidental commit and AI-training exposure.
+
+    - id: "AML.T0055-addressed-by-no-credential-files-in-repo"
+      source-rule: "AML.T0055"
+      target-rule: "authentication.no-credential-files-in-repo"
+      relation-type: addressed-by
+      rationale: >
+        authentication.no-credential-files-in-repo (credentials in repo) addresses the
+        repo-search reconnaissance path where adversaries scan
+        repos (or AI-curated repo datasets) for committed
+        credentials.
+
+    - id: "AML.T0057-addressed-by-no-sensitive-data-in-logs"
+      source-rule: "AML.T0057"
+      target-rule: "logging.no-sensitive-data-in-logs"
+      relation-type: addressed-by
+      rationale: >
+        logging.no-sensitive-data-in-logs (no sensitive data in logs) addresses the
+        LLM-output-leakage path where sensitive LLM responses
+        are logged in full and become accessible via log
+        exposure.
+
+    - id: "AML.T0057-addressed-by-no-secrets-in-logs"
+      source-rule: "AML.T0057"
+      target-rule: "secrets-management.no-secrets-in-logs"
+      relation-type: addressed-by
+      rationale: >
+        secrets-management.no-secrets-in-logs (no secrets in logs) addresses the
+        LLM-secrets-leakage path where the LLM produces
+        responses containing secret values that are then logged.
+
+    - id: "AML.T0057-addressed-by-no-sensitive-data-in-telemetry"
+      source-rule: "AML.T0057"
+      target-rule: "observability.no-sensitive-data-in-telemetry"
+      relation-type: addressed-by
+      rationale: >
+        observability.no-sensitive-data-in-telemetry (no sensitive data in telemetry) addresses
+        the LLM-telemetry-leakage path where LLM telemetry
+        captures input/output content including sensitive
+        material.
+
+    - id: "AML.T0059-addressed-by-sbom-presence-and-validity"
+      source-rule: "AML.T0059"
+      target-rule: "supply-chain.sbom-presence-and-validity"
+      relation-type: addressed-by
+      rationale: >
+        supply-chain.sbom-presence-and-validity (SBOM presence and validity) addresses
+        model-integrity erosion at the supply-chain level by
+        establishing SBOMs for training data and model
+        artifacts; integrity drift becomes detectable.
+
+    - id: "AML.T0059-addressed-by-no-empty-test-body"
+      source-rule: "AML.T0059"
+      target-rule: "testing-strategy.no-empty-test-body"
+      relation-type: addressed-by
+      rationale: >
+        testing-strategy.no-empty-test-body (no empty test body) addresses the
+        model-integrity-verification dimension by requiring
+        tests of model behavior have actual assertions; empty
+        tests would silently miss integrity erosion.
+      coverage-dimension: "integrity-verification-discipline"
+
+  coverage-gaps:
+
+    - source-rule: "AML.T0043"
+      gap-description: >
+        Adversarial-data crafting beyond the downstream-impact
+        dimension is not addressed by current substrate L1
+        rules. Adversarial-example detection, input distribution
+        monitoring, and model-input anomaly detection are not in
+        scope of substrate concerns at current depth.
+      recommended-action: >
+        AI safety concern catalog anticipated in future
+        milestone with rules for adversarial-input detection and
+        model-input monitoring.
+
+    - source-rule: "AML.T0054"
+      gap-description: >
+        Partial coverage. Substrate addresses post-jailbreak
+        privilege bounding and post-hoc detection but does not
+        address jailbreak-prevention patterns (system-prompt
+        hardening, input filtering for jailbreak indicators,
+        output filtering for jailbreak-content).
+      recommended-action: >
+        AI safety / responsible-AI concern catalog anticipated
+        in future milestone.
+
+    - source-rule: "AML.T0059"
+      gap-description: >
+        Partial coverage. Substrate addresses supply-chain
+        integrity for model artifacts but does not address
+        runtime model-integrity monitoring (model behavior
+        drift detection, output distribution monitoring).
+      recommended-action: >
+        AI safety / observability-for-AI concern catalog
+        anticipated in future milestone.

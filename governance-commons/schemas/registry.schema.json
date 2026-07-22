@@ -1,0 +1,62 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "governance-commons/schemas/registry.schema.json",
+  "title": "L1 tool registry (single source of tool definitions)",
+  "description": "Map of tool-id to tool entry. The only place tool facts live; selection lists and bindings reference these ids.",
+  "type": "object",
+  "minProperties": 1,
+  "patternProperties": {
+    "^[a-z0-9][a-z0-9-]*$": {
+      "type": "object",
+      "required": ["description", "source", "ecosystems", "gate-types", "license", "status"],
+      "properties": {
+        "description": { "type": "string", "minLength": 1 },
+        "source": { "type": "string", "format": "uri", "description": "URL to obtain the tool; liveness-checked at add and update time." },
+        "ecosystems": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$" }
+        },
+        "gate-types": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "enum": ["format", "lint", "type-check", "test", "dep-vuln", "dep-pinning", "sast", "secrets", "iac-scan", "schema-validate", "license-scan", "provenance-verify"]
+          }
+        },
+        "license": { "type": "string", "minLength": 1 },
+        "status": {
+          "description": "candidate (verified, override-only), active (default-eligible), deprecated, archived, or superseded-by:<tool-id>.",
+          "oneOf": [
+            { "enum": ["candidate", "active", "deprecated", "archived"] },
+            { "type": "string", "pattern": "^superseded-by:[a-z0-9][a-z0-9-]*$" }
+          ]
+        },
+        "package-manager": { "type": "string" },
+        "pinned-version": { "type": "string" },
+        "recommended-stage": { "type": "string", "description": "Suggestion only, not enforced (for example editor, pre-commit, ci)." },
+        "paid": { "type": "boolean" },
+        "no-oss-alternative": { "type": "boolean" },
+        "oss-alternative": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$", "description": "Registry id of the open-source default this non-open-source tool overrides. Marks an override-only entry; pair with status candidate." },
+        "justification": { "type": "string" }
+      },
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": { "properties": { "paid": { "const": true } }, "required": ["paid"] },
+          "then": {
+            "required": ["no-oss-alternative", "justification"],
+            "properties": { "no-oss-alternative": { "const": true } }
+          }
+        },
+        {
+          "if": { "required": ["oss-alternative"] },
+          "then": { "required": ["justification", "status"], "properties": { "status": { "const": "candidate" } } }
+        }
+      ]
+    }
+  },
+  "additionalProperties": false
+}

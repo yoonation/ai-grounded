@@ -1,0 +1,70 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "governance-commons/schemas/rule.schema.json",
+  "title": "Substrate rule (authored form)",
+  "type": "object",
+  "required": ["id", "name", "layer", "characteristic", "severity", "status", "statement"],
+  "additionalProperties": false,
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9-]+\\.[a-z0-9-]+$",
+      "description": "Semantic path id: concern.slug, mirrors the folder path."
+    },
+    "name": { "type": "string", "minLength": 1 },
+    "layer": { "type": "string", "enum": ["mechanical", "semantic", "judgmental"] },
+    "characteristic": {
+      "type": "string",
+      "enum": [
+        "functional-suitability", "performance-efficiency", "compatibility",
+        "interaction-capability", "reliability", "security", "maintainability",
+        "flexibility", "safety"
+      ],
+      "description": "ISO/IEC 25010:2023 primary characteristic (the column)."
+    },
+    "severity": { "type": "string", "enum": ["info", "low", "medium", "high", "critical"] },
+    "status": { "type": "string", "enum": ["draft", "stable", "deprecated", "retired"] },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "authored_by": { "type": "string" },
+        "ai_assistance": { "type": "string" },
+        "entered_draft": { "type": "string" },
+        "entered_stable": { "type": "string" }
+      }
+    },
+    "sources": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["title"],
+        "additionalProperties": false,
+        "properties": {
+          "title": { "type": "string" },
+          "url": { "type": "string" }
+        }
+      }
+    },
+    "cwe": { "type": "array", "items": { "type": "string", "pattern": "^CWE-[0-9]+$" } },
+    "applies_to": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "language": { "type": "string" },
+        "framework": { "type": "string" },
+        "environment": { "type": "string" }
+      }
+    },
+    "references": {
+      "type": "array",
+      "items": { "type": "string", "pattern": "^[a-z0-9-]+\\.[a-z0-9-]+$" },
+      "description": "Ids of other rules this one cross-references. Not a second home."
+    },
+    "statement": { "type": "string", "minLength": 1 },
+    "rationale": { "type": "string" },
+    "guidance_ref": { "type": "string" },
+    "supersedes": { "type": "string" },
+    "superseded_by": { "type": "string" }
+  }
+}

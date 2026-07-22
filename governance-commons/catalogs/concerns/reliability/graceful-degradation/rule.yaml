@@ -1,0 +1,49 @@
+id: reliability.graceful-degradation
+name: Failure of a non-critical dependency degrades the affected feature gracefully rather
+  than failing the whole request or system
+layer: semantic
+characteristic: reliability
+severity: high
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-31'
+  entered_stable: '2026-06-01'
+  authored_by: Myoung Hong
+sources:
+- title: Azure Well-Architected guidance on graceful degradation and self-preservation
+    (degrade functionality rather than fail entirely; concept reference)
+  url: https://learn.microsoft.com/en-us/azure/well-architected/reliability/self-preservation
+- title: Fault tolerance and graceful degradation (a system continuing at reduced capability
+    when a part fails; concept reference)
+  url: https://en.wikipedia.org/wiki/Fault_tolerance
+applies_to:
+  language: any
+  framework: any
+  environment: any
+references: []
+statement: 'Outbound dependencies are classified by criticality, and the failure of a
+  non-critical dependency degrades only the feature it supports rather than failing the
+  whole request or system. A critical dependency is one without which the operation has
+  no correct result (the primary datastore for a write, the payment processor for a purchase);
+  its failure correctly fails the operation. A non-critical dependency enriches or decorates
+  but is not essential to the core result (recommendations on a product page, avatars
+  in a comment list, an analytics or audit-sink emission on a success path); its failure
+  must be absorbed with a defined fallback: serve cached or default content, omit the
+  optional element, queue the deferred work, or disable the feature, while the core operation
+  completes. The rule requires that each dependency''s criticality be a deliberate, documented
+  classification and that every non-critical dependency have a defined fallback exercised
+  by a test.'
+rationale: 'The default behavior of code that calls a dependency and propagates its error
+  is to make every dependency critical by omission. That is almost never what the product
+  intends: a user who cannot see recommendations can still buy, a reader who cannot load
+  an avatar can still read. Graceful degradation is the discipline of making the criticality
+  of each dependency an explicit decision and giving every non-critical one a fallback,
+  so that the system''s failure surface matches its actual essential dependencies rather
+  than its incidental ones. The rule is semantic because only a human who understands
+  the product can say whether a dependency is essential to a given operation; a tool can
+  list the outbound calls but cannot judge which ones the result truly needs. It is distinct
+  from the circuit breaker of error-handling.retry-and-circuit-breaker: the breaker is the mechanism that detects a
+  failing dependency and stops calling it; degradation is the behavior the product exhibits
+  while the breaker is open. A breaker with no degradation path still fails the request,
+  just faster.'

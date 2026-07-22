@@ -1,0 +1,40 @@
+id: responsible-ai.data-governance
+name: Training and evaluation data is representative, documented, and appropriate for
+  the system's intended use
+layer: semantic
+characteristic: safety
+severity: high
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-06-02'
+  entered_stable: '2026-06-04'
+  authored_by: Myoung Hong
+sources:
+- title: EU AI Act Regulation 2024/1689 (Article 10 data and data governance for high-risk
+    systems, referenced as a concept)
+  url: https://eur-lex.europa.eu/eli/reg/2024/1689/oj
+- title: NIST AI Risk Management Framework (the MAP and MEASURE functions, data representativeness
+    and provenance, referenced as a concept)
+  url: https://www.nist.gov/itl/ai-risk-management-framework
+applies_to:
+  language: any
+  framework: any
+  environment: any
+references: []
+statement: The training and evaluation data is documented in its provenance, composition,
+  collection method, and known gaps; its composition is representative of the population
+  the system will serve, or the gaps are recorded and accounted for; and its use is consistent
+  with the basis on which it was collected. Where the data carries a sensitivity class,
+  its handling is owned by data-classification; where it is personal, its lawful basis
+  and purpose limitation are owned by privacy. The data governance is reviewed when a
+  new dataset is introduced or a model is retrained on new data.
+rationale: 'The model inherits the properties of its data: its blind spots are the data''s
+  gaps, its biases are the data''s skews, and its legitimacy is bounded by the basis on
+  which the data was gathered. Documenting provenance and composition is what makes those
+  properties visible; assessing representativeness is what turns a hidden gap into a recorded
+  limitation; and checking the use against the collection basis is what keeps the model
+  lawful and accountable. The substrate keeps this an L2 review because the judgments
+  (is this representative, is this an appropriate use) require knowledge of the data and
+  the deployment context that source does not carry, and it defers the sensitivity-class
+  handling and the personal-data obligations to the concerns that own them.'

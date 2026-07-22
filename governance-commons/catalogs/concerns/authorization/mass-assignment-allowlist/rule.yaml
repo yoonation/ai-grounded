@@ -1,0 +1,48 @@
+id: authorization.mass-assignment-allowlist
+name: Request-payload parameter binding uses an explicit allowlist of bindable fields;
+  mass assignment is prevented at the binding layer
+layer: mechanical
+characteristic: security
+severity: high
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-22'
+  entered_stable: '2026-05-26'
+  authored_by: Myoung Hong
+sources:
+- title: OWASP ASVS v5.0.0 V8.3.4 (Authorization decisions cover updates to model attributes,
+    including those set by mass assignment)
+  url: https://github.com/OWASP/ASVS/blob/v5.0.0/5.0/en/0x17-V8-Authorization.md
+- title: OWASP API Security Top 10 2023 API6:2023 Unrestricted Access to Sensitive Business
+    Flows
+  url: https://owasp.org/API-Security/editions/2023/en/0xa6-unrestricted-access-to-sensitive-business-flows/
+- title: CWE-915 Improperly Controlled Modification of Dynamically-Determined Object Attributes
+  url: https://cwe.mitre.org/data/definitions/915.html
+cwe:
+- CWE-915
+applies_to:
+  language: any
+  framework: any-with-request-to-model-binding
+  environment: any-with-persistence
+references: []
+statement: 'Endpoints that bind request payloads to domain objects (web forms, JSON request
+  bodies, GraphQL input objects, protobuf messages) use an explicit allowlist of bindable
+  fields. The allowlist is declared in code at the binding layer (form definition, DTO
+  class, schema declaration). Fields not in the allowlist cannot be written from the request,
+  regardless of whether the underlying model exposes them. Sensitive fields (role, is_admin,
+  permissions, status, owner_id, tenant_id, and application-defined privilege markers)
+  are not in request-bound allowlists unless explicit authz policy permits the specific
+  principal to modify them. Block-list (denylist) approaches are not substrate-approved:
+  denylists fail open on every new model field, requiring developers to remember to add
+  new fields to the denylist.'
+rationale: 'Mass assignment is the data-layer equivalent of missing authorization. The
+  HTTP request reaches a handler that is authorization-checked for the action; the handler
+  then bulk-binds the request body to the model and writes whatever the request contained,
+  including fields the handler never intended to expose for writing. The framework''s
+  convenience method (Model.create(**request.json), user.update(**req.body), entity.merge(input))
+  makes the pattern easy to introduce. The allowlist-only requirement inverts the failure
+  mode: forgetting to add a field to the allowlist fails closed (the field can''t be written
+  from the request), which surfaces immediately at feature work. Forgetting to add a field
+  to a denylist fails open (the field IS writable from the request), which is silent until
+  exploitation.'

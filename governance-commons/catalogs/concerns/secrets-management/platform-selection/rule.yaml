@@ -1,0 +1,42 @@
+id: secrets-management.platform-selection
+name: Secrets management platform selection is explicitly decided and documented via the
+  substrate's MADR framework
+layer: judgmental
+characteristic: security
+severity: critical
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-20'
+  entered_stable: '2026-05-22'
+  authored_by: Myoung Hong
+sources:
+- title: OWASP Secrets Management Cheat Sheet (platform selection considerations)
+  url: https://cheatsheetseries.owasp.org/cheatsheets/Secrets_Management_Cheat_Sheet.html
+- title: OWASP ASVS v5.0.0 V13 Configuration (secrets management solution requirement)
+  url: https://github.com/OWASP/ASVS/blob/v5.0.0/5.0/en/0x22-V13-Configuration.md
+applies_to:
+  language: any
+  framework: any
+  environment: any-handling-secrets
+references: []
+statement: 'The application has an explicitly documented decision on its secrets management
+  platform. The decision is recorded in a MADR document following the substrate''s decision-framework
+  template (see decision-framework link). The MADR is stored in the application''s decision-record
+  location (substrate-recommended path: /docs/decisions/ ADR-XXX-secrets-management-platform.md)
+  and is referenced from the application''s architectural documentation. The MADR addresses
+  every section the substrate''s template requires; deviations from substrate-preferred
+  options are explicitly justified.'
+rationale: 'Secrets management platform choice cascades through every other secrets rule:
+  Platform determines which L1 detections produce actionable findings (e.g., if the platform
+  uses file-system mounts, the file path is the detection scope; if the platform uses
+  environment variables, the manifest is the detection scope). Platform determines which
+  L2 rotation patterns are available (some platforms automate dynamic credentials; others
+  require external rotation automation; some have no rotation primitives). Platform determines
+  least-privilege expression (per-resource policy vs. namespace-based; workload identity
+  vs. static credentials). Platform determines encryption-at-rest options (provider-managed
+  vs. customer-managed; KMS integration vs. inline). Platform determines operational surface
+  (managed service vs. self-hosted; cost; vendor lock-in profile). Making this choice
+  without explicit analysis produces brittle outcomes. Teams default to whatever the cloud
+  provider''s documentation first surfaces, or to a tool they have used before, without
+  examining whether the choice fits the application''s needs.'

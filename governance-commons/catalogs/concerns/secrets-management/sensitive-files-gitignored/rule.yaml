@@ -1,0 +1,49 @@
+id: secrets-management.sensitive-files-gitignored
+name: Sensitive configuration files (private keys, credential archives, vault unlock material)
+  are excluded from version control by enforced .gitignore entries
+layer: mechanical
+characteristic: security
+severity: critical
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-20'
+  entered_stable: '2026-05-22'
+  authored_by: Myoung Hong
+sources:
+- title: OWASP Secrets Management Cheat Sheet (sections on secret storage and version
+    control hygiene)
+  url: https://cheatsheetseries.owasp.org/cheatsheets/Secrets_Management_Cheat_Sheet.html
+- title: OWASP ASVS v5.0.0 V13 Configuration (secret management requirements; secrets
+    must not be included in source code or build artifacts)
+  url: https://github.com/OWASP/ASVS/blob/v5.0.0/5.0/en/0x22-V13-Configuration.md
+- title: CWE-540 Inclusion of Sensitive Information in Source Code
+  url: https://cwe.mitre.org/data/definitions/540.html
+- title: CWE-552 Files or Directories Accessible to External Parties
+  url: https://cwe.mitre.org/data/definitions/552.html
+cwe:
+- CWE-540
+- CWE-552
+applies_to:
+  language: any
+  framework: any
+  environment: any
+references: []
+statement: The project's .gitignore file (and equivalents for other version control systems
+  and pre-commit tooling) excludes file patterns that commonly carry secret material.
+  The substrate-recommended minimum patterns are enumerated in the guidance section below.
+  CI enforces that no commit introduces a file matching these patterns regardless of whether
+  the file is tracked or untracked at the time of the change. Where a sensitive file genuinely
+  belongs in version control (e.g., a public certificate, a signed but non-secret manifest),
+  the file is committed in a path that does not match the sensitive pattern set, and the
+  exception is documented in the repository's README or in a SECURITY.md.
+rationale: 'Many real-world credential disclosures result from files reaching commit history
+  that the developer did not intend to commit. The dominant causes: developer creates
+  a credential locally for testing (file named .env, id_rsa, deploy.key); git status reports
+  it as untracked; developer runs ''git add .'' or ''git commit -a'' without inspecting
+  the staging area; the file enters history. A mechanical guard at the commit step catches
+  this category of mistake before history is written. Comprehensive .gitignore plus pre-commit
+  hook blocks the path entirely; the developer cannot accidentally commit the file. The
+  substrate requires both because each addresses a different failure mode: .gitignore
+  prevents ''git add''; pre-commit blocks the cases where ignore is overridden with ''git
+  add -f'' or manually staged content.'

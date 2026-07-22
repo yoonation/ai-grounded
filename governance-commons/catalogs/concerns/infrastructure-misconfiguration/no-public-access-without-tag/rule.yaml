@@ -1,0 +1,58 @@
+id: infrastructure-misconfiguration.no-public-access-without-tag
+name: Storage and managed resources are not publicly accessible unless explicitly tagged
+  as intentionally public
+layer: mechanical
+characteristic: security
+severity: critical
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-31'
+  entered_stable: '2026-06-01'
+  authored_by: Myoung Hong
+sources:
+- title: CIS AWS Foundations Benchmark v3.0.0 (Section 2 S3 public-access-block, Section
+    2 RDS publicly_accessible)
+  url: https://www.cisecurity.org/benchmark/amazon_web_services
+- title: CIS Azure Foundations Benchmark v2.1.0 (Section 3 Storage public access)
+  url: https://www.cisecurity.org/benchmark/azure
+- title: CIS GCP Foundation Benchmark v2.0.0 (Section 5 Storage uniform bucket-level access)
+  url: https://www.cisecurity.org/benchmark/google_cloud_computing_platform
+- title: CWE-732 Incorrect Permission Assignment for Critical Resource
+  url: https://cwe.mitre.org/data/definitions/732.html
+cwe:
+- CWE-732
+- CWE-284
+applies_to:
+  language: any-iac
+  framework: terraform-cloudformation-pulumi-kubernetes-arm-bicep
+  environment: any-cloud-managed-resource
+references: []
+statement: 'IaC declarations of managed resources do not permit public (anonymous-internet)
+  access unless the resource carries the substrate-recognized intentional-public tag (governance-commons.intent
+  = "public-by-design" plus a justification field). The substrate''s public-by-default
+  failure surface includes: AWS S3 buckets without a public-access-block resource and
+  with block_public_acls or block_public_policy set false; AWS RDS and Aurora instances
+  with publicly_accessible = true; AWS ElastiCache, OpenSearch, Redshift, MSK, and similar
+  managed services with public endpoints enabled; AWS ECR and ECR Public repositories
+  with public policies; AWS Lambda function URLs configured for AWS_IAM = "NONE"; AWS
+  API Gateway without authorization on protected routes; Azure Storage accounts with allow_blob_public_access
+  = true and containers with anonymous access; Azure Cosmos DB with public_network_access_enabled
+  = true; Azure SQL with public_network_access_enabled = true; Azure Container Registry
+  with anonymous_pull_enabled = true; GCP Cloud Storage buckets without uniform bucket-level
+  access and with legacy ACL granting allUsers or allAuthenticatedUsers; GCP Cloud SQL
+  with authorized_networks containing 0.0.0.0/0; GCP Bigtable, Spanner, Pub/Sub with public
+  IAM bindings; GCP Artifact Registry with public reader IAM; Kubernetes Services of type
+  LoadBalancer with no annotations restricting source ranges (cross-references infrastructure-misconfiguration.no-unrestricted-ingress
+  for the network-level rule); Kubernetes Ingress resources without authentication annotations
+  on routes the substrate marks protected. The intentional-public tag converts the rule
+  from a violation to a documented choice; the tag''s justification field is reviewed
+  at L2 review time (infrastructure-misconfiguration.governance-tagging covers the tagging governance, and infrastructure-misconfiguration.network-segmentation covers the
+  architectural review of why the resource is public).'
+rationale: 'The substrate''s design choice mirrors the same rationale as the authorization
+  concern''s deny-by-default rule (authorization.protected-route-declares-authz): inverting the default changes the failure
+  mode from "silently exposed" to "loudly flagged at provisioning." A legitimately public
+  resource (a marketing-asset CDN-origin bucket, a public artifact registry for an open-source
+  project) carries the intent tag with a one-line justification; an accidental public
+  exposure fails the mechanical check at scan time. The cost of the rule is the tag annotation
+  on legitimately public resources; the cost of omission is the "public S3 bucket" archetype.'

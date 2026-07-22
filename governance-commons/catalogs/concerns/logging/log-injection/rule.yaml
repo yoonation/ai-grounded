@@ -1,0 +1,49 @@
+id: logging.log-injection
+name: Log records are not constructed by string concatenation or interpolation of unvalidated
+  user input
+layer: mechanical
+characteristic: maintainability
+severity: high
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-20'
+  entered_stable: '2026-05-22'
+  authored_by: Myoung Hong
+sources:
+- title: CWE-117 Improper Output Neutralization for Logs
+  url: https://cwe.mitre.org/data/definitions/117.html
+- title: CWE-93 Improper Neutralization of CRLF Sequences (CRLF Injection)
+  url: https://cwe.mitre.org/data/definitions/93.html
+- title: OWASP Logging Cheat Sheet (log injection prevention)
+  url: https://cheatsheetseries.owasp.org/cheatsheets/Logging_Cheat_Sheet.html
+- title: OWASP ASVS v5.0.0 V11 (log injection requirement)
+  url: https://github.com/OWASP/ASVS/blob/v5.0.0/5.0/en/0x20-V11-BusLogic.md
+cwe:
+- CWE-117
+- CWE-93
+applies_to:
+  language: any
+  framework: any
+  environment: any
+references: []
+statement: 'Log records do not embed user-controlled values directly into the log message
+  string. User input reaches the logger as the value of a structured field, not as a fragment
+  of a formatted message. Specifically: log call sites do not use f-strings, template
+  literals, sprintf format codes, or string concatenation to build the log message from
+  user-supplied values; user input is passed as a key-value argument to the logger and
+  serialized by the logger library, which performs the escaping for the chosen output
+  format.'
+rationale: 'Log injection has four distinct attack surfaces. First, forged-entry injection:
+  a user-controlled value containing newline characters splits a single log record into
+  multiple records, allowing the attacker to forge events that appear to come from the
+  application. Second, control-character injection: ANSI escape codes, terminal control
+  sequences, and Unicode control characters can disrupt log viewers and consoles. Third,
+  downstream-interpreter injection: log content interpreted as commands by downstream
+  systems (Log4Shell pattern, log-line-as-template-source patterns in some SIEM rule engines).
+  Fourth, parse-disruption injection: malformed JSON or unbalanced quotes that break the
+  parser at ingestion time, dropping the record entirely. The substrate''s mechanical
+  rule eliminates all four surfaces at the call site: structured field arguments are serialized
+  by the logger library, which produces valid JSON regardless of the value''s content.
+  Special characters are escaped per JSON rules; control characters are escaped or replaced;
+  the record remains a single line containing one valid record.'

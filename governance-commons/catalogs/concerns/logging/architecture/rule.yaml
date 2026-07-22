@@ -1,0 +1,40 @@
+id: logging.architecture
+name: The application has an explicitly documented logging architecture decision covering
+  aggregator selection, transport, retention bands, and integrity model
+layer: judgmental
+characteristic: maintainability
+severity: medium
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-20'
+  entered_stable: '2026-05-22'
+  authored_by: Myoung Hong
+sources:
+- title: NIST SP 800-92 Section 5 (planning the log management infrastructure)
+  url: https://csrc.nist.gov/publications/detail/sp/800-92/final
+- title: OWASP ASVS v5.0.0 V11 (logging architecture requirements)
+  url: https://github.com/OWASP/ASVS/blob/v5.0.0/5.0/en/0x20-V11-BusLogic.md
+applies_to:
+  language: any
+  framework: any
+  environment: any-production
+references: []
+statement: 'The application has an explicitly documented decision on its logging architecture.
+  The decision is recorded in a MADR document following the substrate''s decision-framework
+  template (see decision-framework link). The MADR is stored in the application''s decision-record
+  location (substrate-recommended path: /docs/decisions/ADR-XXX-logging-architecture.md)
+  and is referenced from the application''s architectural documentation. The MADR addresses
+  every section the substrate''s template requires; deviations from substrate-preferred
+  options are explicitly justified.'
+rationale: 'Logging architecture choice cascades through every other logging rule: Aggregator
+  determines which retention configurations are available (logging.retention-policy), which integrity
+  mechanisms are supported (logging.integrity), and which query capabilities the operational
+  team has (LOG- L2-004). Transport determines latency between event and aggregator (sub-minute
+  for sidecar-shipped vs. potentially longer for batch-uploaded), and affects logging.integrity
+  integrity story (in-flight integrity vs. only-at-rest integrity). Retention bands determine
+  compliance posture (LOG- L2-001) and cost. Integrity model determines forensic credibility
+  and regulator acceptance. Making this choice without explicit analysis produces brittle
+  outcomes. Teams default to whatever the cloud provider''s documentation first surfaces,
+  or to a tool they have used before, without examining whether the choice fits the application''s
+  regulatory regime, scale, or operational maturity.'

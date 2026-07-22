@@ -1,0 +1,10 @@
+id: testing-strategy
+name: Testing Strategy
+characteristic: functional-suitability
+status: stable
+summary: >
+  How testing is structured for confidence: a documented testing strategy,
+  a balanced and documented test pyramid, critical-path coverage beyond
+  happy paths, deterministic execution without flaky time-based sleeps, no
+  empty test bodies, documented rationale on skipped tests, and no
+  test-framework imports in production paths.

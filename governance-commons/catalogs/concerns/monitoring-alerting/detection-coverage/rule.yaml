@@ -1,0 +1,43 @@
+id: monitoring-alerting.detection-coverage
+name: Each critical user-facing failure mode and SLO-burn condition has a corresponding
+  alert, so real incidents are detected rather than discovered by users
+layer: semantic
+characteristic: reliability
+severity: high
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-06-03'
+  entered_stable: '2026-06-04'
+  authored_by: Myoung Hong
+sources:
+- title: Google SRE Workbook Alerting on SLOs (alerting on user-facing symptoms and on
+    error-budget burn rate, referenced as a concept)
+  url: https://sre.google/workbook/alerting-on-slos/
+- title: Google SRE Book Chapter 6 Monitoring Distributed Systems (the four golden signals
+    and symptom-based coverage, referenced as a concept)
+  url: https://sre.google/sre-book/monitoring-distributed-systems/
+applies_to:
+  language: any
+  framework: any
+  environment: any
+references: []
+statement: 'The critical user-facing failure modes of the service (the symptoms a user
+  would experience: elevated error rate, latency beyond the objective, unavailability
+  of a core flow) and the SLO-burn conditions defined for the service each have a corresponding
+  alert. Coverage is assessed against the SLOs chosen in observability.slo-policy and the service''s
+  documented failure modes, not invented here. The rule asserts the alerts exist for the
+  conditions that matter; the hygiene of each alert (severity, runbook, summary, deduplication)
+  is observability.alerting-discipline, and the SLO and error-budget definitions are observability.slo-policy, both cross-referenced.
+  A critical condition with no alert is the finding.'
+rationale: 'Coverage and hygiene are different questions, and the substrate keeps them
+  in different concerns on purpose. Observability''s alert-discipline rule (observability.alerting-discipline)
+  makes the alerts that exist crisp and actionable; it does not and cannot ask whether
+  the alert for the thing that actually took the service down was ever written. That gap
+  is where outages become customer-reported. Alerting on symptoms the user feels, and
+  on the rate at which the error budget is burning, is the coverage philosophy that catches
+  real incidents while suppressing the cause-level noise that produces fatigue. The rule
+  is a review and test rule rather than a static one because completeness of coverage
+  cannot be read from source: it requires knowing the service''s failure modes and SLOs.
+  It defers the SLO selection to observability.slo-policy and the per-alert hygiene to observability.alerting-discipline, owning
+  only the presence question.'

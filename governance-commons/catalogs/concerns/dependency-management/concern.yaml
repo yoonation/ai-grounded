@@ -1,0 +1,9 @@
+id: dependency-management
+name: Dependency Management
+characteristic: compatibility
+status: stable
+summary: >
+  How third-party dependencies are controlled: versions pinned via a
+  committed lockfile, provenance from recognized registries, a vetting
+  policy for new direct dependencies, a defined and evidenced update
+  cadence, and build-time blocking of known-vulnerable versions.

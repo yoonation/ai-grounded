@@ -1,0 +1,38 @@
+id: testing-strategy.deterministic-execution
+name: Tests execute deterministically across runs and environments, independent of order,
+  time, external state, and concurrency
+layer: semantic
+characteristic: functional-suitability
+severity: high
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-25'
+  entered_stable: '2026-05-26'
+  authored_by: Myoung Hong
+sources:
+- title: OWASP ASVS v5.0.0 V14.1 (test reliability requirements)
+  url: https://github.com/OWASP/ASVS/blob/v5.0.0/5.0/en/0x22-V14-Config.md
+cwe:
+- CWE-1006
+applies_to:
+  environment: any
+references: []
+statement: 'Tests in the application''s suite execute deterministically: the same test
+  on the same code produces the same result regardless of execution order, parallelism,
+  host environment, wall-clock time, network availability, filesystem state from previous
+  tests, or shared database state. Tests achieve determinism by: hermetic isolation (no
+  external network, no shared filesystem, no shared database, or by per-test transactional
+  rollback); mocked time (fake clocks under explicit control); fixture isolation (per-test
+  database state or per-test directory); independence from order (tests can be shuffled
+  and produce the same results); parallel-safe (tests can run in parallel without interfering).'
+rationale: Non-determinism is the trust-erosion mechanism for test suites. Once a test
+  is known-flaky, the team learns to rerun rather than investigate; the next-flakier-test
+  is also rerun rather than investigated; over time, real regressions hide in the flake
+  noise. The substrate's L2 review catches determinism failures at PR time before they
+  accumulate; the L1 rule testing-strategy.no-flaky-sleep catches the most common vector (sleep) mechanically.
+  Determinism is L2 because the substrate cannot statically detect all flakiness vectors.
+  Shared database state, leaked file descriptors, race conditions, and timing-dependent
+  assertions all produce flakiness without syntactic signatures. Reviewers verify the
+  project has the right infrastructure (per-test isolation, fake time, mocked external
+  dependencies) and that the test suite exercises it.

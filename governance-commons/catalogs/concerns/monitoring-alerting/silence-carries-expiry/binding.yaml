@@ -1,0 +1,4 @@
+binding_status: capability-bound
+rule: monitoring-alerting.silence-carries-expiry
+gate: schema-validate
+tool: amtool

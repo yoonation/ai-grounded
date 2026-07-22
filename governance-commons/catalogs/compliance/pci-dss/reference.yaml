@@ -1,0 +1,189 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Myoung Hong
+# PCI DSS - Payment Card Industry Data Security Standard - Reference Only
+#
+# PCI DSS is published by the PCI Security Standards Council (PCI SSC)
+# and is copyrighted. The standard is freely downloadable from the PCI
+# SSC Document Library under the council's terms of use, but its
+# redistribution is restricted. This file contains citation metadata,
+# the goal and requirement structure, and cross-framework mappings, but
+# no verbatim requirement text, testing procedures, or guidance.
+#
+# Practitioners download the standard from PCI SSC and may populate
+# requirement and testing-procedure text in a local fork. This file is
+# the upstream-safe reference shared in this commons.
+
+metadata:
+  catalog_id: pci-dss
+  catalog_name: PCI DSS v4.0.1 (Payment Card Industry Data Security Standard)
+  schema_version: 1.0.0
+  last_reviewed: 2026-06-28
+  upstream_source: https://www.pcisecuritystandards.org/document_library/
+  upstream_version: "4.0.1 (released 11 June 2024; only active version since 31 December 2024)"
+  next_review_due: 2027-06-28
+  maintainer: <set-during-init>
+  review_protocol: governance-commons/MAINTENANCE.md
+  copyright_status: copyrighted
+  redistribution_allowed: false
+  reference_only: true
+  applies_to: [build_time, runtime]
+
+description: >
+  PCI DSS is the security standard for any organization that stores,
+  processes, or transmits payment card data. It is maintained by the
+  PCI Security Standards Council and enforced through the card brands
+  and acquiring banks rather than by statute. Compliance is validated
+  either by a Qualified Security Assessor producing a Report on
+  Compliance (ROC) or, for smaller merchants, through a Self-Assessment
+  Questionnaire (SAQ), with the applicable validation path determined by
+  merchant level and payment channel.
+
+  Version status: v4.0.1 is the only active version. PCI DSS v4.0 was
+  released in March 2022, v4.0.1 was published in June 2024 as a limited
+  revision that added and removed no requirements, and v4.0 was retired
+  on 31 December 2024. The future-dated v4.0 requirements became
+  mandatory on 31 March 2025, so all assessments from 2025 onward are
+  against the full v4.0.1 requirement set.
+
+  v4.0 introduced two notable shifts carried into v4.0.1: the customized
+  approach, which lets an organization meet a requirement's objective
+  through alternative controls validated by a targeted risk analysis
+  instead of the prescriptive defined approach; and an emphasis on
+  security as a continuous process rather than an annual event.
+
+structure:
+  goals:
+    - id: "build-and-maintain-a-secure-network-and-systems"
+      title: "Build and Maintain a Secure Network and Systems"
+      requirements:
+        - id: "1"
+          title: "Install and Maintain Network Security Controls"
+        - id: "2"
+          title: "Apply Secure Configurations to All System Components"
+
+    - id: "protect-account-data"
+      title: "Protect Account Data"
+      requirements:
+        - id: "3"
+          title: "Protect Stored Account Data"
+        - id: "4"
+          title: "Protect Cardholder Data with Strong Cryptography During Transmission Over Open, Public Networks"
+
+    - id: "maintain-a-vulnerability-management-program"
+      title: "Maintain a Vulnerability Management Program"
+      requirements:
+        - id: "5"
+          title: "Protect All Systems and Networks from Malicious Software"
+        - id: "6"
+          title: "Develop and Maintain Secure Systems and Software"
+
+    - id: "implement-strong-access-control-measures"
+      title: "Implement Strong Access Control Measures"
+      requirements:
+        - id: "7"
+          title: "Restrict Access to System Components and Cardholder Data by Business Need to Know"
+        - id: "8"
+          title: "Identify Users and Authenticate Access to System Components"
+        - id: "9"
+          title: "Restrict Physical Access to Cardholder Data"
+
+    - id: "regularly-monitor-and-test-networks"
+      title: "Regularly Monitor and Test Networks"
+      requirements:
+        - id: "10"
+          title: "Log and Monitor All Access to System Components and Cardholder Data"
+        - id: "11"
+          title: "Test Security of Systems and Networks Regularly"
+
+    - id: "maintain-an-information-security-policy"
+      title: "Maintain an Information Security Policy"
+      requirements:
+        - id: "12"
+          title: "Support Information Security with Organizational Policies and Programs"
+
+  structure_note: >
+    Each requirement contains numbered sub-requirements (for example 3.1,
+    3.2) and, for each, defined-approach testing procedures and guidance.
+    That detail is copyrighted and is not reproduced here; cite a
+    requirement or sub-requirement by its number and consult the standard
+    for the text.
+
+mappings:
+
+  - target_framework: nist-800-53-rev5
+    relationship: heavy-overlap
+    notes: >
+      PCI DSS requirements map substantially to 800-53 families:
+      Requirement 1 to SC and CA boundary controls; Requirement 3 to SC
+      protection of data at rest; Requirement 4 to SC transmission
+      confidentiality; Requirements 7 and 8 to AC and IA; Requirement 10
+      to AU; Requirement 11 to CA and RA scanning and testing. An
+      organization meeting 800-53 Moderate covers much of the technical
+      surface of PCI DSS, though PCI's cardholder-data scoping and
+      validation regime are specific to it.
+
+  - target_framework: soc2-tsc
+    relationship: heavy-overlap
+    notes: >
+      PCI DSS access, transmission, monitoring, and change-management
+      requirements overlap with the SOC 2 Common Criteria, particularly
+      CC6 (logical and physical access), CC7 (system operations), and CC8
+      (change management). The frameworks are often pursued together by
+      payment-handling SaaS providers.
+
+  - target_framework: nist-csf-v2
+    relationship: complementary
+    notes: >
+      CSF v2 functions provide an outcome-level organizing layer above
+      PCI DSS controls. PCI DSS is prescriptive where CSF is outcome
+      oriented; a CSF program can house PCI DSS as the control detail for
+      payment-data scope.
+
+applicability:
+  recommended_when:
+    - Organization stores, processes, or transmits cardholder data
+    - Building or operating payment, checkout, or card-on-file flows
+    - A merchant or service provider subject to acquirer or card-brand validation
+    - Targeting roles at payments, fintech, or e-commerce companies
+
+  less_critical_when:
+    - No cardholder data is handled and payment is fully outsourced to a compliant processor
+    - Pre-revenue work with no payment surface
+    - Domains where payment-card data never enters scope
+
+access:
+  full_text_source: PCI SSC Document Library - free download under the council's terms of use
+  purchase_url: https://www.pcisecuritystandards.org/document_library/
+  approximate_cost: "No charge to download; redistribution of the standard text is restricted by copyright"
+  cheaper_access:
+    - The standard itself is free from PCI SSC; no purchase is needed to read it
+    - Quick Reference Guide and prioritized approach resources are also free from PCI SSC
+    - Compliance platforms reproduce requirement text under their own license
+
+usage_in_framework:
+  - Cross-reference target for OSCAL mappings and threat catalogs (cite by requirement or sub-requirement number)
+  - Threat catalog related_compliance fields can reference PCI DSS requirement numbers
+  - Project teams handling cardholder data can populate full requirement
+    and testing-procedure text in a private fork; never commit verbatim
+    PCI SSC text to public repositories
+  - Security review cites this reference file's goal and requirement IDs;
+    assessors and QSAs work from the licensed standard
+
+gotchas:
+  - Do not reproduce PCI SSC requirement text, testing procedures, or guidance in public commits
+  - PCI DSS is contractually enforced by the card brands and acquirers, not by statute
+  - Scope is driven by the cardholder data environment (CDE); reducing what
+    is in scope (for example via tokenization or a hosted payment page)
+    reduces the applicable requirements
+  - The validation path (ROC versus a specific SAQ) depends on merchant
+    level and payment channel; the requirements that apply differ by SAQ type
+  - v4.0.1 is current; v3.2.1 is fully retired and v4.0 superseded. Do not
+    reference v3.2.1 requirement numbering for new work
+
+pci_specific_note: >
+  The customized approach added in v4.0 means a control can be satisfied
+  by an alternative mechanism whose effectiveness is shown through a
+  targeted risk analysis, rather than only by the prescriptive defined
+  approach. When verifying PCI DSS configuration, confirm which approach
+  an organization has chosen for a given requirement before judging a
+  control as a gap, since the evidence expected differs between the two.

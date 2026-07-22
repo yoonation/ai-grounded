@@ -1,0 +1,45 @@
+id: feature-flags.lifecycle-and-kill-switch
+name: Every flag has an owner, a type, and a retirement plan; stale flags are retired
+  and operational kill switches work without a deploy
+layer: semantic
+characteristic: maintainability
+severity: high
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-06-04'
+  entered_stable: '2026-06-06'
+  authored_by: Myoung Hong
+sources:
+- title: 'Martin Fowler, Feature Toggles: toggle categories (release, experiment, ops,
+    permission) have different longevities, and toggles carry a carrying cost that mandates
+    retirement of the short-lived kinds'
+  url: https://martinfowler.com/articles/feature-toggles.html
+- title: 'OWASP Top 10 A05:2021 Security Misconfiguration: an operational control that
+    cannot be activated when needed, or a forgotten toggle in an unexpected state, is
+    a misconfiguration'
+  url: https://owasp.org/Top10/A05_2021-Security_Misconfiguration/
+applies_to:
+  language: any
+  framework: any
+  environment: any
+references: []
+statement: Every feature flag is recorded in a flag inventory with an owner, a type (release,
+  experiment, operational or kill-switch, or permission), and a planned end state. A temporary
+  flag (a release or experiment toggle) carries a retirement trigger or expiry and is
+  removed, in code and in the provider, once it has fully rolled out or been abandoned,
+  so the flag surface does not accumulate stale toggles. A long-lived flag (an operational
+  kill switch or a permission toggle) is documented as such and reviewed periodically
+  rather than retired. Operational kill switches are reachable and changeable without
+  a code deploy, are documented with the behavior they control, and are tested so that
+  flipping the switch demonstrably changes behavior when it is needed.
+rationale: 'A flag system without lifecycle discipline trends toward entropy: every flag
+  is easy to add and nobody is responsible for removing it, so the count grows, the interactions
+  multiply, and the system''s actual behavior becomes unknowable from the code. Typing
+  flags is what makes retirement decidable: a release toggle is expected to be short-lived
+  and is a defect if it lingers, while a kill switch is expected to live indefinitely
+  and is reviewed rather than removed. The kill-switch requirements are the sharp end:
+  a kill switch exists precisely for the moment something is going wrong, so if it requires
+  a deploy to change or has never been tested, it fails exactly when it is relied upon.
+  The judgment is semantic because typing, ownership, and the appropriateness of a retirement
+  trigger are contextual and cannot be read off the code alone.'

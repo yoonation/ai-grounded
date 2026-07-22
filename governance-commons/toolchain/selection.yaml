@@ -1,0 +1,37 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Myoung Hong
+#
+# L1 capability selection: ecosystem -> capability -> list of registry tool-ids.
+# The single place a tool is swapped for a capability. Lists carry AND semantics
+# (every resolved tool must pass). Validated by schemas/selection.schema.json;
+# the validator enforces that every id here exists and is status active.
+
+python:
+  lint: [ruff]
+  format: [ruff]
+  type-check: [mypy]
+  test: [pytest]
+  sast: [bandit]
+  dep-pinning: [uv]
+
+typescript:
+  lint: [eslint]
+  format: [prettier]
+  type-check: [typescript]
+  test: [vitest]
+  dep-pinning: [npm]
+
+terraform:
+  format: [opentofu]
+  schema-validate: [opentofu]
+  lint: [tflint]
+  iac-scan: [trivy]
+  dep-pinning: [tflint]
+
+any:
+  secrets: [gitleaks]
+  sast: [opengrep]
+  dep-vuln: [osv-scanner]
+
+alerting:
+  schema-validate: [amtool]

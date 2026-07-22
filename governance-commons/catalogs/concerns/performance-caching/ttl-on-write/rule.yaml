@@ -1,0 +1,42 @@
+id: performance-caching.ttl-on-write
+name: Every cache write sets an explicit, bounded time-to-live; no value is written to
+  a cache with no expiry
+layer: mechanical
+characteristic: performance-efficiency
+severity: high
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-31'
+  entered_stable: '2026-06-01'
+  authored_by: Myoung Hong
+sources:
+- title: Redis SET command (the EX, PX, and EXAT options that set an expiry, and the default
+    of no expiry when they are omitted)
+  url: https://redis.io/docs/latest/commands/set/
+- title: Django cache framework (cache.set timeout argument and the meaning of a None
+    timeout as cache forever)
+  url: https://docs.djangoproject.com/en/stable/topics/cache/
+applies_to:
+  language: any
+  framework: any
+  environment: any
+references: []
+statement: Every write to a cache sets an explicit, bounded time-to-live. No value is
+  written to a cache with no expiry or with an expiry that means never. The rule applies
+  to cache writes on the request path and in background refreshers alike; it does not
+  apply to a key-value store deliberately used as a durable system of record rather than
+  a cache, which is exempted by marker. The presence of a bounded expiry on the write
+  is the finding; the correct duration of that expiry is chosen against the data's staleness
+  budget in review (performance-caching.staleness-tolerance).
+rationale: 'A cache is a copy, and a copy with no expiry is a copy that can drift from
+  its source forever and that no longer frees its own space. The time-to-live is the mechanism
+  that makes a cache self-healing in the absence of perfect invalidation: even if a write
+  to the source of record fails to invalidate the cached copy, a bounded time-to-live
+  caps how long the stale copy can be served, and it caps how long an entry that is never
+  read again occupies memory. The substrate treats the presence of a time-to-live as a
+  mechanical floor because its absence is statically visible and almost always a mistake,
+  while its correct value is a judgment about how stale the data may acceptably be. The
+  rule deliberately does not set a default duration, because the right duration is the
+  staleness budget the L2 review and the L3 strategy decide; it requires only that the
+  blast radius of a missed invalidation be bounded rather than infinite.'

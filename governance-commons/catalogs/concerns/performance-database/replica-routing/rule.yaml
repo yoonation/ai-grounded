@@ -1,0 +1,39 @@
+id: performance-database.replica-routing
+name: Where read replicas are used, each read path declares its tolerance for replication
+  lag, and only reads that tolerate staleness are routed to replicas
+layer: semantic
+characteristic: performance-efficiency
+severity: medium
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-31'
+  entered_stable: '2026-06-01'
+  authored_by: Myoung Hong
+sources:
+- title: Postgres replication and standby servers (the source of replication lag that
+    read routing must account for)
+  url: https://www.postgresql.org/docs/current/warm-standby.html
+applies_to:
+  language: any
+  framework: any
+  environment: any
+references: []
+statement: 'Where the deployment uses read replicas to scale reads, each read path is
+  classified by its tolerance for replication lag, and routing respects that classification:
+  reads that require read-your-writes or strong consistency (a user reading data they
+  just wrote, a check that gates a write) go to the primary, while reads that tolerate
+  bounded staleness (listings, dashboards, analytics, search results) may go to replicas.
+  The classification is explicit in the code or configuration rather than implicit, so
+  a new read path is routed deliberately. Where a normally lag-tolerant path occasionally
+  needs fresh data, the freshness requirement is expressed at the call site.'
+rationale: 'A read replica is a consistency trade dressed as a performance feature: it
+  adds read capacity in exchange for serving data that may be slightly behind the primary.
+  The trade is sound for the large class of reads that do not need the very latest write,
+  and unsound for the reads that do, and the failure when the line is crossed is a subtle,
+  intermittent staleness bug rather than an error. Because the routing decision is per-read-path
+  and depends on what the read is for, it cannot be made globally; the discipline is to
+  make the lag tolerance of each path explicit so routing is a deliberate classification
+  rather than an accident of which connection the code happened to grab. This rule is
+  conditional: a single-primary deployment has no replica to route to, and the rule activates
+  when replicas enter the topology.'

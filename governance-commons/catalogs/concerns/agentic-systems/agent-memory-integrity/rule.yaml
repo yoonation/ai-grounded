@@ -1,0 +1,37 @@
+id: agentic-systems.agent-memory-integrity
+name: Agent memory is validated and attributed before it influences a decision
+layer: semantic
+characteristic: safety
+severity: high
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-06-03'
+  entered_stable: '2026-06-04'
+  authored_by: Myoung Hong
+sources:
+- title: OWASP Agentic Security Initiative, agentic threats and mitigations (memory poisoning,
+    referenced as a concept)
+  url: https://genai.owasp.org/resource/agentic-ai-threats-and-mitigations/
+- title: Cloud Security Alliance MAESTRO threat-modeling for agentic systems (memory and
+    state layer, referenced as a concept)
+  url: https://cloudsecurityalliance.org/research/topics/maestro
+applies_to:
+  language: any
+  framework: any
+  environment: any
+references: []
+statement: 'Persisted agent memory is validated and attributed before it influences a
+  decision: entries carry their provenance, untrusted-origin memory is subject to the
+  same instruction/data separation as fresh ingested content, memory cannot on its own
+  expand authority or trigger a consequential action, the store has integrity protection
+  against undetectable tampering, and memory is scoped so it cannot bleed across users
+  or tenants. The instruction/data separation applied here is agentic-systems.instruction-data-separation and the handling
+  of classified memory is data-classification, cross-referenced.'
+rationale: 'Memory turns a one-shot injection into a persistent one: content planted in
+  memory steers the agent in a later, otherwise-clean session, through a channel the agent
+  treats as its own trusted recollection. Treating memory as untrusted-until-validated,
+  with provenance and integrity, is what stops a poisoned entry from quietly redirecting
+  the agent. The substrate makes this an L2 review because trustworthiness depends on
+  origin and protection, and it cross-references the goal-integrity rule it extends and
+  data-classification for classified memory rather than restating them.'

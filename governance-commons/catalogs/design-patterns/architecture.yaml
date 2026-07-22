@@ -1,0 +1,319 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Myoung Hong
+
+
+# Architecture and system-design patterns
+# Named, reusable solutions at the architecture and distributed-systems
+# level: how to structure a system, isolate change, and stay resilient under
+# partial failure. Descriptions here are substrate-original paraphrase of
+# public concepts; no source text or diagrams are reproduced. Some patterns
+# (circuit breaker, retry, idempotency) also exist as enforceable concern
+# rules; those entries cross-reference the rule via applies_pattern_to.
+# Consult while designing systems and service boundaries.
+
+metadata:
+  catalog_id: architecture
+  catalog_name: Architecture and System-Design Patterns
+  schema_version: 1.0.0
+  category_system: structure | resilience | integration | data
+  upstream_source: https://en.wikipedia.org/wiki/Architectural_pattern
+  last_reviewed: 2026-06-14
+  next_review_due: 2027-06-14
+  maintainer: <set-during-init>
+  review_protocol: governance-commons/MAINTENANCE.md
+
+patterns:
+
+  # --- Structure ---
+
+  - id: ARCH-LAYERED
+    name: Layered Architecture
+    category: structure
+    intent: >
+      Organize a system into horizontal layers (presentation, application,
+      domain, infrastructure) where each layer depends only on the one below.
+    when_to_use: >
+      As a default for line-of-business applications where a clear separation
+      of UI, logic, and data access is enough structure.
+    consequences: >
+      Familiar, easy to staff, and enforces a dependency direction; can
+      become a "sinkhole" where requests pass through layers that add no
+      value, and can hide domain logic in the wrong layer.
+    avoid_when: >
+      The system is highly event-driven or the layering is ceremonial; do not
+      add layers that only forward calls.
+
+  - id: ARCH-HEXAGONAL
+    name: Hexagonal Architecture (Ports and Adapters)
+    category: structure
+    intent: >
+      Isolate the application core behind ports (interfaces the core owns) and
+      push all external concerns into adapters that implement those ports.
+    when_to_use: >
+      When you want the domain testable in isolation and infrastructure
+      (database, message bus, HTTP) swappable without touching business logic.
+    consequences: >
+      The core depends on nothing external and is trivially testable; the cost
+      is more interfaces and mapping at the edges. Closely related to clean
+      architecture and an application of the Dependency Inversion Principle.
+    avoid_when: >
+      A small CRUD service with no meaningful domain logic; the ports are pure
+      overhead.
+
+  - id: ARCH-CLEAN
+    name: Clean Architecture
+    category: structure
+    intent: >
+      Arrange code in concentric rings (entities, use cases, interface
+      adapters, frameworks) with the dependency rule pointing strictly inward.
+    when_to_use: >
+      When long-lived business rules must be insulated from volatile
+      frameworks and delivery mechanisms.
+    consequences: >
+      Business rules are framework-independent and durable; the indirection
+      and mapping between rings is real and can feel heavy on small systems.
+      Shares its spine (inward dependencies) with hexagonal architecture.
+    avoid_when: >
+      Short-lived or thin applications where the framework is effectively the
+      product.
+
+  - id: ARCH-REPOSITORY
+    name: Repository
+    category: data
+    intent: >
+      Mediate between the domain and data mapping layers via a collection-like
+      interface for accessing domain objects.
+    when_to_use: >
+      When you want domain code to query and persist aggregates without
+      knowing about the persistence mechanism.
+    consequences: >
+      Decouples domain from storage and centralizes query logic; a leaky or
+      anemic repository can degrade into a thin wrapper that adds no value.
+    avoid_when: >
+      The data layer is already a clean abstraction, or the app is a thin
+      pass-through to the database.
+
+  - id: ARCH-UNIT-OF-WORK
+    name: Unit of Work
+    category: data
+    intent: >
+      Track changes to a set of objects during a business transaction and
+      coordinate writing them out and resolving concurrency as one unit.
+    when_to_use: >
+      When several related changes must commit or roll back together and you
+      want one transactional boundary.
+    consequences: >
+      Atomic, consistent persistence and fewer round trips; adds change
+      tracking and a lifecycle that must be scoped correctly (often per
+      request).
+    avoid_when: >
+      Operations are independent single writes; a transaction per operation is
+      simpler.
+
+  # --- Resilience ---
+
+  - id: ARCH-CIRCUIT-BREAKER
+    name: Circuit Breaker
+    category: resilience
+    intent: >
+      Stop calling a failing dependency once failures cross a threshold,
+      failing fast and giving the dependency time to recover.
+    when_to_use: >
+      When a remote dependency can become slow or unavailable and continued
+      calls would exhaust resources or cascade the failure.
+    consequences: >
+      Prevents failure cascades and resource exhaustion; introduces states
+      (closed, open, half-open) and thresholds that must be tuned, and a
+      fallback path that must be defined.
+    avoid_when: >
+      Calls are local and cannot fail in the ways the breaker guards against.
+    applies_pattern_to: reliability.circuit-breaker-and-fallback
+
+  - id: ARCH-RETRY
+    name: Retry with Backoff
+    category: resilience
+    intent: >
+      Re-attempt a failed operation with increasing delay and jitter to ride
+      out transient faults without overwhelming the dependency.
+    when_to_use: >
+      When failures are often transient (brief network blips, throttling) and
+      the operation is safe to repeat.
+    consequences: >
+      Recovers from transient faults transparently; without backoff and jitter
+      it amplifies load and synchronizes retry storms, and it requires
+      idempotency to be safe.
+    avoid_when: >
+      The operation is not idempotent or the failure is permanent; retries
+      then duplicate effects or waste time.
+    applies_pattern_to: reliability.retry-and-backoff
+
+  - id: ARCH-BULKHEAD
+    name: Bulkhead
+    category: resilience
+    intent: >
+      Partition resources (thread pools, connection pools) so a failure or
+      overload in one area cannot sink the whole system.
+    when_to_use: >
+      When several workloads share a process and one misbehaving dependency
+      could starve the others of threads or connections.
+    consequences: >
+      Contains blast radius and preserves partial availability; reduces
+      maximum utilization because capacity is reserved per partition.
+    avoid_when: >
+      A single workload owns the process; partitioning only wastes capacity.
+
+  - id: ARCH-IDEMPOTENCY
+    name: Idempotency Key
+    category: resilience
+    intent: >
+      Make a repeated request produce the same effect as a single request by
+      keying the operation so duplicates are detected and deduplicated.
+    when_to_use: >
+      When at-least-once delivery, retries, or user double-submits can cause
+      duplicate side effects (payments, order creation).
+    consequences: >
+      Safe retries and exactly-once-effect semantics over at-least-once
+      transport; requires storing and expiring keys and defining the dedup
+      window.
+    avoid_when: >
+      The operation is naturally idempotent (a pure read or an absolute set).
+    applies_pattern_to: reliability.idempotent-operations
+
+  # --- Integration ---
+
+  - id: ARCH-API-GATEWAY
+    name: API Gateway
+    category: integration
+    intent: >
+      Provide a single entry point that routes, composes, and cross-cuts
+      (auth, rate limiting, TLS termination) requests to backend services.
+    when_to_use: >
+      When many clients call many services and shared edge concerns should
+      live in one place rather than in every service.
+    consequences: >
+      Centralizes cross-cutting concerns and simplifies clients; becomes a
+      critical path and a potential bottleneck or single point of failure that
+      must be scaled and secured carefully.
+    avoid_when: >
+      There is one service or one client; the gateway is needless indirection.
+
+  - id: ARCH-BFF
+    name: Backends for Frontends
+    category: integration
+    intent: >
+      Give each frontend experience (web, mobile, partner) its own tailored
+      backend instead of forcing one general-purpose API to serve all.
+    when_to_use: >
+      When different clients need materially different aggregations, payload
+      shapes, or chattiness from the same downstream services.
+    consequences: >
+      Each client gets an optimized, independently evolvable API; duplicates
+      some logic across BFFs and adds services to operate.
+    avoid_when: >
+      Clients have nearly identical needs; one shared API is simpler.
+
+  - id: ARCH-SIDECAR
+    name: Sidecar
+    category: integration
+    intent: >
+      Deploy a helper process alongside the main service to provide
+      cross-cutting capabilities (proxying, telemetry, secrets) out of
+      process.
+    when_to_use: >
+      When platform concerns should be uniform and language-agnostic across
+      heterogeneous services (the service-mesh data plane is the canonical
+      case).
+    consequences: >
+      Keeps the application free of platform plumbing and standardizes it;
+      adds a process per instance, with resource and latency overhead.
+    avoid_when: >
+      A library in-process is sufficient and the operational complexity of a
+      sidecar is not warranted.
+
+  - id: ARCH-STRANGLER-FIG
+    name: Strangler Fig
+    category: integration
+    intent: >
+      Incrementally replace a legacy system by routing slices of functionality
+      to new implementations until the old system can be retired.
+    when_to_use: >
+      When a big-bang rewrite is too risky and the legacy system must keep
+      running while it is gradually displaced.
+    consequences: >
+      Reduces migration risk and delivers value continuously; requires a
+      routing facade and a period of running and reconciling both systems.
+    avoid_when: >
+      The legacy system is small enough to replace directly, or no clean seams
+      exist to route through.
+
+  # --- Data and events ---
+
+  - id: ARCH-EVENT-DRIVEN
+    name: Event-Driven Architecture
+    category: data
+    intent: >
+      Have components communicate by producing and reacting to events rather
+      than calling each other directly.
+    when_to_use: >
+      When you want loose coupling, independent scaling, and the ability to
+      add consumers without changing producers (ingestion, fan-out, workflow).
+    consequences: >
+      High decoupling and extensibility; eventual consistency, harder
+      end-to-end tracing, and the need to handle out-of-order and duplicate
+      events.
+    avoid_when: >
+      A simple synchronous request/response with a strong consistency need;
+      events add complexity without payoff.
+
+  - id: ARCH-CQRS
+    name: Command Query Responsibility Segregation
+    category: data
+    intent: >
+      Separate the write model (commands that change state) from the read
+      model (queries), allowing each to be optimized independently.
+    when_to_use: >
+      When read and write workloads differ sharply in shape or scale, or
+      complex domains benefit from a write model distinct from query views.
+    consequences: >
+      Independent scaling and tailored models; doubles the model count, often
+      forces eventual consistency between write and read sides, and adds
+      synchronization machinery.
+    avoid_when: >
+      Reads and writes share a model and load; plain CRUD is far simpler.
+      Frequently over-applied.
+
+  - id: ARCH-EVENT-SOURCING
+    name: Event Sourcing
+    category: data
+    intent: >
+      Persist state as an append-only log of events and derive current state
+      by replaying them, rather than storing only the latest snapshot.
+    when_to_use: >
+      When a full audit trail, temporal queries, or the ability to rebuild
+      state and projections is a first-class requirement.
+    consequences: >
+      Complete history, auditability, and replayable projections; significant
+      complexity in schema evolution, snapshotting for performance, and the
+      conceptual shift from current-state thinking.
+    avoid_when: >
+      You do not need history and a conventional state store suffices; the
+      complexity is rarely worth it by default.
+
+  - id: ARCH-SAGA
+    name: Saga
+    category: data
+    intent: >
+      Maintain consistency across services without distributed transactions by
+      sequencing local transactions, each with a compensating action to undo
+      it on failure.
+    when_to_use: >
+      When a business process spans multiple services or aggregates and a
+      single ACID transaction is impossible or undesirable.
+    consequences: >
+      Achieves cross-service consistency without locking; you must design
+      compensations for every step and accept intermediate, visible states.
+      Orchestration (a coordinator) and choreography (events) are the two
+      styles, each with trade-offs.
+    avoid_when: >
+      The work fits in one local transaction; a saga is then needless
+      complexity.

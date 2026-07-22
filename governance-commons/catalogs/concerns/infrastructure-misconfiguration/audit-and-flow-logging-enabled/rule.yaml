@@ -1,0 +1,55 @@
+id: infrastructure-misconfiguration.audit-and-flow-logging-enabled
+name: Cloud resources have audit and flow logging enabled where the resource supports
+  it
+layer: mechanical
+characteristic: security
+severity: high
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-31'
+  entered_stable: '2026-06-01'
+  authored_by: Myoung Hong
+sources:
+- title: 'CIS AWS Foundations Benchmark v3.0.0 (Section 3 Logging: CloudTrail, VPC flow
+    logs, S3 access logging, ALB access logs, RDS audit logs)'
+  url: https://www.cisecurity.org/benchmark/amazon_web_services
+- title: 'CIS Azure Foundations Benchmark v2.1.0 (Section 5 Logging and Monitoring: Activity
+    Log, NSG flow logs, Storage logging)'
+  url: https://www.cisecurity.org/benchmark/azure
+- title: 'CIS GCP Foundation Benchmark v2.0.0 (Section 2 Logging and Monitoring: Cloud
+    Audit Logs, VPC flow logs)'
+  url: https://www.cisecurity.org/benchmark/google_cloud_computing_platform
+- title: NIST SP 800-53 Rev. 5 AU-2 Event Logging, AU-12 Audit Record Generation
+  url: https://csrc.nist.gov/projects/cprt/catalog#/cprt/framework/version/SP_800_53_5_1_1/home
+- title: CWE-778 Insufficient Logging
+  url: https://cwe.mitre.org/data/definitions/778.html
+cwe:
+- CWE-778
+- CWE-223
+applies_to:
+  language: any-iac
+  framework: terraform-cloudformation-pulumi-kubernetes-arm-bicep
+  environment: any-cloud-loggable-resource
+references: []
+statement: 'IaC declares audit and flow logging on every cloud resource that supports
+  it. AWS: a multi-region CloudTrail trail with management and data events covering the
+  account; VPC flow logs enabled on every VPC; S3 bucket access logging on every S3 bucket
+  (delivering to a log-archive bucket that is itself encrypted and access-restricted);
+  ALB and NLB access logging; RDS cloudwatch_logs_exports covering audit, error, slowquery,
+  and general logs where applicable; EKS audit log enabled. Azure: Activity Log diagnostic
+  setting per subscription; NSG flow logs on every NSG; Storage Account diagnostic settings;
+  AKS audit log enabled. GCP: Cloud Audit Logs (Admin Activity, Data Access for storage
+  and database services) per project; VPC flow logs enabled at the subnet level where
+  the substrate''s profile requires; GKE audit logging enabled. Kubernetes: API server
+  audit policy is declared in the cluster IaC. Where a resource type does not support
+  a native logging capability, the rule does not apply to that resource type; the substrate
+  enumerates supported resource types in the L1 binding rather than the catalog.'
+rationale: 'Audit logs are the substrate''s evidence base. They cost storage (a managed
+  concern via the logging concern''s logging.retention-policy retention rule and via the cost-model-selection
+  concern''s COST-L1-* rules governing data-tier choice) and they require downstream pipeline
+  (the observability concern governs that pipeline). The substrate''s mechanical check
+  is the smallest of these costs: the IaC source either enables logging or does not. The
+  substrate is intentionally agnostic about where logs are aggregated (the logging concern''s
+  LOG-L2- 004 covers aggregation; the consumer''s regulatory regime drives the sink choice);
+  the substrate requires only that logging is enabled at the source.'

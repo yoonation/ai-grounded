@@ -1,0 +1,83 @@
+{
+  "_comment": "Dial rigor-band config. This is DATA, the tunable surface. The resolution mechanics (high-water-mark per axis, overlay activation, lean gating) live in resolve.py and are fixed and tested; the catalog/severity/wave assignments below are defaults meant to be reviewed and adjusted. Catalog names match governance-commons/catalogs/concerns/ and catalogs/threats/ exactly. Profiles match governance-commons/profiles/. Per the Stage 0 decision log: risk axis is the high-water-mark over data-sensitivity, network-exposure, criticality; process-weight axis over deployment-target, operator-count; agentic-surface is an additive overlay, not an axis input.",
+
+  "level_rank": {"low": 0, "moderate": 1, "high": 2},
+
+  "fact_levels": {
+    "data-sensitivity": {"personal-or-none": "low", "confidential": "moderate", "regulated": "high"},
+    "network-exposure": {"none-local": "low", "internal": "moderate", "public-internet": "high"},
+    "criticality": {"low": "low", "moderate": "moderate", "high": "high"},
+    "deployment-target": {"local-only": "low", "single-tenant-service": "moderate", "multi-tenant-production": "high"},
+    "operator-count": {"solo": "low", "team": "moderate", "org": "high"}
+  },
+
+  "axes": {
+    "risk": ["data-sensitivity", "network-exposure", "criticality"],
+    "process-weight": ["deployment-target", "operator-count"]
+  },
+
+  "risk_band": {
+    "low": {
+      "concerns": ["input-validation"],
+      "threats": [],
+      "severity_floor": "low",
+      "andon": "advisory",
+      "review_wave": []
+    },
+    "moderate": {
+      "concerns": ["input-validation", "authentication", "authorization", "secrets-management", "error-handling", "data-classification"],
+      "threats": ["stride"],
+      "severity_floor": "medium",
+      "andon": "advisory",
+      "review_wave": ["security-reviewer"]
+    },
+    "high": {
+      "concerns": ["input-validation", "authentication", "authorization", "secrets-management", "error-handling", "data-classification", "privacy", "reliability", "backup-recovery"],
+      "threats": ["stride"],
+      "severity_floor": "high",
+      "andon": "blocking",
+      "review_wave": ["security-reviewer", "threat-modeler"]
+    }
+  },
+
+  "process_band": {
+    "low": {
+      "concerns": ["code-organization", "documentation"],
+      "review_wave": ["staff-engineer"],
+      "adr_required": false,
+      "andon": "advisory"
+    },
+    "moderate": {
+      "concerns": ["code-organization", "documentation", "observability", "logging", "configuration-management", "dependency-management", "testing-strategy"],
+      "review_wave": ["staff-engineer", "test-architect"],
+      "adr_required": true,
+      "andon": "advisory"
+    },
+    "high": {
+      "concerns": ["code-organization", "documentation", "observability", "logging", "configuration-management", "dependency-management", "testing-strategy", "monitoring-alerting", "infrastructure-misconfiguration"],
+      "review_wave": ["staff-engineer", "test-architect", "operational-architect", "production-readiness"],
+      "adr_required": true,
+      "andon": "blocking"
+    }
+  },
+
+  "overlays": {
+    "agentic-surface": {
+      "none": {"concerns": [], "threats": [], "review_wave": [], "sector_profile": null},
+      "llm-assisted": {
+        "concerns": ["agentic-systems", "responsible-ai", "cost-model-selection"],
+        "threats": ["owasp-llm-top10"],
+        "review_wave": [],
+        "sector_profile": null
+      },
+      "autonomous": {
+        "concerns": ["agentic-systems", "responsible-ai", "cost-model-selection"],
+        "threats": ["owasp-llm-top10", "owasp-agentic-asi-2026", "owasp-agentic-skills-top10", "mitre-atlas"],
+        "review_wave": ["threat-modeler", "data-privacy-architect"],
+        "sector_profile": "regulated-ai"
+      }
+    }
+  },
+
+  "base_substrate_profile": "production-grade-baseline"
+}

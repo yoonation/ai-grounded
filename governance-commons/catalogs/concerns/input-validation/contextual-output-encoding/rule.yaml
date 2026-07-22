@@ -1,0 +1,46 @@
+id: input-validation.contextual-output-encoding
+name: User-supplied values rendered into output use the output context's substrate-required
+  encoding mechanism
+layer: mechanical
+characteristic: security
+severity: high
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-23'
+  entered_stable: '2026-05-26'
+  authored_by: Myoung Hong
+sources:
+- title: OWASP ASVS v5.0.0 V5.3.3 (Output encoding preserves user data while preventing
+    XSS)
+  url: https://github.com/OWASP/ASVS/blob/v5.0.0/5.0/en/0x13-V5-Validation-Sanitization-Encoding.md
+- title: OWASP Top 10 2021 A03:2021 Injection
+  url: https://owasp.org/Top10/A03_2021-Injection/
+- title: CWE-79 Improper Neutralization of Input During Web Page Generation
+  url: https://cwe.mitre.org/data/definitions/79.html
+cwe:
+- CWE-79
+- CWE-80
+- CWE-116
+applies_to:
+  language: any
+  framework: any-with-template-rendering
+  environment: any-with-html-or-templated-output
+references: []
+statement: 'When the application renders user-supplied values into output (HTML, JavaScript,
+  CSS, URL, JSON response, log line consumed by a UI), the rendering applies the encoding
+  appropriate to the output context: HTML entity encoding for HTML body context, JavaScript
+  string escaping for JavaScript context, URL encoding for URL parameter context. The
+  template engine''s auto-escape mode is enabled and is not bypassed by raw output, safe
+  filters, or framework-specific dangerous functions (React''s dangerouslySetInnerHTML,
+  Vue''s v-html, Angular''s bypassSecurityTrust*, Jinja''s |safe filter, Django''s {%
+  autoescape off %}, Handlebars''s triple-braced output) without an explicit, reviewed
+  exception annotation.'
+rationale: Contextual output encoding is the structural defense against the XSS family.
+  Modern template engines and view libraries default to context-aware escaping; vulnerabilities
+  typically arise from explicit opt-out rather than from the default path. The L1 rule
+  catches the opt-out call sites mechanically so that their presence forces deliberate
+  review. The rule does not require that ALL user input be escaped (some content is intentionally
+  HTML, such as user-authored blog posts or rich text fields). Instead, the rule requires
+  that the escape opt-out be visible, reviewed, and accompanied by a substantive sanitization
+  step (DOMPurify, bleach, an HTML sanitizer with an allowlist policy).

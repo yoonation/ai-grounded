@@ -1,0 +1,39 @@
+id: performance-caching.staleness-tolerance
+name: Each cached item has an explicit, acceptable staleness budget that determines its
+  time-to-live and invalidation aggressiveness
+layer: semantic
+characteristic: performance-efficiency
+severity: medium
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-31'
+  entered_stable: '2026-06-01'
+  authored_by: Myoung Hong
+sources:
+- title: RFC 9111 HTTP Caching (freshness, age, and the max-age and stale-while-revalidate
+    directives as a staleness vocabulary)
+  url: https://www.rfc-editor.org/rfc/rfc9111.html
+- title: AWS Builders' Library caching challenges and strategies (matching time-to-live
+    to the tolerance for stale data)
+  url: https://aws.amazon.com/builders-library/caching-challenges-and-strategies/
+applies_to:
+  language: any
+  framework: any
+  environment: any
+references: []
+statement: 'Each cached item has an explicit, recorded staleness budget: the maximum acceptable
+  age of a served value. The item''s time-to-live and invalidation aggressiveness follow
+  from that budget rather than from a copied default. A must-be-fresh item is a candidate
+  for write-through invalidation or for not being cached; a staleness-tolerant item is
+  a candidate for a longer time-to-live. The budget is reviewed when an item is first
+  cached and when its freshness requirements change.'
+rationale: 'Every cache decision is a bet that the consumer will not notice or will not
+  mind the value being slightly old, and the staleness budget is that bet made explicit.
+  Left implicit, the bet is made by whoever copied the time-to-live from the last key,
+  which is how a balance or a permission ends up cached for the same five minutes as a
+  product description. The substrate requires the budget to be stated so that the time-to-live
+  and the invalidation model are derived from a deliberate tolerance rather than from
+  habit. This mirrors the replica-lag-tolerance discipline on the database side: in both,
+  the freshness requirement of each read is classified and the routing or expiry follows
+  from it.'

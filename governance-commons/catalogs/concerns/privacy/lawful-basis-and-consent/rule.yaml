@@ -1,0 +1,44 @@
+id: privacy.lawful-basis-and-consent
+name: Each processing purpose has a recorded lawful basis, and where the basis is consent
+  it is specific, informed, freely given, and checked before processing and on withdrawal
+layer: semantic
+characteristic: security
+severity: high
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-06-03'
+  entered_stable: '2026-06-04'
+  authored_by: Myoung Hong
+sources:
+- title: EU GDPR Regulation 2016/679 (Article 6 lawfulness of processing and Article 7
+    conditions for consent, referenced as a concept)
+  url: https://eur-lex.europa.eu/eli/reg/2016/679/oj
+- title: California CCPA and CPRA notice-at-collection and consumer-choice requirements
+    (the obligation to disclose purpose and honor opt-out, referenced as a concept)
+  url: https://oag.ca.gov/privacy/ccpa
+applies_to:
+  language: any
+  framework: any
+  environment: any
+references: []
+statement: Every processing purpose for personal data has a recorded lawful basis (consent,
+  contract, legal obligation, vital interests, public task, or legitimate interests),
+  and the basis is appropriate for the purpose. Where the basis is consent, the consent
+  is specific to the purpose, informed, freely given, and as easy to withdraw as to grant;
+  the processing path checks the consent state before processing and stops processing
+  when consent is absent or withdrawn. Where the basis is legitimate interests, a balancing
+  assessment is recorded. The basis selection across purposes is governed by the privacy.lawful-basis-and-consent-policy
+  policy, and the human-review right for automated decisions is owned by responsible-ai;
+  this rule cross-references both. The review is triggered when a new processing purpose
+  is introduced or a consent flow changes.
+rationale: 'Lawfulness is not a property a system acquires by being careful with data;
+  it is a predicate that must hold before processing begins, and the engineering question
+  is whether the code actually conditions processing on it. Two failures dominate: a purpose
+  with no basis at all, where the question was never asked, and a consent state that is
+  captured for show but that the processing path does not consult, so withdrawal changes
+  a database row and nothing else. The substrate keeps this an L2 review because the validity
+  of a basis and the quality of a consent flow are judgments, and pairs it with a test
+  template because the consent gate, once a basis is chosen, is a concrete branch that
+  either exists or does not. It defers the basis-selection strategy to the L3 policy and
+  the automated-decision right to responsible-ai, the concerns that own them.'

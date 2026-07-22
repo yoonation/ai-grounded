@@ -1,0 +1,42 @@
+id: dependency-management.update-cadence
+name: Dependency update cadence is defined, documented, and evidenced; updates land regularly
+  rather than in unbounded batches
+layer: semantic
+characteristic: compatibility
+severity: medium
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-20'
+  entered_stable: '2026-05-22'
+  authored_by: Myoung Hong
+sources:
+- title: NIST SP 800-218 SSDF v1.1 (PW.4 well-secured components; PO.3 maintain a secure
+    environment)
+  url: https://csrc.nist.gov/publications/detail/sp/800-218/final
+- title: OWASP Top 10:2021 A06 includes outdatedness as a risk factor distinct from known
+    vulnerability
+  url: https://owasp.org/Top10/A06_2021-Vulnerable_and_Outdated_Components/
+applies_to:
+  language: any
+  framework: any
+  environment: any
+references: []
+statement: 'The project documents an update cadence: how often updates are attempted,
+  who reviews them, and the staleness budget beyond which a dependency is considered overdue.
+  Evidence of the cadence is visible (automation bot PRs, merged update PRs in history,
+  a dependency dashboard, a periodic review ritual). Where automated update tooling is
+  in use, its configuration is committed to the repository and its open PRs are addressed
+  within the documented SLA rather than left to accumulate. The substrate-recommended
+  starting cadence for production-grade-baseline: at least weekly automated PRs; major-version
+  upgrades reviewed monthly; total staleness budget of 90 days for any single direct dependency
+  past its latest release.'
+rationale: 'Three risk patterns motivate this rule. Accumulated upgrade gap: a dependency
+  that has shipped six minor releases since the project last upgraded is harder to upgrade
+  than a dependency one minor release behind. Breaking changes accumulate; migration guides
+  span multiple versions; testing surface multiplies. Reactive-only patching: a team that
+  only updates on incident is reacting to attacker timing. A CVE published Monday becomes
+  a panic by Friday because the team has not exercised the upgrade muscle. Regular cadence
+  keeps the muscle warm. Maintainer abandonment risk: a dependency whose upstream has
+  not released in 18 months may be abandoned, deprecated, or compromised. Active cadence
+  surfaces these signals; quarterly review catches them before they become emergencies.'

@@ -1,0 +1,47 @@
+id: feature-flags.staged-rollout-and-context
+name: Flags are rolled out in stages through the targeting mechanism with a clean, deterministic
+  evaluation context
+layer: semantic
+characteristic: maintainability
+severity: high
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-06-04'
+  entered_stable: '2026-06-06'
+  authored_by: Myoung Hong
+sources:
+- title: 'The OpenFeature specification: evaluation context carries the targeting attributes
+    a provider uses to resolve a flag for a subject, the basis for deterministic targeted
+    rollout'
+  url: https://openfeature.dev/specification/
+- title: 'Martin Fowler, Feature Toggles: release and experiment toggles are rolled out
+    to subsets via a toggle router rather than flipped globally'
+  url: https://martinfowler.com/articles/feature-toggles.html
+applies_to:
+  language: any
+  framework: any
+  environment: any
+references: []
+statement: 'A flag intended for gradual rollout is rolled out through the flag system''s
+  targeting mechanism (a percentage, a ring, a named cohort, or attribute-based targeting),
+  not by hardcoding different states per environment or by flipping the flag fully on
+  in one step. Bucketing is deterministic: a given subject is assigned to a stable bucket
+  from a stable targeting key (a durable user or account identifier, or a deliberately
+  chosen stable key), so the subject''s experience does not flicker across requests within
+  a rollout stage. The evaluation context carries the minimum attributes targeting needs
+  and no more: it does not carry secrets (tokens, keys, passwords), and it minimizes personal
+  data, carrying a stable identifier and the targeting attributes rather than a full user
+  record. The rollout has defined stages and an owner who advances or rolls it back based
+  on observed signals.'
+rationale: 'The point of a rollout is to learn before fully committing. That requires
+  two things the review checks. First, the rollout must actually be staged through the
+  provider, so exposure is bounded and reversible in one place, not spread across per-environment
+  edits that cannot be rolled back together. Second, bucketing must be stable, or the
+  rollout measures noise: if a user flips between the new and old path request to request,
+  neither their experience nor the metrics are coherent. The context discipline is a security
+  and privacy requirement layered on top: flag context often flows to a third-party provider
+  and into its logs, so a secret or an unnecessary block of personal data in context is
+  an exposure with no upside. The judgment is semantic because whether a key is genuinely
+  stable, whether the attributes are minimal, and whether the stages are appropriate are
+  contextual.'

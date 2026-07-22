@@ -1,0 +1,44 @@
+id: authorization.authz-before-resource-access
+name: Authorization decisions precede resource access in code paths that operate on a
+  resource identified by client-supplied input
+layer: semantic
+characteristic: security
+severity: critical
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-22'
+  entered_stable: '2026-05-26'
+  authored_by: Myoung Hong
+sources:
+- title: 'OWASP ASVS v5.0.0 V8.2.1 (Object-level access control: resource access is mediated
+    by an authorization decision specific to the resource)'
+  url: https://github.com/OWASP/ASVS/blob/v5.0.0/5.0/en/0x17-V8-Authorization.md
+- title: OWASP API Security Top 10 2023 API1:2023 Broken Object Level Authorization
+  url: https://owasp.org/API-Security/editions/2023/en/0xa1-broken-object-level-authorization/
+- title: CWE-639 Authorization Bypass Through User-Controlled Key
+  url: https://cwe.mitre.org/data/definitions/639.html
+cwe:
+- CWE-639
+- CWE-284
+applies_to:
+  language: any
+  framework: any
+  environment: any-with-client-supplied-identifiers
+references: []
+statement: In code paths that operate on a resource identified by a client-supplied identifier
+  (URL path parameter, query string, request body field), the code performs an authorization
+  decision on that specific resource before reading, returning, or mutating the resource.
+  The order is authorize-then-act, not act-then-authorize. Static analysis flags ORM queries,
+  raw database queries, file-system reads, or external-service calls keyed by client-supplied
+  identifier that are not preceded by an authorization call in the same code path.
+rationale: 'The IDOR class of failures is the structural consequence of fetching first
+  and authorizing later (or not at all). The attacker pattern is uniform: take a legitimate
+  request, change the resource identifier to one belonging to another principal, observe
+  whether the application returns the resource. When the authorization is missing or applied
+  to the request principal rather than the resource principal, the attack succeeds with
+  no other prerequisites. Detection at the call-ordering level is mechanical: static analysis
+  can identify ORM query expressions that take a request-scoped identifier as input and
+  determine whether an authorization call has been made in the same function before the
+  query. The full semantic correctness check (does the authorization evaluate the right
+  subject and resource pair?) is authorization.object-level-authorization review-grade work, not mechanical.'

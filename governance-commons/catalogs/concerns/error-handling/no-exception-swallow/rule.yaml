@@ -1,0 +1,43 @@
+id: error-handling.no-exception-swallow
+name: Caught exceptions are logged with context before any continuation, return, or swallow
+layer: mechanical
+characteristic: reliability
+severity: high
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-24'
+  entered_stable: '2026-05-26'
+  authored_by: Myoung Hong
+sources:
+- title: OWASP ASVS v5.0.0 V7.1 (Application logs include events necessary for forensic
+    analysis)
+  url: https://github.com/OWASP/ASVS/blob/v5.0.0/5.0/en/0x15-V7-Error-Logging.md
+- title: CWE-390 Detection of Error Condition Without Action
+  url: https://cwe.mitre.org/data/definitions/390.html
+- title: CWE-391 Unchecked Error Condition
+  url: https://cwe.mitre.org/data/definitions/391.html
+cwe:
+- CWE-390
+- CWE-391
+applies_to:
+  language: any
+  framework: any
+  environment: any
+references: []
+statement: Every exception-handling construct that does not immediately re-raise emits
+  a log entry before continuation, return, or any other terminating action. The log entry
+  includes the exception type, the exception message, sufficient context to identify the
+  operation that failed (correlation identifier per logging.correlation-ids, operation name, relevant
+  parameter values minus sensitive data per logging.no-sensitive-data-in-logs), and a stack trace where the runtime
+  provides one. Empty catch bodies, bare pass statements as catch bodies, Go err discard
+  (_ = err) patterns, and JavaScript empty catch blocks are forbidden.
+rationale: 'The "log it and continue" baseline is the substrate''s minimum operational
+  visibility bar. Without it, the application can fail in production without anyone knowing
+  until users complain or a metric drifts. The rule pairs with error-handling.no-bare-except (typed catches):
+  together, they ensure that every exception either propagates to a handler that records
+  the event or is explicitly acknowledged by an outer typed catch that logs and re-raises.
+  The rule operates at L1 because empty catch bodies and err discard patterns are syntactically
+  detectable. Whether the log entry''s context is semantically sufficient (does the correlation
+  ID flow to the handler? does the parameter set capture enough to reproduce the failure?)
+  is L2 review territory.'

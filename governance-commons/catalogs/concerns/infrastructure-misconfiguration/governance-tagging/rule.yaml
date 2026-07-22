@@ -1,0 +1,44 @@
+id: infrastructure-misconfiguration.governance-tagging
+name: IaC enforces mandatory governance tagging including data-sensitivity labels on data-bearing
+  resources
+layer: semantic
+characteristic: security
+severity: medium
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-31'
+  entered_stable: '2026-06-01'
+  authored_by: Myoung Hong
+sources:
+- title: CIS AWS Foundations Benchmark v3.0.0 (Section 1 resource tagging for governance)
+  url: https://www.cisecurity.org/benchmark/amazon_web_services
+- title: NIST SP 800-53 Rev. 5 CM-8 System Component Inventory, RA-2 Security Categorization
+  url: https://csrc.nist.gov/projects/cprt/catalog#/cprt/framework/version/SP_800_53_5_1_1/home
+cwe:
+- CWE-1059
+applies_to:
+  language: any-iac
+  framework: terraform-cloudformation-pulumi-arm-bicep
+  environment: any-tagged-cloud-resource
+references: []
+statement: 'IaC declarations of taggable cloud resources carry the substrate-required
+  governance tags: owner (the substrate-author or team identity owning the resource lifecycle);
+  environment (production, staging, development, ephemeral); cost-center (the cost-attribution
+  unit per the cost-model-selection concern''s cost-model-selection.cost-attribution-tags rule that this rule cross-references);
+  data-sensitivity (public, internal, confidential, restricted, per the data-classification
+  concern''s scheme when authored). The tag schema is enforced at the provider level via
+  Terraform default_tags, AWS Organization tag policies, Azure Policy resource tag enforcement,
+  GCP Organization Policy on resource tags. Data-bearing resources (the set enumerated
+  in IAC-L1- 001) additionally carry the data-sensitivity tag; non-data-bearing resources
+  may omit it (the L2 review distinguishes the two cases). The L2 review confirms the
+  tag schema is consistent across the IaC repository (no Owner / owner / ownedBy key drift)
+  and that data-sensitivity is set on every data-bearing resource.'
+rationale: 'Governance tagging at provision time is the cheapest available control for
+  the data-class-aware operations the substrate enables downstream: cost attribution requires
+  cost-center tags; on-call routing requires owner tags; environment-aware policies require
+  environment tags; data-class-aware access controls require data-sensitivity tags. Adding
+  tags post-hoc is expensive and incomplete; enforcing at provision time is the substrate''s
+  design choice. The rule is L2 because tag-presence is mechanically detectable (and a
+  candidate L1 rule) but tag-value correctness (is data-sensitivity = "restricted" on
+  the right resources?) requires review-time judgment that an L1 rule cannot encode.'

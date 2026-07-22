@@ -1,0 +1,104 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "feature-concerns.schema.json",
+  "title": "Feature Concerns - Resolved Routing Plan",
+  "description": "Per-feature scope and routing plan produced once at post-spec by the concern-selector agent, within the bounds of the project profile. Lives at specs/NNN-feature/feature-concerns.yaml. The dispatcher dispatches from routing; the consultation audit (stage 2b) checks emitted evidence against it.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["feature", "profile", "status", "scope", "routing"],
+  "properties": {
+    "feature": {
+      "type": "string",
+      "description": "Feature directory name, e.g. 001-data-foundation."
+    },
+    "profile": {
+      "type": "string",
+      "description": "The profile in effect (the limiter), copied from project-manifest.yaml manifest.substrate.profile."
+    },
+    "generated_by": {
+      "type": "string",
+      "description": "Agent that produced this plan, normally concern-selector."
+    },
+    "generated_at": {
+      "type": "string",
+      "description": "ISO 8601 timestamp."
+    },
+    "status": {
+      "type": "string",
+      "enum": ["proposed", "approved"],
+      "description": "proposed until the operator approves; the dispatcher dispatches only from an approved plan."
+    },
+    "scope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["selected", "excluded"],
+      "description": "Which concern catalogs apply to this feature, and why.",
+      "properties": {
+        "selected": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/concernEntry" },
+          "description": "Catalogs in scope for this feature."
+        },
+        "excluded": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/concernEntry" },
+          "description": "Catalogs deliberately out of scope, each with a reason (the recorded tailoring)."
+        },
+        "locked": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/concernEntry" },
+          "description": "Overlay-mandated catalogs that cannot be excluded regardless of feature, e.g. privacy under a regulated profile."
+        }
+      }
+    },
+    "routing": {
+      "type": "object",
+      "description": "Per-checkpoint resolved dispatch. Keys are checkpoint ids: C1, C2, C3.",
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["agents"],
+        "properties": {
+          "agents": {
+            "type": "array",
+            "items": { "$ref": "#/$defs/agentAssignment" }
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "concernEntry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["catalog", "reason"],
+      "properties": {
+        "catalog": { "type": "string", "description": "Concern catalog id, e.g. performance-database." },
+        "reason": { "type": "string", "description": "Why it is in or out of scope (cites stack facts or spec content)." }
+      }
+    },
+    "agentAssignment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["agent", "catalogs"],
+      "properties": {
+        "agent": { "type": "string", "description": "Agent id, e.g. threat-modeler." },
+        "catalogs": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Concern/threat catalogs this agent consults for this feature (subset of scope.selected). Empty list means the agent is not dispatched at this checkpoint."
+        },
+        "layers": {
+          "type": "array",
+          "items": { "type": "string", "enum": ["L1", "L2", "L3"] },
+          "description": "Depth: layers in scope, bounded by the profile ceiling. Optional in stage 2a (full depth assumed); set by stage 2b."
+        },
+        "severities": {
+          "type": "array",
+          "items": { "type": "string", "enum": ["P1", "P2", "P3"] },
+          "description": "Depth: severities in scope, bounded by the profile ceiling. Optional in stage 2a; set by stage 2b."
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,25 @@
+# Reference substrate-authors allowlist.
+#
+# This file is a substrate-published reference template demonstrating
+# the format the substrate-write-isolation pre-commit hook
+# (governance-commons/reference/hooks/pre-commit) expects.
+#
+# Substrate-recommended consumer integration:
+#   - Copy this file to the consumer's repo root as
+#     `.substrate-authors`.
+#   - Edit to list the substrate-author identities authorized to
+#     write into governance-commons/.
+#   - Each line is either an email address or a git user.name,
+#     compared exact-match against `git config user.email` and
+#     `git config user.name` at commit time.
+#   - Blank lines and lines starting with `#` are ignored.
+#
+# The substrate's own working copy of this allowlist (as used by
+# the substrate-author for their own development of the substrate)
+# is not shipped in the substrate; each consumer maintains their
+# own. This file is illustrative only.
+
+# Example identities (consumer edits):
+# alice@example.com
+# Alice Engineer
+# bob@example.com

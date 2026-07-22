@@ -1,0 +1,10 @@
+id: logging
+name: Logging
+characteristic: maintainability
+status: stable
+summary: >
+  How application events are recorded: a structured format with severity
+  levels and correlation identifiers, central aggregation, a retention
+  policy, redaction and exclusion of sensitive data, log-injection
+  prevention, integrity controls for security-relevant logs, and a
+  recorded logging architecture.

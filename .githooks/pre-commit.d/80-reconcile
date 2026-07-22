@@ -1,0 +1,59 @@
+#!/bin/sh
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Myoung Hong
+#
+# gate-meta:
+#   order: 80
+#   name: reconcile
+#   posture: report-only
+#   skip: SKIP_RECONCILE
+#   strict: RECONCILE_STRICT
+#   summary: Reconcile the dial floor against the manifest ceiling; catch facts-required catalogs the profile cannot route.
+# end-gate-meta
+#
+# Commit-time floor-versus-ceiling reconciler. Chained by the .githooks/pre-commit
+# dispatcher after the manifest gate. The schema gate checks the manifest SHAPE and
+# the manifest gate checks its references resolve; this checks that the two scope
+# declarations agree: the dial floor (what the declared context facts require) must
+# sit inside the manifest ceiling (the union of consults.catalogs the profile routes).
+# When the project changed but the profile did not, the floor names a catalog the
+# ceiling cannot route, and resolving that silently either widens routing past the
+# declared profile or drops a facts-required review. This surfaces the conflict and
+# names the three resolution paths instead.
+#
+# Fires only when project-manifest.yaml is staged. An empty ceiling (a substrate
+# repo that routes no features) is not-applicable and passes. Report-only by default;
+# RECONCILE_STRICT=1 makes a conflict block; SKIP_RECONCILE=1 bypasses. Graceful
+# no-op when PyYAML or the tool is absent. Same posture as 50-schema / 60-manifest.
+
+[ "$SKIP_RECONCILE" = "1" ] && { echo "reconcile: skipped (SKIP_RECONCILE=1)."; exit 0; }
+
+REPO_ROOT=$(git rev-parse --show-toplevel 2>/dev/null) || exit 0
+cd "$REPO_ROOT" || exit 0
+
+[ -f tooling/dial/reconcile.py ] || { echo "reconcile: tooling/dial/reconcile.py absent; skipped."; exit 0; }
+
+git diff --cached --name-only --diff-filter=AM | grep -qx "project-manifest.yaml" || {
+  echo "reconcile: project-manifest.yaml not staged; nothing to reconcile."
+  exit 0
+}
+
+if command -v uv >/dev/null 2>&1; then
+  RUN="uv run --with pyyaml python3"
+else
+  RUN="python3"
+fi
+
+if [ "$RECONCILE_STRICT" = "1" ]; then
+  $RUN tooling/dial/reconcile.py project-manifest.yaml --strict --text
+  RC=$?
+  if [ "$RC" != "0" ]; then
+    echo "reconcile: STRICT - a floor-versus-ceiling conflict blocks the commit (RECONCILE_STRICT=1)."
+    echo "           Raise the ceiling, correct the fact, or record an override; or bypass with SKIP_RECONCILE=1 git commit ..."
+    exit 1
+  fi
+else
+  $RUN tooling/dial/reconcile.py project-manifest.yaml --text
+  echo "reconcile: report-only - a conflict above (if any) is not blocking (set RECONCILE_STRICT=1 to enforce)."
+fi
+exit 0

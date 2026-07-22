@@ -1,0 +1,147 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Myoung Hong
+
+# Governance manifest: reference instance.
+#
+# This file demonstrates a complete consumer manifest per the
+# Governance Commons consumer scaffold contract. It is the reference
+# implementation pointed to from
+# governance-commons/spec/consumer-scaffold.md Section 5.
+#
+# The manifest format is specified in
+# governance-commons/spec/manifest-format.md. Mechanical validation
+# is via governance-commons/schemas/manifest.schema.json.
+#
+# This reference manifest demonstrates a build-time AI coding
+# framework integration: four checkpoints across the development
+# lifecycle (post-spec-drafting, post-design, post-implementation,
+# pre-commit), each consulting a substrate-recommended catalog set
+# for the relevant lifecycle phase.
+#
+# Consumers fork or copy this file into their own repositories. The
+# file is not a runtime dependency of the substrate; it is published
+# alongside the substrate as the reference implementation per
+# Charter Article VII Section 7.1 (substrate provides reference
+# implementations to bound consumer integration cost).
+#
+# Substrate-author guarantee under Charter Article IV immutability:
+# this reference manifest validates clean against
+# manifest.schema.json at commons-version 1.3.0 and demonstrates a
+# valid path through the 8-step CI workflow contract specified in
+# consumer-scaffold.md Section 4. Material changes to the reference
+# manifest accompany substrate minor version bumps; editorial
+# changes (clarifications that do not alter the contract surface)
+# may be made non-versionedly.
+
+manifest:
+  schema-version: "1.0.0"
+
+  consumer:
+    identifier: "governance-commons-reference-scaffold"
+    type: build-time-framework
+    contact: "myoung@governance-commons.invalid"
+
+  substrate:
+    commons-version: "1.3.0"
+    profile: "production-grade-baseline"
+    profile-version: "1.0.0"
+
+  workflow:
+    checkpoints:
+
+      - name: post-spec-drafting
+        trigger: spec-completion
+        consulter: threat-modeling-agent
+        consults:
+          catalogs:
+            - threats/owasp-llm-top10
+            - threats/owasp-agentic-asi
+            - threats/stride
+            - concerns/authentication
+            - concerns/authorization
+            - concerns/input-validation
+            - concerns/supply-chain
+          decision-frameworks:
+            - authentication.authentication-strategy
+            - authorization.authorization-model-selection
+            - input-validation.input-validation-strategy
+            - supply-chain.supply-chain-integrity-strategy
+        required-findings: report-and-block
+        blocking: true
+        x-constitution-articles:
+          - Article-V
+          - Article-VI
+
+      - name: post-design
+        trigger: design-completion
+        consulter: implementation-planning-agent
+        consults:
+          catalogs:
+            - concerns/authentication
+            - concerns/authorization
+            - concerns/input-validation
+            - concerns/error-handling
+            - concerns/logging
+            - concerns/observability
+            - concerns/testing-strategy
+            - concerns/supply-chain
+            - concerns/secrets-management
+            - concerns/dependency-management
+            - concerns/cost-model-selection
+          decision-frameworks:
+            - authentication.authentication-strategy
+            - authorization.authorization-model-selection
+            - error-handling.error-handling-strategy
+            - logging.architecture
+            - observability.slo-policy
+            - testing-strategy
+        required-findings: report-only
+        blocking: false
+        x-constitution-articles:
+          - Article-II
+          - Article-V
+          - Article-VI
+
+      - name: post-implementation
+        trigger: code-completion
+        consulter: code-review-agent
+        consults:
+          catalogs:
+            - concerns/authentication
+            - concerns/authorization
+            - concerns/input-validation
+            - concerns/error-handling
+            - concerns/logging
+            - concerns/observability
+            - concerns/secrets-management
+            - concerns/dependency-management
+            - concerns/testing-strategy
+            - concerns/supply-chain
+        required-findings: report-and-block
+        blocking: true
+        x-constitution-articles:
+          - Article-II
+          - Article-V
+          - Article-VI
+
+      - name: pre-commit
+        trigger: pre-commit-hook
+        consulter: opengrep-static-analysis
+        consults:
+          # Rule universe: the resolved profile. The enumerated 47-rule L1 list
+          # that stood here was removed 2026-07-03; its registry-id naming was
+          # retired by the capability-gate toolchain refactor (see CHANGELOG).
+          rules: []
+        required-findings: report-and-block
+        blocking: true
+
+  evidence:
+    medium: jsonl-append-only
+    location: ".governance-commons/consultation-events.jsonl"
+    integrity: append-only-filesystem
+
+  provenance:
+    author: "myoung"
+    authored: "2026-05-27"
+    last-modified: "2026-05-27"
+    ai-assistance: "AI drafted from substrate-author intent as the M3 Session 1 reference manifest. Mirrors the build-time AI coding framework pattern documented in manifest-format.md Example checkpoints. Demonstrates the profile-resolved rule universe (rules: []) at the pre-commit checkpoint, the full M1+M2 catalog set at post-implementation, and the substrate-recommended threat-modeling + decision-framework consultation at post-spec-drafting. The x-constitution-articles consumer extension demonstrates the slot pattern specified in consumer-scaffold.md Section 3.4."

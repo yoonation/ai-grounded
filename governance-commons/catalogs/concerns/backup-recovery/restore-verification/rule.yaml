@@ -1,0 +1,36 @@
+id: backup-recovery.restore-verification
+name: Backups are proven recoverable by a scheduled restore test; an untested backup is
+  treated as no backup
+layer: semantic
+characteristic: reliability
+severity: high
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-06-05'
+  entered_stable: '2026-06-06'
+  authored_by: Myoung Hong
+sources:
+- title: NIST SP 800-34 Rev. 1, on testing recovery capabilities to validate that contingency
+    procedures restore the system as expected.
+  url: https://csrc.nist.gov/pubs/sp/800/34/r1/upd1/final
+- title: NIST SP 800-53 Rev. 5, control CP-9 backup testing and CP-10 recovery, on verifying
+    that backups are usable for recovery.
+  url: https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final
+applies_to:
+  language: any
+  framework: any
+  environment: any
+references: []
+statement: Each backed-up data store MUST have its backups proven recoverable by a restore
+  test that runs on a schedule, reconstructs the data into an isolated target, and verifies
+  the restored data for completeness and integrity. A backup that has not been successfully
+  restored within its tier's verification cadence MUST be treated as unverified and not
+  relied upon as recovery capability.
+rationale: 'Backups fail in ways only a restore reveals: a format the current tooling
+  can no longer read, a dependency or schema the restore needs and does not have, a scope
+  that quietly stopped including a new table, a corruption that the backup faithfully
+  captured, or credentials that expired. A scheduled restore into an isolated target,
+  followed by an integrity and completeness check, is the only way to know the backup
+  is recovery capability rather than a stored file. Treating an unverified backup as no
+  backup forces the verification to be real rather than a checkbox.'

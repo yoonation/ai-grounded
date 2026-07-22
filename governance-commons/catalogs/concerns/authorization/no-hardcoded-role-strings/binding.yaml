@@ -1,0 +1,3 @@
+binding_status: capability-bound
+rule: authorization.no-hardcoded-role-strings
+gate: sast

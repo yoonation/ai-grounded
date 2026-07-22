@@ -1,0 +1,38 @@
+id: data-classification.retention-disposal
+name: Classified data is retained and disposed of according to the per-class retention
+  policy
+layer: semantic
+characteristic: security
+severity: medium
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-31'
+  entered_stable: '2026-06-01'
+  authored_by: Myoung Hong
+sources:
+- title: NIST SP 800-53 (the SI and MP families, media sanitization and information retention
+    and disposal)
+  url: https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final
+- title: NIST SP 800-88 media sanitization (the disposal standard for classified data,
+    referenced as a concept)
+  url: https://csrc.nist.gov/pubs/sp/800/88/r1/final
+applies_to:
+  language: any
+  framework: any
+  environment: any
+references: []
+statement: Classified data is retained only for its per-class retention period and is
+  disposed of (deleted, anonymized, or archived to a lower-access store) on schedule when
+  the period elapses, including for backups and derived copies. Data is not retained indefinitely
+  by default, and disposal is verifiable. The retention period per class is recorded in
+  the classification policy. The personal-data deletion obligations are owned by the privacy
+  concern; this rule owns routine per-class retention and disposal.
+rationale: 'Retained data is a liability that outlives its usefulness: it enlarges the
+  blast radius of any future breach, lengthens the window for misuse, and increases the
+  burden of any deletion obligation, all while providing no further value once its purpose
+  is served. A per-class retention and disposal schedule turns off that accruing risk
+  on a timetable. The substrate keeps the rule at medium because the risk is compounding
+  rather than immediate, and at L2 because the right period and the actual running of
+  disposal are policy and operational facts. It defers the personal-data subject-deletion
+  obligation to privacy and owns the routine per-class schedule here.'

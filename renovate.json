@@ -1,0 +1,16 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["config:recommended"],
+  "customManagers": [
+    {
+      "customType": "regex",
+      "description": "Keep governance-commons toolchain registry pinned-versions current from each tool's GitHub tags",
+      "fileMatch": ["governance-commons/toolchain/registry\\.yaml$"],
+      "matchStrings": [
+        "source: https://github\\.com/(?<depName>[^/\\s]+/[^/\\s]+)\\s*\\n\\s*pinned-version: (?<currentValue>[0-9][^\\s#]*)"
+      ],
+      "datasourceTemplate": "github-tags",
+      "versioningTemplate": "semver-coerced"
+    }
+  ]
+}

@@ -1,0 +1,38 @@
+id: testing-strategy.critical-path-coverage
+name: Critical business paths have dedicated test coverage beyond happy-path execution
+layer: semantic
+characteristic: functional-suitability
+severity: high
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-25'
+  entered_stable: '2026-05-26'
+  authored_by: Myoung Hong
+sources:
+- title: OWASP ASVS v5.0.0 V14.1 (test evidence requires meaningful coverage of security-sensitive
+    paths)
+  url: https://github.com/OWASP/ASVS/blob/v5.0.0/5.0/en/0x22-V14-Config.md
+- title: ISO/IEC/IEEE 29119-2:2021 (risk-based test selection)
+  url: https://www.iso.org/standard/79428.html
+cwe:
+- CWE-1006
+applies_to:
+  environment: any
+references: []
+statement: 'The application catalogs its critical business paths (substrate-recommended
+  categories: authentication flows, authorization decisions, payment or state-changing
+  operations, data export and bulk-action flows, security-sensitive boundary points).
+  Each cataloged path has dedicated test coverage that extends beyond happy-path execution:
+  error paths (what happens when the call fails), edge cases (boundary values, empty collections,
+  nulls), and security probes (attempts to bypass per the substrate''s AUTH-L1-*, AUTHZ-L1-*,
+  INPUT-L1-*, ERR-L1-* rules). The catalog of critical paths is reviewed at TEST-L3- 001
+  ADR adoption time and updated when new critical paths are added.'
+rationale: 'Coverage metrics are necessary but insufficient. The substrate-acceptable
+  bar is not "85% line coverage" but "critical paths are catalogued, and each is tested
+  beyond the happy path." The two metrics can contradict: a suite with 95% coverage may
+  have zero tests for the authentication error paths; a suite with 70% coverage may exhaustively
+  test every authentication path including timing, lockout, and token replay. The rule
+  is L2 because the catalog of critical paths is application-specific. The substrate provides
+  the recommended categories (auth, authz, payment, bulk, security) and expects the application
+  to derive its specific catalog and verify coverage.'

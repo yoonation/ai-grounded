@@ -1,0 +1,40 @@
+id: agentic-systems.instruction-data-separation
+name: Untrusted content reaching the agent is not executed as agent instructions or goals
+layer: semantic
+characteristic: safety
+severity: high
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-06-03'
+  entered_stable: '2026-06-04'
+  authored_by: Myoung Hong
+sources:
+- title: OWASP Agentic Security Initiative, agentic threats and mitigations (goal manipulation
+    and prompt injection in the agent loop, referenced as a concept)
+  url: https://genai.owasp.org/resource/agentic-ai-threats-and-mitigations/
+- title: OWASP Top 10 for LLM Applications (prompt injection, referenced as a concept)
+    as the model-layer face of the agent-loop threat
+  url: https://genai.owasp.org/llm-top-10/
+applies_to:
+  language: any
+  framework: any
+  environment: any
+references: []
+statement: The agent maintains a boundary between its trusted instruction channel (system
+  prompt, authenticated user request) and untrusted content it ingests (retrieved documents,
+  tool and API outputs, web content, prior memory), so that ingested content is reasoned
+  about as data and is not obeyed as instructions, and so that ingested content cannot
+  on its own expand the agent's authority or trigger a consequential tool. The control
+  is mitigation layered with the action-side bounds and gate, not a claim that injection
+  is solved. The surrounding service input boundary is owned by input-validation and the
+  output-side harm controls by responsible-ai, cross-referenced here.
+rationale: 'The agentic loop''s signature vulnerability is that the same channel carries
+  both the instructions the agent should follow and the content it should merely analyze,
+  so an attacker who controls a retrieved document or a tool result can write instructions
+  the agent then follows with its own authority. Goal integrity is foundational: subvert
+  it and every downstream control serves the attacker. The substrate makes this an L2
+  review-and-probe rule rather than a test because the input space is open-ended and separation
+  is a mitigation, and it leans deliberately on the action-side rules as defense in depth.
+  It cross-references input-validation and responsible-ai rather than restating their
+  boundaries.'

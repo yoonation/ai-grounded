@@ -1,0 +1,10 @@
+id: monitoring-alerting
+name: Monitoring Alerting
+characteristic: reliability
+status: stable
+summary: >
+  How operational conditions are detected and escalated: detection
+  coverage for failure modes and SLO burn, routing and escalation to a
+  resolved non-empty receiver, on-call rotation covering every hour, an
+  alert lifecycle with expiring silences, pipeline liveness and runbook
+  reachability, and a recorded alerting strategy.

@@ -1,0 +1,168 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Myoung Hong
+
+
+# Lightweight design principles
+# General-purpose design heuristics that sit alongside SOLID: short rules of
+# thumb that keep designs simple, change cheap, and surprise low. They are
+# principles, not recipes, and each trades off against the others, so they are
+# applied with judgment rather than mechanically. Descriptions here are
+# substrate-original paraphrase of public concepts; no source text is
+# reproduced. Consult while shaping modules, interfaces, and abstractions.
+
+metadata:
+  catalog_id: design-principles
+  catalog_name: Lightweight Design Principles
+  schema_version: 1.0.0
+  category_system: principle
+  upstream_source: https://en.wikipedia.org/wiki/KISS_principle
+  last_reviewed: 2026-06-28
+  next_review_due: 2027-06-28
+  maintainer: <set-during-init>
+  review_protocol: governance-commons/MAINTENANCE.md
+
+patterns:
+
+  - id: DP-KISS
+    name: Keep It Simple
+    category: principle
+    intent: >
+      Prefer the simplest design that solves the problem in front of you;
+      complexity should be earned by a real requirement, not added in advance.
+    when_to_use: >
+      Whenever a solution starts growing layers, configuration, or generality
+      that no current requirement asks for; choose the version a new reader
+      could understand without a tour.
+    consequences: >
+      Lower cognitive load, faster onboarding, fewer places for bugs to hide;
+      the risk is mistaking essential complexity for accidental and
+      oversimplifying a genuinely hard problem.
+    avoid_when: >
+      The domain itself is irreducibly complex; do not flatten necessary
+      structure in the name of simplicity.
+
+  - id: DP-YAGNI
+    name: You Aren't Gonna Need It
+    category: principle
+    intent: >
+      Do not build capability on speculation. Implement what the current
+      requirement needs and add more only when a concrete need arrives.
+    when_to_use: >
+      When tempted to add hooks, options, or extension points for a future
+      that has not been specified; defer until the second real case exists.
+    consequences: >
+      Less dead code and less premature abstraction to maintain; the tension
+      is with designs that are genuinely expensive to retrofit, where a small
+      seam now is cheaper than a rewrite later.
+    avoid_when: >
+      A change is irreversible or very costly to introduce later (a public API
+      contract, a data schema); there, modest forethought is warranted.
+
+  - id: DP-DRY
+    name: Don't Repeat Yourself
+    category: principle
+    intent: >
+      Every piece of knowledge should have a single authoritative
+      representation; duplication of intent invites divergence when one copy
+      changes and the others do not.
+    when_to_use: >
+      When the same business rule, constant, or decision is encoded in more
+      than one place, consolidate it behind one owner that the rest reference.
+    consequences: >
+      Changes happen once and stay consistent; over-applied, it couples code
+      that merely looks alike but changes for different reasons.
+    avoid_when: >
+      The repetition is coincidental rather than a shared truth; forcing two
+      unrelated rules into one abstraction is worse than the duplication.
+
+  - id: DP-DEMETER
+    name: Law of Demeter
+    category: principle
+    intent: >
+      A unit should talk only to its immediate collaborators, not reach
+      through them into their internals (the principle of least knowledge).
+    when_to_use: >
+      When call chains walk several objects deep (a.getB().getC().doThing()),
+      add a method on the immediate collaborator so callers stay ignorant of
+      the structure behind it.
+    consequences: >
+      Looser coupling and freedom to change internal structure without
+      breaking distant callers; the cost is more delegating methods on the
+      collaborators that forward requests inward.
+    avoid_when: >
+      The traversed types are stable data structures (a parsed document tree,
+      a config object) where reaching through is the natural idiom.
+
+  - id: DP-POLA
+    name: Principle of Least Astonishment
+    category: principle
+    intent: >
+      A component should behave the way a reasonable user of it would expect;
+      surprising behavior is a defect even when it is technically correct.
+    when_to_use: >
+      When naming functions, choosing defaults, ordering arguments, or
+      deciding side effects; pick the option that matches the conventions and
+      expectations the caller already holds.
+    consequences: >
+      Interfaces that are easy to use correctly and hard to misuse; the cost
+      is sometimes giving up a clever shortcut in favor of the obvious path.
+    avoid_when: >
+      Never deliberately, but be aware that what is least astonishing depends
+      on the audience; design for the actual callers, not an idealized one.
+
+  - id: DP-COMPOSITION
+    name: Composition over Inheritance
+    category: principle
+    intent: >
+      Prefer assembling behavior from smaller collaborating parts over
+      inheriting it from a base class, unless a true is-a relationship and a
+      stable contract justify the hierarchy.
+    when_to_use: >
+      When you need to share behavior or vary it along more than one axis;
+      composition lets objects combine capabilities without a brittle,
+      deepening class tree.
+    consequences: >
+      Flexible, testable units that can be recombined; the cost is more wiring
+      and explicit delegation than inheritance's implicit reuse.
+    avoid_when: >
+      A genuine substitutable subtype relationship exists and the base
+      contract is stable; there, inheritance models the domain honestly
+      (see SOLID-LSP).
+
+  - id: DP-FAIL-FAST
+    name: Fail Fast
+    category: principle
+    intent: >
+      Detect and surface errors at the earliest possible point rather than
+      letting bad state propagate, so failures appear close to their cause.
+    when_to_use: >
+      Validate inputs and preconditions at the boundary, assert invariants
+      early, and stop on a condition you cannot handle rather than limping
+      forward with corrupt state.
+    consequences: >
+      Bugs surface near their origin where they are cheap to diagnose, and
+      partial failures do not masquerade as success; the cost is more
+      up-front checks and a discipline of not swallowing errors.
+    avoid_when: >
+      At a system boundary that must stay available, where failing fast
+      internally should be paired with graceful degradation outward rather
+      than crashing the caller (see reliability graceful-degradation).
+
+  - id: DP-TELL-DONT-ASK
+    name: Tell, Don't Ask
+    category: principle
+    intent: >
+      Tell an object what to do and let it act on its own state, rather than
+      asking it for its data and making the decision outside it.
+    when_to_use: >
+      When code pulls fields out of an object to compute something the object
+      could compute itself; move the behavior to where the data lives so
+      state and the logic over it stay together.
+    consequences: >
+      Better encapsulation and less logic scattered across callers; closely
+      related to the Law of Demeter. The cost is resisting the habit of
+      treating objects as bags of data.
+    avoid_when: >
+      The object is a pure data structure (a DTO, a parsed record) whose job
+      is to carry values; do not push behavior into a type meant only to hold
+      data.

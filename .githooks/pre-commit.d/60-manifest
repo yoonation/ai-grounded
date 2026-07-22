@@ -1,0 +1,56 @@
+#!/bin/sh
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Myoung Hong
+#
+# gate-meta:
+#   order: 60
+#   name: manifest
+#   posture: report-only
+#   skip: SKIP_MANIFEST
+#   strict: MANIFEST_STRICT
+#   summary: Resolve manifest references (articles, agents, files, catalogs); catch dangling references.
+# end-gate-meta
+#
+# Commit-time manifest reference validator. Chained by the .githooks/pre-commit
+# dispatcher after the schema gate. The schema gate (50-schema) checks the
+# manifest's SHAPE; this checks that the things it references actually exist:
+# constitution articles, the agent consulter, pins-source files, and catalog
+# references. A dangling reference passes the schema and then silently breaks the
+# checkpoint that relies on it (consults nothing, slices no constitution).
+#
+# Fires only when project-manifest.yaml is staged. Report-only by default;
+# MANIFEST_STRICT=1 makes a dangling reference block; SKIP_MANIFEST=1 bypasses.
+# A loud catalog skip (substrate layout absent) never blocks. Graceful no-op when
+# PyYAML is absent. Same posture as 30-sast / 40-quality / 50-schema.
+
+[ "$SKIP_MANIFEST" = "1" ] && { echo "manifest: skipped (SKIP_MANIFEST=1)."; exit 0; }
+
+REPO_ROOT=$(git rev-parse --show-toplevel 2>/dev/null) || exit 0
+cd "$REPO_ROOT" || exit 0
+
+[ -f tooling/manifest/check.py ] || { echo "manifest: tooling/manifest/check.py absent; skipped."; exit 0; }
+
+git diff --cached --name-only --diff-filter=AM | grep -qx "project-manifest.yaml" || {
+  echo "manifest: project-manifest.yaml not staged; nothing to validate."
+  exit 0
+}
+
+if command -v uv >/dev/null 2>&1; then
+  RUN="uv run --with pyyaml python3"
+else
+  RUN="python3"
+fi
+
+if [ "$MANIFEST_STRICT" = "1" ]; then
+  $RUN tooling/manifest/check.py --repo-root . --strict --text
+  RC=$?
+  if [ "$RC" != "0" ]; then
+    echo "manifest: STRICT - a dangling reference blocks the commit (MANIFEST_STRICT=1)."
+    echo "          Fix the reference, or bypass with SKIP_MANIFEST=1 git commit ..."
+    exit 1
+  fi
+else
+  $RUN tooling/manifest/check.py --repo-root . --text
+  echo "manifest: report-only - dangling references above (if any) are not blocking (set MANIFEST_STRICT=1 to enforce)."
+fi
+exit 0

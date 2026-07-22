@@ -1,0 +1,482 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Myoung Hong
+#
+# Financial-services industry-tilt profile. Inherits the production-grade-
+# baseline profile (profile-of-a-profile) and elevates the severities of
+# the concerns that PCI-DSS, SOX, GLBA, and FFIEC make critical:
+# cardholder and financial data classification and handling, encryption
+# key management, audit logging and retention, third-party and supply-
+# chain risk, detection and monitoring, records-destruction guards, change
+# control, and availability. Fourth-and-final-milestone-6 inventory is the
+# parent; this is the first M7 industry profile, authored at draft.
+
+profile:
+  uuid: a2448e13-0106-4523-879b-7448e174a4ef
+  metadata:
+    title: "Financial-Services Industry-Tilt Profile"
+    published: "2026-06-06T00:00:00Z"
+    last-modified: "2026-06-07T00:00:00Z"
+    version: "1.0.0"
+    oscal-version: "1.1.2"
+    props:
+      - name: profile-id
+        ns: governance-commons
+        value: financial-services
+      - name: profile-kind
+        ns: governance-commons
+        value: industry-tilt
+      - name: lifecycle-status
+        ns: governance-commons
+        value: stable
+      - name: entered-stable-at
+        ns: governance-commons
+        value: "2026-06-07"
+      - name: profile-attestation
+        ns: governance-commons
+        value: "myoung-self-attested"
+        remarks: >
+          Attested under Charter Section 2.4.1 (solo-author attestation)
+          at the M7 close consolidation on 2026-06-07. Cooling-off
+          honored: the profile was authored at draft on a prior calendar
+          day (2026-06-06). Promotion from profile version 0.1.0 to 1.0.0
+          and lifecycle-status draft to stable as part of the batch
+          promotion of the four M7 industry-tilt profiles at substrate
+          version 0.10.0.
+      - name: commons-version
+        ns: governance-commons
+        value: "0.9.0"
+      - name: industry
+        ns: governance-commons
+        value: financial-services
+      - name: regulatory-basis
+        ns: governance-commons
+        value: PCI-DSS, SOX, GLBA, FFIEC
+      - name: intended-audience
+        ns: governance-commons
+        value: |
+          Financial institutions and payment-handling systems
+          subject to PCI-DSS, SOX, GLBA, and FFIEC supervision.
+          Inherits production-grade-baseline and elevates data,
+          secrets, logging, supply-chain, monitoring, backup,
+          configuration, and reliability emphasis.
+      - name: ai-assistance
+        ns: governance-commons
+        value: drafted
+      - name: ai-assistance-detail
+        ns: governance-commons
+        value: |
+          AI drafted the industry-tilt profile from substrate-author
+          intent under human direction. Human authored final intent
+          and approved at draft lifecycle. Profile-attestation and
+          stable promotion are deferred to the M7 close
+          consolidation per Section 2.4.1 cooling-off.
+    parties:
+      - uuid: a4e9a383-0263-4ec0-9821-e712aaec8e36
+        type: person
+        name: myoung
+        props:
+          - name: role
+            ns: governance-commons
+            value: author
+          - name: authored-on
+            ns: governance-commons
+            value: "2026-06-06"
+    links:
+      - rel: governance-charter
+        href: ../CHARTER.md
+  imports:
+    - href: ../profiles/production-grade-baseline.oscal.yaml
+      include-all: {}
+  modify:
+    alters:
+      - control-id: data-classification.model-classification-label
+        adds:
+          - position: ending
+            props:
+              - name: profile-severity-override
+                ns: governance-commons
+                value: high
+              - name: profile-severity-override-rationale
+                ns: governance-commons
+                value: |
+                  Cardholder and account data must be classified at
+                  the mechanical layer so PCI-DSS cardholder-data-
+                  environment scope is determined deterministically
+                  rather than by review.
+              - name: profile-tilt-basis
+                ns: governance-commons
+                value: PCI-DSS Req 3 and 12.5 (data scope); GLBA Safeguards Rule
+              - name: profile-ai-assistance
+                ns: governance-commons
+                value: drafted-by-ai-approved-by-human
+              - name: profile-ai-assistance-detail
+                ns: governance-commons
+                value: |
+                  AI drafted the industry tilt from substrate-author
+                  intent; human approved at draft lifecycle.
+      - control-id: data-classification.retention-disposal
+        adds:
+          - position: ending
+            props:
+              - name: profile-severity-override
+                ns: governance-commons
+                value: high
+              - name: profile-severity-override-rationale
+                ns: governance-commons
+                value: |
+                  Retention and handling of financial and cardholder
+                  data is a regulated control, not a discretionary
+                  one.
+              - name: profile-tilt-basis
+                ns: governance-commons
+                value: GLBA Safeguards Rule; PCI-DSS Req 3.1
+              - name: profile-ai-assistance
+                ns: governance-commons
+                value: drafted-by-ai-approved-by-human
+              - name: profile-ai-assistance-detail
+                ns: governance-commons
+                value: |
+                  AI drafted the industry tilt from substrate-author
+                  intent; human approved at draft lifecycle.
+      - control-id: data-classification.propagation-inheritance
+        adds:
+          - position: ending
+            props:
+              - name: profile-severity-override
+                ns: governance-commons
+                value: high
+              - name: profile-severity-override-rationale
+                ns: governance-commons
+                value: |
+                  Cross-boundary data flow and sharing of financial
+                  data carries regulatory and PCI scope
+                  consequences.
+              - name: profile-tilt-basis
+                ns: governance-commons
+                value: GLBA; PCI-DSS scope
+              - name: profile-ai-assistance
+                ns: governance-commons
+                value: drafted-by-ai-approved-by-human
+              - name: profile-ai-assistance-detail
+                ns: governance-commons
+                value: |
+                  AI drafted the industry tilt from substrate-author
+                  intent; human approved at draft lifecycle.
+      - control-id: secrets-management.sensitive-files-gitignored
+        adds:
+          - position: ending
+            props:
+              - name: profile-severity-override
+                ns: governance-commons
+                value: critical
+              - name: profile-severity-override-rationale
+                ns: governance-commons
+                value: |
+                  Keys protecting cardholder data are a top-tier
+                  control; weak key storage is a direct PCI-DSS
+                  failure.
+              - name: profile-tilt-basis
+                ns: governance-commons
+                value: PCI-DSS Req 3.5 and 3.6 (key storage)
+              - name: profile-ai-assistance
+                ns: governance-commons
+                value: drafted-by-ai-approved-by-human
+              - name: profile-ai-assistance-detail
+                ns: governance-commons
+                value: |
+                  AI drafted the industry tilt from substrate-author
+                  intent; human approved at draft lifecycle.
+      - control-id: secrets-management.no-secrets-in-logs
+        adds:
+          - position: ending
+            props:
+              - name: profile-severity-override
+                ns: governance-commons
+                value: critical
+              - name: profile-severity-override-rationale
+                ns: governance-commons
+                value: |
+                  Key lifecycle and rotation for cardholder-data
+                  encryption is mandated, not best-effort.
+              - name: profile-tilt-basis
+                ns: governance-commons
+                value: PCI-DSS Req 3.6 (key lifecycle)
+              - name: profile-ai-assistance
+                ns: governance-commons
+                value: drafted-by-ai-approved-by-human
+              - name: profile-ai-assistance-detail
+                ns: governance-commons
+                value: |
+                  AI drafted the industry tilt from substrate-author
+                  intent; human approved at draft lifecycle.
+      - control-id: logging.severity-levels
+        adds:
+          - position: ending
+            props:
+              - name: profile-severity-override
+                ns: governance-commons
+                value: high
+              - name: profile-severity-override-rationale
+                ns: governance-commons
+                value: |
+                  Complete audit logging of access to financial data
+                  is a hard requirement, not a quality nicety.
+              - name: profile-tilt-basis
+                ns: governance-commons
+                value: PCI-DSS Req 10; SOX Section 404
+              - name: profile-ai-assistance
+                ns: governance-commons
+                value: drafted-by-ai-approved-by-human
+              - name: profile-ai-assistance-detail
+                ns: governance-commons
+                value: |
+                  AI drafted the industry tilt from substrate-author
+                  intent; human approved at draft lifecycle.
+      - control-id: logging.aggregation
+        adds:
+          - position: ending
+            props:
+              - name: profile-severity-override
+                ns: governance-commons
+                value: high
+              - name: profile-severity-override-rationale
+                ns: governance-commons
+                value: |
+                  Audit-log retention must satisfy the longest
+                  applicable financial-records retention window.
+              - name: profile-tilt-basis
+                ns: governance-commons
+                value: PCI-DSS Req 10.7; SOX records retention
+              - name: profile-ai-assistance
+                ns: governance-commons
+                value: drafted-by-ai-approved-by-human
+              - name: profile-ai-assistance-detail
+                ns: governance-commons
+                value: |
+                  AI drafted the industry tilt from substrate-author
+                  intent; human approved at draft lifecycle.
+      - control-id: logging.architecture
+        adds:
+          - position: ending
+            props:
+              - name: profile-severity-override
+                ns: governance-commons
+                value: high
+              - name: profile-severity-override-rationale
+                ns: governance-commons
+                value: |
+                  The logging strategy is an audit-trail governance
+                  control under financial regulation.
+              - name: profile-tilt-basis
+                ns: governance-commons
+                value: SOX Section 404; FFIEC
+              - name: profile-ai-assistance
+                ns: governance-commons
+                value: drafted-by-ai-approved-by-human
+              - name: profile-ai-assistance-detail
+                ns: governance-commons
+                value: |
+                  AI drafted the industry tilt from substrate-author
+                  intent; human approved at draft lifecycle.
+      - control-id: backup-recovery.guarded-destructive-operation
+        adds:
+          - position: ending
+            props:
+              - name: profile-severity-override
+                ns: governance-commons
+                value: high
+              - name: profile-severity-override-rationale
+                ns: governance-commons
+                value: |
+                  Irreversible destruction of financial records must
+                  be guarded under records-retention obligations.
+              - name: profile-tilt-basis
+                ns: governance-commons
+                value: SOX records retention; SEC 17a-4
+              - name: profile-ai-assistance
+                ns: governance-commons
+                value: drafted-by-ai-approved-by-human
+              - name: profile-ai-assistance-detail
+                ns: governance-commons
+                value: |
+                  AI drafted the industry tilt from substrate-author
+                  intent; human approved at draft lifecycle.
+      - control-id: supply-chain.critical-dependency-audit
+        adds:
+          - position: ending
+            props:
+              - name: profile-severity-override
+                ns: governance-commons
+                value: high
+              - name: profile-severity-override-rationale
+                ns: governance-commons
+                value: |
+                  Third-party and vendor risk is a supervised
+                  control for financial institutions.
+              - name: profile-tilt-basis
+                ns: governance-commons
+                value: FFIEC Third-Party Risk Management; OCC guidance
+              - name: profile-ai-assistance
+                ns: governance-commons
+                value: drafted-by-ai-approved-by-human
+              - name: profile-ai-assistance-detail
+                ns: governance-commons
+                value: |
+                  AI drafted the industry tilt from substrate-author
+                  intent; human approved at draft lifecycle.
+      - control-id: supply-chain.attestation-and-sbom-retention
+        adds:
+          - position: ending
+            props:
+              - name: profile-severity-override
+                ns: governance-commons
+                value: high
+              - name: profile-severity-override-rationale
+                ns: governance-commons
+                value: |
+                  A current vendor and component inventory underpins
+                  third-party oversight.
+              - name: profile-tilt-basis
+                ns: governance-commons
+                value: FFIEC Third-Party Risk Management
+              - name: profile-ai-assistance
+                ns: governance-commons
+                value: drafted-by-ai-approved-by-human
+              - name: profile-ai-assistance-detail
+                ns: governance-commons
+                value: |
+                  AI drafted the industry tilt from substrate-author
+                  intent; human approved at draft lifecycle.
+      - control-id: monitoring-alerting.alert-lifecycle
+        adds:
+          - position: ending
+            props:
+              - name: profile-severity-override
+                ns: governance-commons
+                value: high
+              - name: profile-severity-override-rationale
+                ns: governance-commons
+                value: |
+                  Detection coverage for fraud and anomalous access
+                  is expected of financial systems.
+              - name: profile-tilt-basis
+                ns: governance-commons
+                value: FFIEC; PCI-DSS Req 10.6
+              - name: profile-ai-assistance
+                ns: governance-commons
+                value: drafted-by-ai-approved-by-human
+              - name: profile-ai-assistance-detail
+                ns: governance-commons
+                value: |
+                  AI drafted the industry tilt from substrate-author
+                  intent; human approved at draft lifecycle.
+      - control-id: monitoring-alerting.pipeline-liveness-and-runbook-reachability
+        adds:
+          - position: ending
+            props:
+              - name: profile-severity-override
+                ns: governance-commons
+                value: high
+              - name: profile-severity-override-rationale
+                ns: governance-commons
+                value: |
+                  Alert routing and escalation must meet supervisory
+                  incident-response expectations.
+              - name: profile-tilt-basis
+                ns: governance-commons
+                value: FFIEC incident response
+              - name: profile-ai-assistance
+                ns: governance-commons
+                value: drafted-by-ai-approved-by-human
+              - name: profile-ai-assistance-detail
+                ns: governance-commons
+                value: |
+                  AI drafted the industry tilt from substrate-author
+                  intent; human approved at draft lifecycle.
+      - control-id: monitoring-alerting.on-call-rotation-coverage
+        adds:
+          - position: ending
+            props:
+              - name: profile-severity-override
+                ns: governance-commons
+                value: high
+              - name: profile-severity-override-rationale
+                ns: governance-commons
+                value: |
+                  On-call coverage for financial systems is a
+                  continuity expectation.
+              - name: profile-tilt-basis
+                ns: governance-commons
+                value: FFIEC business continuity
+              - name: profile-ai-assistance
+                ns: governance-commons
+                value: drafted-by-ai-approved-by-human
+              - name: profile-ai-assistance-detail
+                ns: governance-commons
+                value: |
+                  AI drafted the industry tilt from substrate-author
+                  intent; human approved at draft lifecycle.
+      - control-id: configuration-management.layering-and-parity
+        adds:
+          - position: ending
+            props:
+              - name: profile-severity-override
+                ns: governance-commons
+                value: high
+              - name: profile-severity-override-rationale
+                ns: governance-commons
+                value: |
+                  Environment parity and change control are SOX
+                  change-management controls.
+              - name: profile-tilt-basis
+                ns: governance-commons
+                value: SOX Section 404 (change management)
+              - name: profile-ai-assistance
+                ns: governance-commons
+                value: drafted-by-ai-approved-by-human
+              - name: profile-ai-assistance-detail
+                ns: governance-commons
+                value: |
+                  AI drafted the industry tilt from substrate-author
+                  intent; human approved at draft lifecycle.
+      - control-id: reliability.health-signaling
+        adds:
+          - position: ending
+            props:
+              - name: profile-severity-override
+                ns: governance-commons
+                value: high
+              - name: profile-severity-override-rationale
+                ns: governance-commons
+                value: |
+                  Availability of customer-facing financial services
+                  is a continuity obligation.
+              - name: profile-tilt-basis
+                ns: governance-commons
+                value: FFIEC business continuity planning
+              - name: profile-ai-assistance
+                ns: governance-commons
+                value: drafted-by-ai-approved-by-human
+              - name: profile-ai-assistance-detail
+                ns: governance-commons
+                value: |
+                  AI drafted the industry tilt from substrate-author
+                  intent; human approved at draft lifecycle.
+  back-matter:
+    resources:
+      - uuid: e44d31fa-0443-4ec6-baf4-9e4406ca9147
+        title: "Production-Grade Baseline Profile (parent)"
+        rlinks:
+          - href: ../profiles/production-grade-baseline.oscal.yaml
+        description: |
+          The financial-services industry-tilt profile inherits the
+          production-grade-baseline profile (all 184 baseline rule
+          selections) via a single include-all import, then elevates
+          the severities of the concerns this regime makes critical.
+          Inheritance is profile-of-a-profile per the M7 Session 0
+          decision (the profile schema import href accepts a parent
+          profile). Tilt basis: PCI-DSS, SOX, GLBA, FFIEC. Authored
+          at draft (profile version 0.1.0, lifecycle-status draft)
+          at substrate version 0.9.0; the profile-attestation prop
+          and promotion to lifecycle-status stable are deferred to
+          the M7 close consolidation per the Path A precedent.

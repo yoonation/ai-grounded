@@ -1,0 +1,226 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://governance-commons/schemas/mapping.schema.json",
+  "title": "Mapping Schema",
+  "description": "Validates cross-taxonomy mapping files in governance-commons/mappings/. Mappings record set-theoretic relations between rules in different catalogs. Schema is at stable lifecycle status as of M3 close consolidation 2026-05-30.",
+  "x-governance-commons": {
+    "schema-kind": "mapping",
+    "lifecycle-status": "stable",
+    "commons-version": "0.6.0",
+    "schema-version": "0.1.0",
+    "authored": "2026-05-17",
+    "entered-stable-at": "2026-05-30",
+    "author": "myoung",
+    "reviewer": "myoung-self-attested",
+    "reviewed": "2026-05-30",
+    "attestation-mechanism": "Charter Section 2.4.1 solo-author attestation. Schema-rides-content Path A precedent per Section 10 settled decisions 14, 17, 21, 22: schema lifecycle promoted alongside the 4 mapping files it validates (owasp-llm-to-concerns, owasp-asi-to-concerns, mitre-atlas-to-concerns, stride-to-concerns) at M3 close consolidation 2026-05-30. The 4 stable mappings are the schema's first stable consumers; the schema itself is unchanged in content (schema-version remains 0.1.0), only its lifecycle-status field flipped draft -> stable.",
+    "ai-assistance": "AI drafted based on mappings/README.md and OSCAL mapping model. The 4 M3 Session 2a mappings exercised the schema; promotion to stable at M3 close follows the schema-rides-content Path A precedent established at M1 close (static-analysis-binding schema 0.2.0 -> stable) and reinforced at M2 close (variant 6 attestation-orchestration promotion at 0.3.0 stable). No schema content changed; only lifecycle-status flipped.",
+    "validation-notes": "Schema validated cleanly against 4 mapping files at M3 close (2026-05-30). Future mappings (compliance-to-concerns, framework-to-concerns) inherit this schema; if any future mapping requires a structural extension, the substrate elects between (a) adding optional fields backward-compatibly under schema-version 0.1.x or (b) introducing a new schema-version 0.2.0 with a discriminated additional shape, per the schema-version-management precedent from static-analysis-binding's five-variant evolution."
+  },
+  "type": "object",
+  "required": ["mapping"],
+  "additionalProperties": false,
+  "properties": {
+    "mapping": {
+      "type": "object",
+      "required": ["uuid", "metadata", "relations"],
+      "additionalProperties": true,
+      "properties": {
+        "uuid": {
+          "type": "string",
+          "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$"
+        },
+        "metadata": {
+          "type": "object",
+          "required": ["title", "version", "props", "source-catalog", "target-catalog"],
+          "additionalProperties": true,
+          "properties": {
+            "title": {
+              "type": "string",
+              "minLength": 1
+            },
+            "version": {
+              "type": "string",
+              "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+(-[0-9A-Za-z.-]+)?(\\+[0-9A-Za-z.-]+)?$"
+            },
+            "published": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "last-modified": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "props": {
+              "type": "array",
+              "minItems": 3,
+              "items": {
+                "$ref": "#/$defs/property"
+              },
+              "description": "Required: mapping-id, lifecycle-status, commons-version"
+            },
+            "source-catalog": {
+              "type": "object",
+              "required": ["catalog-id"],
+              "additionalProperties": true,
+              "properties": {
+                "catalog-id": {
+                  "type": "string"
+                },
+                "catalog-version": {
+                  "type": "string"
+                },
+                "href": {
+                  "type": "string"
+                }
+              }
+            },
+            "target-catalog": {
+              "type": "object",
+              "required": ["catalog-id"],
+              "additionalProperties": true,
+              "properties": {
+                "catalog-id": {
+                  "type": "string"
+                },
+                "catalog-version": {
+                  "type": "string"
+                },
+                "href": {
+                  "type": "string"
+                }
+              }
+            },
+            "parties": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/party"
+              }
+            },
+            "methodology": {
+              "type": "string",
+              "description": "Free-text description of the mapping methodology used. Per mappings/README.md authoring discipline."
+            }
+          }
+        },
+        "relations": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/relation"
+          },
+          "description": "The mapping entries. Each entry asserts one relation between a source rule and a target rule."
+        },
+        "coverage-gaps": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/coverage-gap"
+          },
+          "description": "Explicit recording of source-side requirements that have no target-side rule addressing them. Per mappings/README.md."
+        },
+        "back-matter": {
+          "type": "object",
+          "additionalProperties": true
+        }
+      }
+    }
+  },
+  "$defs": {
+    "property": {
+      "type": "object",
+      "required": ["name", "value"],
+      "additionalProperties": true,
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "ns": {
+          "type": "string"
+        },
+        "value": {
+          "type": ["string", "number", "boolean"]
+        }
+      }
+    },
+    "party": {
+      "type": "object",
+      "required": ["uuid", "type"],
+      "additionalProperties": true,
+      "properties": {
+        "uuid": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["person", "organization"]
+        },
+        "name": {
+          "type": "string"
+        },
+        "props": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/property"
+          }
+        }
+      }
+    },
+    "relation": {
+      "type": "object",
+      "required": ["source-rule", "target-rule", "relation-type"],
+      "additionalProperties": true,
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Optional relation identifier"
+        },
+        "source-rule": {
+          "type": "string",
+          "description": "Rule identifier in source catalog"
+        },
+        "target-rule": {
+          "type": "string",
+          "description": "Rule identifier in target catalog"
+        },
+        "relation-type": {
+          "type": "string",
+          "enum": ["requires", "addressed-by", "satisfies", "related-to", "contradicts"],
+          "description": "Per mappings/README.md relation types"
+        },
+        "rationale": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Required per Charter Article II authoring discipline. Why this relation holds."
+        },
+        "coverage-dimension": {
+          "type": "string",
+          "description": "Which aspect of the source requirement is covered. Useful when multiple relations partial-cover a single requirement."
+        },
+        "props": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/property"
+          }
+        }
+      }
+    },
+    "coverage-gap": {
+      "type": "object",
+      "required": ["source-rule", "gap-description"],
+      "additionalProperties": true,
+      "properties": {
+        "source-rule": {
+          "type": "string"
+        },
+        "gap-description": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Why no target rule addresses this source requirement"
+        },
+        "recommended-action": {
+          "type": "string",
+          "description": "Optional. Suggests substrate authoring or consumer-side action to close the gap."
+        }
+      }
+    }
+  }
+}

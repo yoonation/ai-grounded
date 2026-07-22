@@ -1,0 +1,49 @@
+id: code-organization.public-interface-minimalism
+name: Each module's public interface is intentional and minimal; implementation detail
+  is not exported
+layer: semantic
+characteristic: maintainability
+severity: medium
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-31'
+  entered_stable: '2026-06-01'
+  authored_by: Myoung Hong
+sources:
+- title: 'Information hiding (Parnas: a module hides its design decisions behind a stable
+    interface; concept referenced)'
+  url: https://en.wikipedia.org/wiki/Information_hiding
+- title: Encapsulation (restricting access to a module's internal representation through
+    a deliberate interface)
+  url: https://en.wikipedia.org/wiki/Encapsulation_(computer_programming)
+- title: Python __all__ and the convention for declaring a module's public surface (one
+    ecosystem mechanism; the rule is language-agnostic in intent)
+  url: https://docs.python.org/3/tutorial/modules.html#importing-from-a-package
+applies_to:
+  language: any
+  framework: any
+  environment: any
+references: []
+statement: 'Each module exposes a deliberate, minimal public interface and keeps its implementation
+  detail private. What a module exports is a decision, made and reviewed, not the accidental
+  consequence of which symbols happen to lack a privacy modifier. The rule applies through
+  whatever mechanism the language provides: Python __all__ and the leading-underscore
+  convention and internal subpackages; JavaScript and TypeScript explicit exports and
+  package entry points; Go capitalization-based exportedness and internal/ packages; Rust
+  pub, pub(crate), and module visibility; Java public versus package-private and the module
+  system. The reviewable property is constant across them: a caller outside the module
+  can reach only the symbols the module intends as its contract, and the module is free
+  to change everything else.'
+rationale: 'Information hiding is the original modularity argument: a module earns the
+  right to be changed independently by hiding the decisions likely to change behind a
+  stable interface. A minimal public surface is how that right is kept. Every exported
+  symbol is a promise that callers may couple to it and therefore a constraint on future
+  change; an over-broad surface makes that promise about internals the module never meant
+  to commit to, and once external code depends on an internal, the internal is internal
+  in name only. The rule is semantic because minimality is relative to purpose: the right
+  surface for a module is the smallest one that lets its intended callers do their job,
+  and only a human who knows the intended callers can judge whether an export is part
+  of the contract or a leak. Tools can find symbols exported but never referenced externally,
+  and symbols referenced externally but apparently intended as internal; the reviewer
+  decides which are leaks.'

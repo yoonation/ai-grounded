@@ -1,0 +1,170 @@
+// Cedar Schema for Governance Commons policies
+//
+// Defines the entity model that all .cedar policies in this directory
+// assume. Cedar uses this schema for static validation: typos in
+// attribute names fail at policy-compile time, not runtime.
+//
+// Schema format: Cedar schema (not JSON variant).
+//
+// Validation:
+//   cedar validate --schema schema.cedarschema --policies <policy>.cedar
+
+namespace Governance {
+
+    // ===========================================================
+    // Principal types - aligned with spec/identity-model.md
+    // ===========================================================
+
+    entity Human = {
+        roles: Set<String>,
+        approvals_granted: Set<String>
+    };
+
+    entity AiDevTool = {
+        name: String,
+        version: String,
+        principal: Human
+    };
+
+    entity AiSubAgent = {
+        spawner: AiDevTool,
+        principal: Human,
+        capabilities: Set<String>,
+        trust_score: Long
+    };
+
+    entity CiBot = {
+        platform: String,
+        run_id: String,
+        repo: String
+    };
+
+    entity ProductionAgent = {
+        version: String,
+        deployed_by: Human,
+        capabilities: Set<String>,
+        circuit_breaker_state: String,
+        trust_score: Long
+    };
+
+    // ===========================================================
+    // Resource types
+    // ===========================================================
+
+    entity File = {
+        path_hash: String,
+        classification: String,
+        owner: Human
+    };
+
+    entity Tool = {
+        name: String,
+        category: String,
+        side_effects: Bool
+    };
+
+    entity Agent = {
+        name: String,
+        version: String,
+        capabilities: Set<String>
+    };
+
+    entity Endpoint = {
+        url_hash: String,
+        category: String,
+        external: Bool
+    };
+
+    entity Secret = {
+        path_hash: String,
+        category: String
+    };
+
+    // ===========================================================
+    // Action types
+    // ===========================================================
+
+    action "Read" appliesTo {
+        principal: [Human, AiDevTool, AiSubAgent, CiBot, ProductionAgent],
+        resource: [File, Endpoint],
+        context: {
+            request_time: Long,
+            session_id: String,
+            data_residency: String,
+            mfa_completed: Bool
+        }
+    };
+
+    action "Write" appliesTo {
+        principal: [Human, AiDevTool, AiSubAgent, CiBot, ProductionAgent],
+        resource: [File, Endpoint],
+        context: {
+            request_time: Long,
+            session_id: String,
+            data_residency: String,
+            mfa_completed: Bool
+        }
+    };
+
+    action "Edit" appliesTo {
+        principal: [Human, AiDevTool, AiSubAgent],
+        resource: [File],
+        context: {
+            request_time: Long,
+            session_id: String,
+            mfa_completed: Bool
+        }
+    };
+
+    action "Execute" appliesTo {
+        principal: [Human, AiDevTool, AiSubAgent, CiBot, ProductionAgent],
+        resource: [Tool],
+        context: {
+            request_time: Long,
+            session_id: String,
+            mfa_completed: Bool
+        }
+    };
+
+    action "Spawn" appliesTo {
+        principal: [Human, AiDevTool],
+        resource: [Agent],
+        context: {
+            request_time: Long,
+            session_id: String
+        }
+    };
+
+    action "ToolCall" appliesTo {
+        principal: [AiDevTool, AiSubAgent, ProductionAgent],
+        resource: [Tool],
+        context: {
+            request_time: Long,
+            session_id: String,
+            data_residency: String
+        }
+    };
+
+    action "ExternalEffect" appliesTo {
+        principal: [Human, AiDevTool, AiSubAgent, CiBot, ProductionAgent],
+        resource: [Endpoint],
+        context: {
+            request_time: Long,
+            session_id: String,
+            mfa_completed: Bool,
+            approval_token: String
+        }
+    };
+
+    action "Delete" appliesTo {
+        principal: [Human, AiDevTool, AiSubAgent, CiBot],
+        resource: [File],
+        context: {
+            request_time: Long,
+            session_id: String,
+            mfa_completed: Bool,
+            approval_token: String
+        }
+    };
+
+}

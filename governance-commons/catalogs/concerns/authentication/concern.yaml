@@ -1,0 +1,11 @@
+# Concern metadata. One per concern folder. The column axis of the master grid.
+id: authentication
+name: Authentication
+characteristic: security        # ISO/IEC 25010:2023 primary characteristic
+status: stable
+summary: >
+  How the system verifies identity: password storage, multi-factor
+  authentication, session integrity, lockout and rate limiting, and the
+  related controls that establish who a request belongs to.
+threat_refs:
+  - stride.spoofing

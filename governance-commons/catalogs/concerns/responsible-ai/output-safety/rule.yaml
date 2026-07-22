@@ -1,0 +1,40 @@
+id: responsible-ai.output-safety
+name: Generative and predictive outputs pass the output-safety controls the system's harms
+  require before reaching a person or a downstream action
+layer: semantic
+characteristic: safety
+severity: high
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-06-02'
+  entered_stable: '2026-06-04'
+  authored_by: Myoung Hong
+sources:
+- title: NIST AI Risk Management Framework (the MANAGE and MEASURE functions, managing
+    AI risks that manifest in outputs, referenced as a concept)
+  url: https://www.nist.gov/itl/ai-risk-management-framework
+- title: OWASP Top 10 for LLM Applications (insecure output handling and related output-side
+    weaknesses, referenced as a concept)
+  url: https://genai.owasp.org/llm-top-10/
+applies_to:
+  language: any
+  framework: any
+  environment: any
+references: []
+statement: 'The output path applies the output-safety controls the system''s harms require
+  before content reaches a person or a downstream action: content filtering scaled to
+  what the system can emit, groundedness or citation checks where the system answers from
+  a source, and a defined refusal or escalation behavior for out-of-policy requests. The
+  controls are tested with adversarial and edge-case prompts. The input-boundary defense
+  against prompt injection is owned by input-validation and agentic-systems; this rule
+  owns the output side. The controls are reviewed when a new output path or capability
+  is introduced.'
+rationale: The output is the point where a model's latent risk becomes a person's concrete
+  harm, and it is the last place to intervene, which is why the output-safety controls
+  are load-bearing. Content filtering bounds what can be emitted, groundedness checks
+  bound how confidently the system can assert something it cannot support, and a refusal
+  behavior bounds what the system will do with a request it should decline. The substrate
+  scopes the controls to the system's actual harms rather than prescribing a fixed filter,
+  keeps the rule at L2 because the adequacy judgment requires knowing what the system
+  can output, and is explicit that the input side is a different concern's job.

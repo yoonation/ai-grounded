@@ -1,0 +1,49 @@
+id: secrets-management.no-secrets-in-logs
+name: Secret values do not appear in application logs, structured telemetry, traces, error
+  messages returned to clients, or analytics events
+layer: semantic
+characteristic: security
+severity: high
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-20'
+  entered_stable: '2026-05-22'
+  authored_by: Myoung Hong
+sources:
+- title: OWASP Logging Cheat Sheet (sections on data exclusion from logs)
+  url: https://cheatsheetseries.owasp.org/cheatsheets/Logging_Cheat_Sheet.html
+- title: OWASP ASVS v5.0.0 V7 Errors, Logs, Auditing (do not log sensitive data; redaction
+    requirements)
+  url: https://github.com/OWASP/ASVS/blob/v5.0.0/5.0/en/0x16-V7-Errors-Logs-Auditing.md
+- title: CWE-532 Insertion of Sensitive Information into Log File
+  url: https://cwe.mitre.org/data/definitions/532.html
+- title: CWE-209 Generation of Error Message Containing Sensitive Information
+  url: https://cwe.mitre.org/data/definitions/209.html
+cwe:
+- CWE-532
+- CWE-209
+- CWE-200
+applies_to:
+  language: any
+  framework: any
+  environment: any-producing-logs-or-telemetry
+references: []
+statement: Application code does not interpolate secret values into log statements, span
+  attributes, metric labels, error messages returned to API clients, analytics events,
+  or any other observability or telemetry emission. When a code path operates on a secret
+  value (e.g., a key for a cryptographic operation, an API token for an outbound request),
+  the secret is held in a wrapper or context that masks its content under string conversion.
+  Stack traces and debug dumps are configured so that local variable values are not included
+  by default; where introspection is enabled (developer environments), the masking wrapper
+  still applies.
+rationale: 'Modern observability stacks fan out logs and traces to many destinations:
+  application log aggregator, security information and event management platform, error
+  monitoring service, cold storage archive, observability vendor backend, downstream analytics.
+  Each destination has its own access control, retention policy, and exfiltration surface.
+  A secret that reaches the producer''s log line is replicated to all of these by default.
+  Redaction at the producer is the only control that works uniformly across destinations.
+  Per-destination redaction (sanitizing at the aggregator, masking at the SIEM, etc.)
+  is fragile: a single misconfigured downstream emits the secret. Producer-side masking,
+  applied by the secrets manager client and the logging framework, is the substrate-recommended
+  approach.'

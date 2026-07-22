@@ -1,0 +1,10 @@
+id: privacy
+name: Privacy
+characteristic: security
+status: stable
+summary: >
+  How personal data is handled lawfully: a recorded lawful basis and
+  consent model, purpose limitation and minimization, per-field purpose
+  and lawful-basis annotation, operable data-subject rights end to end,
+  per-category retention limitation, processor and cross-border transfer
+  safeguards, and keeping personal data out of URLs.

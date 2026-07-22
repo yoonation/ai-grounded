@@ -1,0 +1,50 @@
+id: error-handling.no-stack-trace-in-response
+name: Error responses to clients do not include stack traces, internal exception messages,
+  or internal paths and identifiers
+layer: mechanical
+characteristic: reliability
+severity: critical
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-24'
+  entered_stable: '2026-05-26'
+  authored_by: Myoung Hong
+sources:
+- title: OWASP ASVS v5.0.0 V7.4.1 (Generic error messages returned to clients) and V7.4.2
+    (no debug or stack trace in production responses)
+  url: https://github.com/OWASP/ASVS/blob/v5.0.0/5.0/en/0x15-V7-Error-Logging.md
+- title: OWASP Top 10 2021 A05:2021 Security Misconfiguration
+  url: https://owasp.org/Top10/A05_2021-Security_Misconfiguration/
+- title: CWE-209 Generation of Error Message Containing Sensitive Information
+  url: https://cwe.mitre.org/data/definitions/209.html
+- title: CWE-497 Exposure of Sensitive System Information to an Unauthorized Control Sphere
+  url: https://cwe.mitre.org/data/definitions/497.html
+cwe:
+- CWE-209
+- CWE-497
+applies_to:
+  language: any
+  framework: any-with-network-response-surface
+  environment: any
+references: []
+statement: Error responses returned to clients across any network surface (HTTP, gRPC,
+  GraphQL, message queue reply, WebSocket close frame) carry only the response body specified
+  by the application's documented error contract. The response body does not include the
+  exception object's message field directly (unless the exception is an application error
+  class whose message field is deliberately client-facing), does not include any stack
+  trace, does not include framework or library version identifiers, does not include internal
+  file paths, and does not include internal field names that differ from the client-facing
+  contract. Framework debug modes that produce detailed error pages (Flask debug=True,
+  Django DEBUG=True, Spring whitelabel error page with trace, Express development error
+  handler) are disabled in production.
+rationale: Information disclosure via error messages is a substrate-classified critical
+  issue because the disclosed information is directly actionable input to follow-on attacks.
+  The OWASP Top 10 categorizes this under Security Misconfiguration (A05:2021) because
+  the most common cause is shipping development-mode framework defaults to production.
+  The substrate's L1 mechanical detection catches the explicit cases (direct stack-trace
+  serialization); the L2 layer (error-handling.error-response-contract) catches the contract cases (framework error
+  pages, custom exception serializers). The rule operates at L1 because the direct-serialization
+  patterns (traceback.format_exc to response, err.stack to res.send) are locally detectable
+  at the response-construction site. The framework-default case requires configuration
+  review at L2.

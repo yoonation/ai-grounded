@@ -1,0 +1,40 @@
+id: data-classification.no-classified-data-in-logs
+name: Data classified above the lowest tier is not written to logs or standard streams
+  in plaintext
+layer: semantic
+characteristic: security
+severity: high
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-31'
+  entered_stable: '2026-06-01'
+  authored_by: Myoung Hong
+sources:
+- title: OWASP Top Ten (sensitive-data exposure through logging as a recognized weakness
+    class, referenced as a concept)
+  url: https://owasp.org/www-project-top-ten/
+- title: NIST SP 800-92 log management guidance (the requirement to keep sensitive data
+    out of logs, referenced as a concept)
+  url: https://csrc.nist.gov/pubs/sp/800/92/final
+applies_to:
+  language: any
+  framework: any
+  environment: any
+references: []
+statement: Data classified at or above the confidential tier is not written to logs or
+  standard streams in plaintext. A log that must reference such data records a non-sensitive
+  identifier in its place or passes the value through a redaction or masking helper. The
+  rule applies to application and service logging on every path; the presence of a classified
+  field in a plaintext log argument is the finding. Whether an unannotated field is in
+  fact sensitive is assessed in review.
+rationale: 'A log is a copy that outlives, out-travels, and out-broadcasts the data it
+  records: it is aggregated, retained on its own schedule, read by operators and shipped
+  to vendors, and searched freely. A classified value in a log has therefore left the
+  regime of per-class controls the application carefully applies elsewhere, which is why
+  a single careless log line can be the largest exposure in a system that is otherwise
+  well classified. The substrate makes the presence of a classified field in a log a mechanical
+  floor because the annotation-driven cases are statically visible and the fix is local,
+  while leaning on the community secret and PII scanners for the well-known shapes its
+  annotations do not cover. It is the classified-data analogue of the secrets-in-logs
+  rule that secrets-management owns for credentials.'

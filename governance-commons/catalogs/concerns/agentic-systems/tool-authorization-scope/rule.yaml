@@ -1,0 +1,39 @@
+id: agentic-systems.tool-authorization-scope
+name: Every tool or skill registered to an agent declares an authorization scope
+layer: semantic
+characteristic: safety
+severity: medium
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-06-03'
+  entered_stable: '2026-06-04'
+  authored_by: Myoung Hong
+sources:
+- title: OWASP Agentic Security Initiative, agentic threats and mitigations (tool misuse
+    and excessive agency, referenced as a concept)
+  url: https://genai.owasp.org/resource/agentic-ai-threats-and-mitigations/
+- title: Cloud Security Alliance MAESTRO threat-modeling for agentic systems (tool and
+    action layer, referenced as a concept)
+  url: https://cloudsecurityalliance.org/research/topics/maestro
+applies_to:
+  language: any
+  framework: any
+  environment: any
+references: []
+statement: 'Every tool or skill registered to an agent declares an authorization scope:
+  the actions it is permitted to perform or the resources it is permitted to touch, expressed
+  as a scope, permission list, role, or resource allow-list on the registration. The rule
+  applies to tools and skills bound to an agent''s tool set; a genuinely unprivileged
+  tool declares an explicit read-only or empty scope rather than omitting the declaration.
+  The presence of a scope declaration is the finding; whether the scope is genuinely least-privilege
+  is assessed in review (agentic-systems.tool-use-authorization).'
+rationale: 'Least privilege at the tool-call boundary is a function of a declared scope,
+  so a tool with no declared scope is a tool the authorization rule cannot constrain.
+  The dominant first failure is not a wrong scope but a missing one: a tool registered
+  to an agent during development with full ambient authority and never scoped down. The
+  substrate makes the presence of a scope declaration a mechanical floor because the absence
+  is statically visible and almost always an oversight, while the correctness of the scope
+  is a judgment. The rule is deliberately modest about what it proves (a scope is declared,
+  not that it is tight) and explicit that the tool-versus-ordinary-function distinction
+  makes it heuristic.'

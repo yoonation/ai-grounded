@@ -1,0 +1,41 @@
+id: performance-caching.no-cache-call-in-loop
+name: Cache lookups and writes are not issued per item inside a loop where the cache client
+  offers a batch operation; the batch form is used
+layer: mechanical
+characteristic: performance-efficiency
+severity: medium
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-31'
+  entered_stable: '2026-06-01'
+  authored_by: Myoung Hong
+sources:
+- title: Redis MGET command (retrieving many keys in one round trip, the batch remedy
+    for per-key cache lookups)
+  url: https://redis.io/docs/latest/commands/mget/
+- title: Redis pipelining (batching multiple commands into one round trip when MGET or
+    MSET do not fit)
+  url: https://redis.io/docs/latest/develop/use/pipelining/
+applies_to:
+  language: any
+  framework: any
+  environment: any
+references: []
+statement: Cache operations over a collection use the cache client's batch form (MGET,
+  MSET, a pipeline, or the framework get_many and set_many) rather than a single-key operation
+  issued once per element inside a loop. The rule applies to reads and writes on the request
+  path; it does not apply to a loop with a constant low iteration count, to a batch or
+  background path exempted by directory, or to a loop whose body issues no cache operation.
+  The presence of a per-item cache call in a load-scaled loop is the finding; the correct
+  batch form is chosen in review.
+rationale: A cache is added to remove latency, and a round trip per item reintroduces
+  the very latency the cache was meant to remove, multiplied by the collection size. The
+  fixed cost of a cache round trip (a network hop, command parsing, a response) is paid
+  once per element instead of once per request, and the element count grows with load.
+  The substrate treats the per-item cache call in a loop as a mechanical floor because
+  the structure is statically visible and the batch remedy is a single well-known call,
+  while the judgment of whether the loop is hot enough to matter is review. This is the
+  cache-tier sibling of the database N+1 rule (performance-database.no-query-in-loop) and the set-based bulk rule
+  (performance-database.bulk-operations); the same round-trip-amortization principle applies wherever a per-item
+  call crosses a process boundary.

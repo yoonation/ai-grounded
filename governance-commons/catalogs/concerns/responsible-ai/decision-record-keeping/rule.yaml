@@ -1,0 +1,39 @@
+id: responsible-ai.decision-record-keeping
+name: An AI system records enough about each significant decision to reconstruct and review
+  it
+layer: semantic
+characteristic: safety
+severity: medium
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-06-02'
+  entered_stable: '2026-06-04'
+  authored_by: Myoung Hong
+sources:
+- title: EU AI Act Regulation 2024/1689 (Article 12 record-keeping and automatic logging
+    for high-risk systems, referenced as a concept)
+  url: https://eur-lex.europa.eu/eli/reg/2024/1689/oj
+- title: NIST AI Risk Management Framework (the MANAGE function, documenting and tracking
+    AI system decisions, referenced as a concept)
+  url: https://www.nist.gov/itl/ai-risk-management-framework
+applies_to:
+  language: any
+  framework: any
+  environment: any
+references: []
+statement: 'For each significant AI decision, the system records enough to reconstruct
+  and review it: a reference to the input or its hash, the model version, the output,
+  and any human override or intervention, at a granularity sufficient for review and bounded
+  so the record does not itself become an over-broad store of sensitive data. The logging
+  mechanism, retention, and integrity are owned by logging; the redaction of classified
+  or personal fields is owned by data-classification. The record-keeping is reviewed when
+  a new significant decision path is added.'
+rationale: 'An AI decision that left no trace cannot be reviewed, and a decision that
+  cannot be reviewed cannot be held to account: the complaint, the incident, and the audit
+  all need a record of what the system saw, which model acted, what it produced, and whether
+  a human stepped in. The substrate requires the record to be sufficient to reconstruct
+  the decision and bounded so it does not become its own liability, owns that AI-specific
+  requirement here, and defers the writing, retention, and redaction of the record to
+  the logging and data-classification concerns. It stays at L2 because the right contents
+  and granularity are a judgment about the use.'

@@ -1,0 +1,39 @@
+id: performance-caching.cache-as-optional
+name: The cache is optional to correctness; a miss, a timeout, or a total cache outage
+  falls back to the source of record rather than failing the request
+layer: semantic
+characteristic: performance-efficiency
+severity: high
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-31'
+  entered_stable: '2026-06-01'
+  authored_by: Myoung Hong
+sources:
+- title: Cache-aside pattern (the application reads the cache, falls back to the source
+    on a miss, and populates the cache)
+  url: https://en.wikipedia.org/wiki/Cache-aside
+- title: AWS Builders' Library caching challenges and strategies (treating the cache as
+    optional and tolerating its failure)
+  url: https://aws.amazon.com/builders-library/caching-challenges-and-strategies/
+applies_to:
+  language: any
+  framework: any
+  environment: any
+references: []
+statement: 'Every cache read on a request path is optional to correctness: a miss, a cache
+  error, or a cache timeout falls back to the source of record, and a total cache outage
+  degrades to source-of-record reads rather than failing. Cache calls carry a bounded
+  timeout. No authoritative data exists only in the cache. The source-of-record path is
+  exercised in test so it remains working. The posture is reviewed when a new cache-fronted
+  read path is added.'
+rationale: 'The promise of a cache is that it makes things faster; the hazard is that
+  it quietly makes things mandatory. A read that cannot proceed without the cache has
+  coupled its availability to the cache''s, so a cache failover or eviction storm becomes
+  a user-visible outage, and the rarely-exercised source path may have rotted by the time
+  it is needed. The substrate requires the cache to be optional in the strict sense: every
+  cached read has a working, tested fallback, cache calls time out rather than hang, and
+  a cache error is a miss, not an error. This is the cache-tier instance of graceful degradation;
+  it is owned here because the correct answer for a cache is specific and absolute, where
+  the general degradation rule is about dependencies in general.'

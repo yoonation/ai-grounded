@@ -1,0 +1,346 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Myoung Hong
+
+# STRIDE threat modeling methodology to substrate concern rules.
+#
+# Source taxonomy: governance-commons/catalogs/threats/stride.yaml
+# Target catalogs: substrate concern catalogs at
+# governance-commons/catalogs/concerns/.
+#
+# Coverage at the methodology level is strong because STRIDE
+# categories map cleanly to security architectural concerns the
+# substrate covers.
+
+mapping:
+  uuid: "03af42a3-a735-477a-ac8e-b7c3ce4ae0fc"
+
+  metadata:
+    title: "STRIDE Categories to Substrate Concerns"
+    version: "1.0.0"
+    last-modified: "2026-05-30T00:00:00Z"
+
+    props:
+      - name: mapping-id
+        ns: governance-commons
+        value: "stride-to-concerns"
+      - name: lifecycle-status
+        ns: governance-commons
+        value: stable
+      - name: commons-version
+        ns: governance-commons
+        value: "0.6.0"
+      - name: entered-draft-at
+        ns: governance-commons
+        value: "2026-05-28"
+      - name: entered-stable-at
+        ns: governance-commons
+        value: "2026-05-30"
+      - name: reviewer
+        ns: governance-commons
+        value: "myoung-self-attested"
+      - name: reviewed
+        ns: governance-commons
+        value: "2026-05-30"
+      - name: attestation-mechanism
+        ns: governance-commons
+        value: "Charter Section 2.4.1 solo-author attestation; M3 close Path A consolidation"
+        remarks: >
+          Attested under Charter Section 2.4.1 (solo-author
+          attestation) on 2026-05-30. Cooling-off interval honored:
+          mapping drafted 2026-05-28 (M3 Session 2a), attested
+          2026-05-30 (subsequent calendar day or later per Section
+          2.4.1 minimum-interval-one-calendar-day rule). Section 2.4
+          validation criteria applied: relation rationales are
+          defensible; coverage-gap records are honest; target-rule
+          references resolve to live substrate-rule IDs; no relation
+          duplicates another mapping's claim. Promotion executed as
+          part of the M3 close Path A consolidation (1 spec doc + 4
+          mappings + 3 schemas all promoted in one consolidation
+          event).
+      - name: ai-assistance
+        ns: governance-commons
+        value: drafted-and-reviewed
+      - name: ai-assistance-detail
+        ns: governance-commons
+        value: >
+          AI drafted as the fourth M3 Session 2a mapping. Each
+          STRIDE category mapped to substrate concern rules that
+          materially address the threat-property violation the
+          category represents. STRIDE coverage is the strongest
+          across the four threat mappings because the six STRIDE
+          categories correspond closely to security architectural
+          concerns the substrate has at full depth.
+
+    source-catalog:
+      catalog-id: "stride"
+      catalog-version: "stable methodology, last updated 2024"
+      href: "../catalogs/threats/stride.yaml"
+
+    target-catalog:
+      catalog-id: "concerns"
+      catalog-version: "0.6.0"
+      href: "../catalogs/concerns/"
+
+    methodology: >
+      For each STRIDE category, identify substrate concern rules
+      whose intent materially defeats or detects the category's
+      threat-property violation. Relation type "addressed-by"
+      because STRIDE categories describe threats and substrate
+      rules describe controls.
+
+  relations:
+
+    - id: "STRIDE-S-addressed-by-password-hashing"
+      source-rule: "STRIDE-S"
+      target-rule: "authentication.password-hashing"
+      relation-type: addressed-by
+      rationale: >
+        authentication.password-hashing (password hashing) addresses spoofing at the
+        credential-protection layer: secure hashing prevents
+        credential extraction from compromised stores, blocking
+        the most common spoofing vector.
+
+    - id: "STRIDE-S-addressed-by-no-credentials-in-urls"
+      source-rule: "STRIDE-S"
+      target-rule: "authentication.no-credentials-in-urls"
+      relation-type: addressed-by
+      rationale: >
+        authentication.no-credentials-in-urls (credentials in URLs) addresses spoofing via
+        credential-leak path: credentials in URLs are logged and
+        cacheable, enabling spoofing by anyone with log access.
+
+    - id: "STRIDE-S-addressed-by-timing-safe-comparison"
+      source-rule: "STRIDE-S"
+      target-rule: "authentication.timing-safe-comparison"
+      relation-type: addressed-by
+      rationale: >
+        authentication.timing-safe-comparison (timing-safe comparison) defeats the
+        timing-side-channel spoofing vector where attackers
+        infer valid credentials character-by-character.
+
+    - id: "STRIDE-S-addressed-by-no-hardcoded-credentials"
+      source-rule: "STRIDE-S"
+      target-rule: "authentication.no-hardcoded-credentials"
+      relation-type: addressed-by
+      rationale: >
+        authentication.no-hardcoded-credentials (credentials hardcoded) addresses the
+        widespread-spoofing path where hardcoded credentials
+        leak to anyone with source access.
+
+    - id: "STRIDE-T-addressed-by-parameterized-queries"
+      source-rule: "STRIDE-T"
+      target-rule: "input-validation.parameterized-queries"
+      relation-type: addressed-by
+      rationale: >
+        input-validation.parameterized-queries (parameterized queries) addresses tampering
+        via SQL injection where attackers tamper with data
+        through query manipulation.
+
+    - id: "STRIDE-T-addressed-by-no-unsafe-deserialization"
+      source-rule: "STRIDE-T"
+      target-rule: "input-validation.no-unsafe-deserialization"
+      relation-type: addressed-by
+      rationale: >
+        input-validation.no-unsafe-deserialization (no unsafe deserialization) addresses
+        tampering via deserialization where attackers tamper
+        with runtime state through crafted serialized payloads.
+
+    - id: "STRIDE-T-addressed-by-digest-pinned-artifacts"
+      source-rule: "STRIDE-T"
+      target-rule: "supply-chain.digest-pinned-artifacts"
+      relation-type: addressed-by
+      rationale: >
+        supply-chain.digest-pinned-artifacts (digest-pinned artifacts) addresses
+        supply-chain tampering by ensuring artifacts are
+        retrieved by content digest; tampered artifacts have
+        different digests and fail verification.
+
+    - id: "STRIDE-T-addressed-by-signature-verification"
+      source-rule: "STRIDE-T"
+      target-rule: "supply-chain.signature-verification"
+      relation-type: addressed-by
+      rationale: >
+        supply-chain.signature-verification (signature verification) addresses
+        cryptographic-integrity tampering: tampered artifacts
+        fail signature verification at install or load.
+
+    - id: "STRIDE-R-addressed-by-structured-format"
+      source-rule: "STRIDE-R"
+      target-rule: "logging.structured-format"
+      relation-type: addressed-by
+      rationale: >
+        logging.structured-format (structured format) addresses repudiation by
+        ensuring action logs are queryable and attributable;
+        structured logs are the foundation of non-repudiation
+        audit.
+
+    - id: "STRIDE-R-addressed-by-correlation-ids"
+      source-rule: "STRIDE-R"
+      target-rule: "logging.correlation-ids"
+      relation-type: addressed-by
+      rationale: >
+        logging.correlation-ids (correlation IDs) addresses repudiation
+        across distributed actions: correlation IDs make
+        cross-service action chains traceable and non-
+        repudiable.
+
+    - id: "STRIDE-R-addressed-by-severity-levels"
+      source-rule: "STRIDE-R"
+      target-rule: "logging.severity-levels"
+      relation-type: addressed-by
+      rationale: >
+        logging.severity-levels (severity levels) addresses repudiation by
+        ensuring security-relevant events are logged at
+        appropriate severity for audit filtering; mis-severity
+        events can be filtered out and effectively repudiated.
+      coverage-dimension: "audit-filterability"
+
+    - id: "STRIDE-R-addressed-by-trace-context-propagation"
+      source-rule: "STRIDE-R"
+      target-rule: "observability.trace-context-propagation"
+      relation-type: addressed-by
+      rationale: >
+        observability.trace-context-propagation (trace context propagation) addresses
+        repudiation at the distributed-trace level: traces
+        provide tamper-evident action attribution beyond
+        log-based audit.
+
+    - id: "STRIDE-I-addressed-by-no-secrets-in-source"
+      source-rule: "STRIDE-I"
+      target-rule: "secrets-management.no-secrets-in-source"
+      relation-type: addressed-by
+      rationale: >
+        secrets-management.no-secrets-in-source (no secrets in source) directly addresses
+        information disclosure at the source-code path: secrets
+        in source disclose to anyone with repo access.
+
+    - id: "STRIDE-I-addressed-by-no-secrets-in-logs"
+      source-rule: "STRIDE-I"
+      target-rule: "secrets-management.no-secrets-in-logs"
+      relation-type: addressed-by
+      rationale: >
+        secrets-management.no-secrets-in-logs (no secrets in logs) addresses
+        information disclosure via the logging path: secrets in
+        logs disclose to anyone with log access.
+
+    - id: "STRIDE-I-addressed-by-no-sensitive-data-in-logs"
+      source-rule: "STRIDE-I"
+      target-rule: "logging.no-sensitive-data-in-logs"
+      relation-type: addressed-by
+      rationale: >
+        logging.no-sensitive-data-in-logs (no sensitive data in logs) addresses
+        information disclosure of non-secret-but-sensitive data
+        (PII, financial data, health data) via the logging path.
+
+    - id: "STRIDE-I-addressed-by-no-stack-trace-in-response"
+      source-rule: "STRIDE-I"
+      target-rule: "error-handling.no-stack-trace-in-response"
+      relation-type: addressed-by
+      rationale: >
+        error-handling.no-stack-trace-in-response (no stack trace in response) addresses
+        information disclosure via the error-response path:
+        stack traces expose internal structure, version
+        information, and code paths to attackers.
+
+    - id: "STRIDE-I-addressed-by-no-credentials-in-logs"
+      source-rule: "STRIDE-I"
+      target-rule: "authentication.no-credentials-in-logs"
+      relation-type: addressed-by
+      rationale: >
+        authentication.no-credentials-in-logs (credentials in logs) addresses the
+        credentials-disclosure dimension of information
+        disclosure via logs.
+
+    - id: "STRIDE-D-addressed-by-workload-resource-limits"
+      source-rule: "STRIDE-D"
+      target-rule: "cost-model-selection.workload-resource-limits"
+      relation-type: addressed-by
+      rationale: >
+        cost-model-selection.workload-resource-limits (workload resource limits) directly
+        addresses resource-exhaustion denial-of-service:
+        resource limits cap the damage from DoS attempts.
+
+    - id: "STRIDE-D-addressed-by-cost-attribution-tags"
+      source-rule: "STRIDE-D"
+      target-rule: "cost-model-selection.cost-attribution-tags"
+      relation-type: addressed-by
+      rationale: >
+        cost-model-selection.cost-attribution-tags (cost attribution tags) addresses DoS-
+        detection: tagged consumption attributes load to
+        principals, enabling anomaly detection on DoS attempts.
+      coverage-dimension: "dos-detection"
+
+    - id: "STRIDE-D-addressed-by-resource-finalization"
+      source-rule: "STRIDE-D"
+      target-rule: "error-handling.resource-finalization"
+      relation-type: addressed-by
+      rationale: >
+        error-handling.resource-finalization (resource finalization) addresses
+        resource-leak DoS where unfinalized resources (file
+        handles, connections, locks) accumulate and exhaust the
+        system over time, even without external attack.
+      coverage-dimension: "resource-leak-prevention"
+
+    - id: "STRIDE-E-addressed-by-protected-route-declares-authz"
+      source-rule: "STRIDE-E"
+      target-rule: "authorization.protected-route-declares-authz"
+      relation-type: addressed-by
+      rationale: >
+        authorization.protected-route-declares-authz (protected route declares authorization)
+        directly addresses elevation: every privileged endpoint
+        declares its authorization requirements, preventing the
+        common elevation vector of unprotected endpoints.
+
+    - id: "STRIDE-E-addressed-by-authz-before-resource-access"
+      source-rule: "STRIDE-E"
+      target-rule: "authorization.authz-before-resource-access"
+      relation-type: addressed-by
+      rationale: >
+        authorization.authz-before-resource-access (authorization before resource access)
+        defeats elevation via direct-resource-access path where
+        authorized endpoints transitively access resources the
+        principal is not authorized for.
+
+    - id: "STRIDE-E-addressed-by-no-client-side-only-authz"
+      source-rule: "STRIDE-E"
+      target-rule: "authorization.no-client-side-only-authz"
+      relation-type: addressed-by
+      rationale: >
+        authorization.no-client-side-only-authz (no client-side-only authorization)
+        defeats elevation via client-side-tampering: server
+        re-verification denies elevated requests regardless of
+        client claims.
+
+    - id: "STRIDE-E-addressed-by-mass-assignment-allowlist"
+      source-rule: "STRIDE-E"
+      target-rule: "authorization.mass-assignment-allowlist"
+      relation-type: addressed-by
+      rationale: >
+        authorization.mass-assignment-allowlist (mass assignment allowlist) defeats
+        elevation via mass-assignment where attacker payloads
+        include privilege-elevating fields the principal is not
+        authorized to set.
+
+  coverage-gaps:
+
+    - source-rule: "STRIDE-R"
+      gap-description: >
+        Partial coverage. Substrate addresses logging structure,
+        correlation, and severity but does not address log-
+        integrity (tamper-evident log storage, cryptographic log
+        signing, write-once log storage).
+      recommended-action: >
+        Log-integrity rules could be a future addition to the
+        logging concern or a separate audit-trail concern.
+
+    - source-rule: "STRIDE-D"
+      gap-description: >
+        Partial coverage. Substrate addresses resource-limit and
+        resource-leak dimensions of DoS but does not address
+        rate-limiting (per-principal request rate caps),
+        distributed-DoS protection, or service degradation
+        patterns (load shedding, circuit breaking).
+      recommended-action: >
+        Resilience / reliability concern catalog anticipated in
+        future milestone with rules for rate-limiting, circuit
+        breaking, and graceful degradation.

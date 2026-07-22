@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "governance-commons/schemas/concern.schema.json",
+  "title": "Substrate concern (authored form)",
+  "type": "object",
+  "required": ["id", "name", "characteristic", "status", "summary"],
+  "additionalProperties": false,
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9-]+$",
+      "description": "Concern slug; matches the concern folder name."
+    },
+    "name": { "type": "string", "minLength": 1 },
+    "characteristic": {
+      "type": "string",
+      "enum": [
+        "functional-suitability", "performance-efficiency", "compatibility",
+        "interaction-capability", "reliability", "security", "maintainability",
+        "flexibility", "safety"
+      ]
+    },
+    "status": { "type": "string", "enum": ["draft", "stable", "deprecated", "retired"] },
+    "summary": {
+      "type": "string",
+      "minLength": 1,
+      "description": "One-line scope signal for the concern; the cheap routing signal the concern-selector reads to decide whether a feature touches this concern. Required and non-empty."
+    },
+    "threat_refs": { "type": "array", "items": { "type": "string" } }
+  }
+}

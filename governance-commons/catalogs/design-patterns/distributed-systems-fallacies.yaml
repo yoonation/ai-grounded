@@ -1,0 +1,143 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Myoung Hong
+
+
+# Fallacies of distributed computing
+# Eight assumptions that engineers new to distributed systems tend to make and
+# that reality violates. Each is stated as the false assumption, the reason it
+# fails, and what to design for instead. Several have enforceable counterparts
+# in the reliability concern, cross-referenced via applies_pattern_to.
+# Descriptions here are substrate-original paraphrase of long-public concepts;
+# no source text is reproduced. Consult while designing any code that makes a
+# call across a process or network boundary.
+
+metadata:
+  catalog_id: distributed-systems-fallacies
+  catalog_name: Fallacies of Distributed Computing
+  schema_version: 1.0.0
+  category_system: fallacy
+  upstream_source: https://en.wikipedia.org/wiki/Fallacies_of_distributed_computing
+  last_reviewed: 2026-06-28
+  next_review_due: 2027-06-28
+  maintainer: <set-during-init>
+  review_protocol: governance-commons/MAINTENANCE.md
+
+patterns:
+
+  - id: DSF-RELIABLE-NETWORK
+    name: The network is reliable
+    category: fallacy
+    intent: >
+      The assumption that a remote call will reach its destination and return.
+      In reality networks drop, partition, and fail in ways local calls do
+      not.
+    consequences: >
+      Design every remote call to fail: add timeouts, retries with backoff and
+      jitter, idempotency so retries are safe, and a defined behavior when the
+      call never returns.
+    avoid_when: >
+      Treating a remote call like a local function; code that has no failure
+      path for a network call is assuming a reliability that does not exist.
+    applies_pattern_to: >
+      reliability concern: failure-isolation, idempotency, tracked-async-tasks.
+
+  - id: DSF-ZERO-LATENCY
+    name: Latency is zero
+    category: fallacy
+    intent: >
+      The assumption that a remote call returns as quickly as a local one.
+      Network round-trips cost milliseconds to seconds, and they accumulate.
+    consequences: >
+      Minimize round-trips: batch requests, fetch in bulk rather than per item,
+      move computation to the data, and set realistic timeouts. A chatty design
+      that is fine locally collapses across a network.
+    avoid_when: >
+      Looping a remote call per item (the n+1 pattern) as if each call were
+      free; latency turns it into a stall.
+
+  - id: DSF-INFINITE-BANDWIDTH
+    name: Bandwidth is infinite
+    category: fallacy
+    intent: >
+      The assumption that any amount of data can be moved without cost.
+      Bandwidth is finite and shared, and large payloads contend for it.
+    consequences: >
+      Move less: page large results, compress, send deltas rather than whole
+      objects, and avoid shipping data the caller will not use. Watch payload
+      growth over time.
+    avoid_when: >
+      Returning unbounded result sets or whole documents when a subset would
+      do; bandwidth pressure shows up as tail-latency and cost.
+
+  - id: DSF-SECURE-NETWORK
+    name: The network is secure
+    category: fallacy
+    intent: >
+      The assumption that the transport can be trusted. Networks are hostile:
+      traffic can be observed, modified, and replayed.
+    consequences: >
+      Encrypt in transit, authenticate both ends, validate every input
+      crossing the boundary, and assume any unauthenticated message could be
+      forged. Trust is established, not inherited from the network.
+    avoid_when: >
+      Sending secrets or trusting payloads in the clear because the call is
+      internal; internal networks are breached too.
+
+  - id: DSF-STATIC-TOPOLOGY
+    name: Topology will not change
+    category: fallacy
+    intent: >
+      The assumption that hosts, addresses, and routes stay put. In real
+      deployments instances come and go, addresses shift, and services move.
+    consequences: >
+      Discover endpoints dynamically rather than hardcoding them, tolerate
+      instance churn, and do not pin to addresses that autoscaling or failover
+      will change.
+    avoid_when: >
+      Hardcoding IPs or assuming a fixed set of nodes; cloud topology is
+      elastic by design.
+
+  - id: DSF-ONE-ADMINISTRATOR
+    name: There is one administrator
+    category: fallacy
+    intent: >
+      The assumption that one person or team controls the whole system. Across
+      services, clouds, and third parties, control and change windows are
+      distributed.
+    consequences: >
+      Expect dependencies to be upgraded, deprecated, or rate-limited without
+      your involvement; version your interfaces, degrade gracefully when a
+      dependency changes, and do not assume coordinated deploys.
+    avoid_when: >
+      Designing as if you can change all the moving parts at once; you usually
+      cannot.
+
+  - id: DSF-ZERO-TRANSPORT-COST
+    name: Transport cost is zero
+    category: fallacy
+    intent: >
+      The assumption that moving data is free. Every call and byte has a cost
+      in money (egress, per-request pricing) and in CPU for serialization.
+    consequences: >
+      Account for the cost of communication: serialization overhead, egress
+      charges, and per-request billing. Favor coarser interactions where the
+      cost is real.
+    avoid_when: >
+      Ignoring data-transfer and per-call cost in a design; at scale it becomes
+      a material line item.
+    applies_pattern_to: >
+      cost-model-selection concern.
+
+  - id: DSF-HOMOGENEOUS-NETWORK
+    name: The network is homogeneous
+    category: fallacy
+    intent: >
+      The assumption that every node, client, and link is alike. In reality
+      they differ in platform, version, capacity, and protocol support.
+    consequences: >
+      Interoperate explicitly: agree on a wire format and protocol version,
+      negotiate capabilities, and do not assume a uniform stack across the
+      participants.
+    avoid_when: >
+      Relying on implementation-specific behavior shared by all nodes;
+      heterogeneity breaks it as the fleet diversifies.

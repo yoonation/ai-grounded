@@ -1,0 +1,9 @@
+id: cost-model-selection
+name: Cost Model Selection
+characteristic: performance-efficiency
+status: stable
+summary: >
+  How spend is modeled and bounded: a documented cost model with cost SLI
+  and SLO selection, cost-attribution tags and a telemetry pipeline,
+  anomaly alerting against budgets, and per-workload CPU and memory limits
+  the orchestrator enforces.

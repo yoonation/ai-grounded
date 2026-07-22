@@ -1,0 +1,44 @@
+id: monitoring-alerting.alert-route-resolves-to-receiver
+name: Every alert notification route resolves to a configured, non-empty receiver, so
+  no alert is silently dropped
+layer: mechanical
+characteristic: reliability
+severity: medium
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-06-03'
+  entered_stable: '2026-06-04'
+  authored_by: Myoung Hong
+sources:
+- title: Prometheus Alertmanager configuration (the route tree and receivers model, the
+    requirement that a route resolve to a defined receiver, referenced as a concept)
+  url: https://prometheus.io/docs/alerting/latest/configuration/
+- title: Google SRE Book Chapter 6 Practical Alerting (an alert is only useful if it reaches
+    a responder, referenced as a concept)
+  url: https://sre.google/sre-book/practical-alerting/
+applies_to:
+  language: any
+  framework: any
+  environment: any
+references: []
+statement: 'Every route in the alerting configuration resolves to a receiver that is defined
+  and carries at least one notification integration, and the root or default route is
+  not a silent null drop unless that drop is an explicit, annotated decision. The rule
+  operates on the routing configuration, not the alert rule: it asserts that when a rule
+  fires, the path it takes ends at a real destination. It builds beneath the alert-rule
+  hygiene observability.alerting-discipline owns (the rule carries a severity label, a runbook link, and a summary)
+  by requiring the route those rules fire into actually deliver. The presence of an unresolved,
+  empty, or silently-null route is the finding; whether the destination is reachable at
+  runtime is monitoring-alerting.pipeline-liveness-and-runbook-reachability.'
+rationale: 'The dominant first failure in alert delivery is not a misformatted rule but
+  a route that goes nowhere: a receiver renamed in a refactor while the route that points
+  at it is left behind, a placeholder receiver never filled in, a catch-all that drops
+  everything it does not explicitly match. Each is statically visible in the routing config
+  and almost always an oversight rather than a decision. The substrate makes route resolution
+  a mechanical floor because the absence of a real destination is exactly the kind of
+  silent gap monitoring is supposed to prevent, and it is checkable without judgment.
+  The rule is deliberately modest about what it proves: that the route terminates at a
+  defined, non-empty receiver, not that the receiver works, which is the runtime concern
+  monitoring-alerting.pipeline-liveness-and-runbook-reachability owns. It does not restate the alert-rule hygiene observability owns; it adds
+  the delivery-path floor beneath it.'

@@ -1,0 +1,44 @@
+id: authentication.no-hardcoded-credentials
+name: Authentication credentials are not hardcoded as literals in source code
+layer: mechanical
+characteristic: security
+severity: critical
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-18'
+  entered_stable: '2026-05-18'
+  authored_by: Myoung Hong
+sources:
+- title: OWASP ASVS v5.0.0 V14 (Configuration) and V51 (JWT) requirements on credential
+    externalization
+  url: https://github.com/OWASP/ASVS/blob/v5.0.0/5.0/en/0x22-V14-Config.md
+- title: CWE-798 Use of Hard-coded Credentials
+  url: https://cwe.mitre.org/data/definitions/798.html
+cwe:
+- CWE-798
+- CWE-259
+- CWE-321
+applies_to:
+  language: any
+  framework: any
+  environment: any-with-credentials
+references: []
+statement: The application does not contain authentication credential values as string
+  literals in source code. Credentials include API keys, passwords, cryptographic keys,
+  JWT signing secrets, database connection passwords, OAuth client secrets, webhook signing
+  secrets, encryption keys, and any other secret value whose disclosure compromises authentication
+  or authorization. Credentials are supplied at runtime from environment variables, secrets
+  management services, encrypted configuration files, or hardware secure modules.
+rationale: Source code travels widely. It is read by every developer on the team, stored
+  in every contributor's git clone, served to CI agents, mirrored to backup services,
+  indexed by code search tools, and (when public) crawled by automated secret scanners
+  that actively search public repositories for credentials. A credential committed to
+  source code is a credential disclosed broadly. Worse, source code persists. Even after
+  rotation, the old credential remains in git history (rebase does not erase distributed
+  history; force-push does not erase clones; rewritten history does not erase CI logs
+  that captured the file). Practical remediation of a leaked credential requires rotation
+  plus audit, not removal from history. Externalizing credentials separates the secret's
+  lifecycle from the code's lifecycle. The code can be public; the credential remains
+  private.
+guidance_ref: guidance.md

@@ -1,0 +1,39 @@
+id: backup-recovery.guarded-destructive-operation
+name: An irreversible bulk-data-destruction operation is not executed unguarded in application
+  or migration code
+layer: mechanical
+characteristic: reliability
+severity: medium
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-06-05'
+  entered_stable: '2026-06-06'
+  authored_by: Myoung Hong
+sources:
+- title: NIST SP 800-34 Rev. 1, on protecting data against loss and the recoverability
+    of information as a contingency-planning objective.
+  url: https://csrc.nist.gov/pubs/sp/800/34/r1/upd1/final
+- title: NIST SP 800-53 Rev. 5, control CP-10 (system recovery and reconstitution), on
+    returning data to a known state after loss or destruction.
+  url: https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final
+applies_to:
+  language: any
+  framework: any
+  environment: any
+references: []
+statement: An irreversible bulk-data-destruction operation in first-party application
+  code, database migration scripts, or operational scripts MUST NOT be executed unconditionally.
+  A destructive operation (a schema or table drop, a truncate, a delete without a scoping
+  predicate, a recursive force-delete of a data path, or a force-destroy of a data store)
+  that appears with no interposed guard, snapshot precondition, or substrate-recognized
+  safeguard is a violation.
+rationale: 'Backups protect against most data loss, but the cheapest and most preventable
+  loss is the destructive operation that runs without anyone meaning it to: a migration
+  that drops before it should, a cleanup script with an unscoped delete, a teardown that
+  force-destroys the wrong store. Requiring that destruction pass through a guard (an
+  explicit confirmation, a snapshot-first step, a dry-run gate, or a recognized safe-delete
+  wrapper) interposes a deliberate point of control at the exact place the loss originates,
+  and makes the difference between intended and accidental destruction visible in review.
+  The guard does not replace the backup; it prevents the avoidable loss the backup would
+  otherwise have to recover from.'

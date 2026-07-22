@@ -1,0 +1,38 @@
+id: authentication.session-regeneration
+name: Session identifiers are regenerated at authentication and privilege-boundary crossings
+layer: semantic
+characteristic: security
+severity: high
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-18'
+  entered_stable: '2026-05-18'
+  authored_by: Myoung Hong
+sources:
+- title: OWASP ASVS v5.0.0 V7 (Session Management) session-identifier rotation requirements
+  url: https://github.com/OWASP/ASVS/blob/v5.0.0/5.0/en/0x16-V7-Session-Management.md
+- title: CWE-384 Session Fixation
+  url: https://cwe.mitre.org/data/definitions/384.html
+cwe:
+- CWE-384
+- CWE-613
+applies_to:
+  language: any
+  framework: any
+  environment: any-with-sessions
+references: []
+statement: The application generates a new session identifier on every authentication
+  event (login completion, MFA challenge completion, step-up authentication completion)
+  and on privilege-boundary crossings (admin role acquisition, sensitive-area entry).
+  The pre-event session identifier is invalidated; subsequent requests presenting the
+  old identifier are unauthenticated.
+rationale: Session fixation works by the attacker setting the victim's session identifier
+  before authentication (via XSS, network injection, malicious link with session-ID parameter,
+  or other channels). When the victim authenticates and the application does not rotate
+  the session identifier, the attacker holds a valid authenticated session. Rotation defeats
+  fixation because the attacker-set identifier becomes useless the moment authentication
+  completes; the authenticated session lives at a new identifier the attacker does not
+  know. Rotation at privilege boundaries (admin elevation, sensitive-area entry) similarly
+  defeats lateral escalation. If the user's session is partially compromised at low privilege,
+  the rotation on elevation forces the attacker to re-compromise to follow.

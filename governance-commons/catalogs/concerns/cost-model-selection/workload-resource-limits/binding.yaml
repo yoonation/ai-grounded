@@ -1,0 +1,3 @@
+binding_status: capability-bound
+rule: cost-model-selection.workload-resource-limits
+gate: iac-scan

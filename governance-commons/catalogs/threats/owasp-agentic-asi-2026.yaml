@@ -1,0 +1,276 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Myoung Hong
+
+
+# OWASP Agentic Security Initiative (ASI) Top 10 for 2026
+# Threat taxonomy specific to autonomous AI agents.
+# Adopted from OWASP's original AT (Agent Threat) numbering in late 2025.
+#
+# This catalog is more recent than LLM Top 10; review against
+# upstream more frequently as the taxonomy is still stabilizing.
+
+metadata:
+  catalog_id: owasp-agentic-asi-2026
+  catalog_name: OWASP Agentic Security Initiative Top 10
+  schema_version: 1.0.0
+  last_reviewed: 2026-05-11
+  upstream_source: https://genai.owasp.org/initiatives/agentic-security-initiative/
+  upstream_version: "2026"
+  upstream_taxonomy_alias: "AT01-AT10 (legacy)"
+  next_review_due: 2026-08-09 # 90 days - newer taxonomy, faster review
+  maintainer: <set-during-init>
+  review_protocol: governance-commons/MAINTENANCE.md
+  applies_to:
+    - runtime  # primary scope: autonomous agents in production
+    - build_time  # secondary: build-time threats to agentic systems
+
+threats:
+
+  - id: ASI01
+    name: Goal Hijacking
+    short_description: >
+      Manipulation of an agent's goals or objectives through
+      adversarial inputs, causing it to pursue attacker-chosen
+      goals while appearing to operate normally.
+    categories: [goal-manipulation, agent-integrity]
+    severity: critical
+    applies_to: [runtime]
+    common_vectors:
+      - Prompt injection that subtly redirects agent objectives
+      - Reward hacking in RL-trained agents
+      - Multi-turn manipulation that drifts agent goals
+      - Tool descriptions that include hidden instructions
+    mitigations:
+      - Goal validation against original specification
+      - Constitutional AI - agent checks own outputs against principles
+      - Multi-agent verification (verifier agents check coordinator)
+      - Audit log of goal-relevant decisions
+      - Human approval for objective changes
+    related_threats: [LLM01, ASI03]
+    related_compliance:
+      - EU-AI-ACT-Art-14
+      - NIST-AI-RMF-MEASURE-2.6
+
+  - id: ASI02
+    name: Tool Misuse
+    short_description: >
+      Agent invokes tools in unintended ways, with unintended
+      parameters, or to achieve unintended outcomes - either through
+      misunderstanding, manipulation, or capability overreach.
+    categories: [tool-security, capability-misuse]
+    severity: high
+    applies_to: [runtime]
+    common_vectors:
+      - Agent calls financial APIs with attacker-influenced parameters
+      - Tool combinations producing unintended emergent capabilities
+      - Calling expensive tools to amplify denial-of-service
+      - Using tools designed for read operations to leak via side-effects
+    mitigations:
+      - Strict tool input schema validation
+      - Allowlists for tool combinations (which tools can chain)
+      - Per-tool authorization policies (Cedar)
+      - Tool invocation logged with full parameters (redacted)
+      - Sandbox environments for tools with side effects
+    related_threats: [LLM06, ASI06]
+    related_compliance:
+      - SOC2-CC6.3
+      - EU-AI-ACT-Art-14
+
+  - id: ASI03
+    name: Identity Abuse
+    short_description: >
+      Impersonation, identity confusion, or unauthorized identity
+      assumption by agents - including agents acting as other agents,
+      users, or system roles.
+    categories: [authentication, identity-integrity]
+    severity: critical
+    applies_to: [runtime]
+    common_vectors:
+      - Agent presents itself as a human user to bypass controls
+      - Agent assumes another agent's role through credential theft
+      - Multi-agent systems with weak inter-agent authentication
+      - Replay of agent identity tokens
+    mitigations:
+      - Cryptographic identity per agent (signed tokens, mTLS)
+      - Identity model enforced at policy layer (see identity-model.md)
+      - Audit log includes full identity chain
+      - Short-lived credentials with rotation
+      - Trust scoring per agent identity
+    related_threats: [ASI06]
+    related_compliance:
+      - SOC2-CC6.1
+      - EU-AI-ACT-Art-14
+      - NIST-AI-RMF-MAP-2.3
+
+  - id: ASI04
+    name: Memory Poisoning
+    short_description: >
+      Adversarial manipulation of agent memory (persistent context,
+      RAG corpora, conversation history) to influence future behavior
+      after the initial injection has ended.
+    categories: [persistence, data-integrity]
+    severity: high
+    applies_to: [runtime]
+    common_vectors:
+      - Injected content saved to long-term agent memory
+      - Poisoned documents added to RAG corpus
+      - Conversation summaries with hidden instructions
+      - Tool outputs cached and reused with embedded payloads
+    mitigations:
+      - Treat memory as untrusted on read, even if written by same agent
+      - Validate memory content against schema and policy
+      - Memory provenance - track who wrote each memory entry
+      - Periodic memory audits for injection patterns
+      - Memory size limits and eviction policies
+    related_threats: [LLM04, LLM08, ASI01]
+    related_compliance:
+      - SOC2-CC7.2
+      - EU-AI-ACT-Art-15
+
+  - id: ASI05
+    name: Cascading Failures
+    short_description: >
+      Single-agent errors propagating through multi-agent systems,
+      compounding effects of mistakes or attacks across the system.
+    categories: [resilience, multi-agent-systems]
+    severity: high
+    applies_to: [runtime]
+    common_vectors:
+      - One agent's hallucinated output trusted by downstream agents
+      - Error in coordinator agent causing all sub-agents to fail
+      - Feedback loops amplifying small errors
+      - Single point of failure in inter-agent communication
+    mitigations:
+      - Circuit breakers between agents
+      - Independent verification by multiple agents
+      - Bulkhead patterns isolating failure domains
+      - Output validation at each agent boundary
+      - Graceful degradation when sub-systems fail
+    related_threats: [ASI02, ASI10]
+    related_compliance:
+      - SOC2-A1.2
+      - NIST-AI-RMF-MEASURE-2.6
+
+  - id: ASI06
+    name: Rogue Agents
+    short_description: >
+      Agents acting outside their intended scope due to compromise,
+      drift, misconfiguration, or emergent misaligned behavior.
+    categories: [agent-integrity, alignment]
+    severity: critical
+    applies_to: [runtime]
+    common_vectors:
+      - Compromised agent credentials enabling unauthorized actions
+      - Agent drift from original alignment over fine-tuning iterations
+      - Configuration changes producing unexpected agent behavior
+      - Emergent behavior in multi-agent systems
+    mitigations:
+      - Strict capability scoping per agent
+      - Trust scoring with behavioral decay
+      - Anomaly detection on agent action patterns
+      - Kill-switch mechanisms (immediate revocation)
+      - Continuous alignment verification
+    related_threats: [ASI01, ASI03]
+    related_compliance:
+      - EU-AI-ACT-Art-14
+      - NIST-AI-RMF-GOVERN-1.4
+
+  - id: ASI07
+    name: Cross-Agent Privilege Escalation
+    short_description: >
+      Agent gains unauthorized capabilities through interaction with
+      other agents, exploiting trust relationships or capability
+      composition to exceed its intended privilege.
+    categories: [authorization, multi-agent-systems]
+    severity: high
+    applies_to: [runtime]
+    common_vectors:
+      - Agent A asks Agent B to perform action A is not authorized for
+      - Capability tokens with overly broad scope passed between agents
+      - Transitive trust assumptions (A trusts B who trusts C)
+      - Privilege accumulation through agent chaining
+    mitigations:
+      - Per-agent capability tokens (don't share credentials)
+      - Authorize at every inter-agent boundary, not just entry
+      - Explicit policy on which agents can request which actions
+      - Audit log of all inter-agent capability transfers
+    related_threats: [ASI03, ASI06, LLM06]
+    related_compliance:
+      - SOC2-CC6.3
+      - EU-AI-ACT-Art-14
+
+  - id: ASI08
+    name: Inadequate Audit Trails
+    short_description: >
+      Insufficient logging or evidence collection makes agent actions
+      non-traceable, preventing detection, response, and accountability.
+    categories: [observability, accountability]
+    severity: medium
+    applies_to: [runtime, build_time]
+    common_vectors:
+      - Agent actions not logged
+      - Logs without sufficient detail for forensics
+      - Mutable logs without integrity protection
+      - Logs that conflate multiple agents under one identity
+    mitigations:
+      - Comprehensive audit logging per audit-envelope.md
+      - Hash-chained or cryptographically signed logs
+      - Per-agent identity in every log entry
+      - Retention policy aligned with compliance requirements
+      - Regular log integrity verification
+    related_threats: [ASI06]
+    related_compliance:
+      - EU-AI-ACT-Art-12  # logging
+      - SOC2-CC7.2
+      - NIST-AI-RMF-MEASURE-1.3
+
+  - id: ASI09
+    name: Inadequate Human Oversight
+    short_description: >
+      Insufficient mechanisms for humans to monitor, intervene, or
+      override agent actions, especially for high-stakes decisions.
+    categories: [human-in-the-loop, governance]
+    severity: high
+    applies_to: [runtime]
+    common_vectors:
+      - Fully-autonomous agents in high-stakes domains
+      - Approval workflows that humans rubber-stamp
+      - Insufficient visibility into agent reasoning
+      - No ability to pause or rollback agent actions
+    mitigations:
+      - Human-in-the-loop for irreversible or high-stakes actions
+      - Approval interfaces that surface agent reasoning
+      - Pause/rollback capabilities at every action boundary
+      - Periodic human review of agent decision patterns
+      - Transparency reports for stakeholders
+    related_threats: [LLM06, ASI06]
+    related_compliance:
+      - EU-AI-ACT-Art-14  # human oversight is a primary requirement
+      - NIST-AI-RMF-GOVERN-3.2
+
+  - id: ASI10
+    name: Resource Exhaustion
+    short_description: >
+      Agent consumption of compute, tokens, API quota, or other
+      resources beyond intended limits, causing denial of service or
+      uncontrolled cost.
+    categories: [availability, cost-control]
+    severity: medium
+    applies_to: [runtime]
+    common_vectors:
+      - Runaway agent loops with no termination
+      - Cost amplification through expensive tool combinations
+      - Memory exhaustion through unbounded context growth
+      - Quota exhaustion affecting other tenants
+    mitigations:
+      - Per-agent resource budgets enforced at policy layer
+      - Timeout and iteration caps on agent loops
+      - Circuit breakers on cost or rate anomalies
+      - Multi-tenancy isolation
+      - Cost telemetry and alerting
+    related_threats: [LLM10, ASI05]
+    related_compliance:
+      - SOC2-A1.1
+      - NIST-AI-RMF-MANAGE-2.4
+
+# End of OWASP Agentic ASI 2026 catalog

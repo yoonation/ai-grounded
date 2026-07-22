@@ -1,0 +1,45 @@
+id: monitoring-alerting.alerting-strategy
+name: 'The alerting strategy is documented in an ADR: detection-coverage philosophy, the
+  severity-to-routing matrix, the escalation and on-call model, the alert lifecycle, the
+  meta-monitoring approach, and the post-incident feedback loop'
+layer: judgmental
+characteristic: reliability
+severity: high
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-06-03'
+  entered_stable: '2026-06-04'
+  authored_by: Myoung Hong
+sources:
+- title: Google SRE Workbook Alerting on SLOs (an alerting strategy built on SLO burn
+    rate, referenced as a concept)
+  url: https://sre.google/workbook/alerting-on-slos/
+- title: Google SRE Book Chapter 6 Practical Alerting (the alerting philosophy as a deliberate
+    strategy, referenced as a concept)
+  url: https://sre.google/sre-book/practical-alerting/
+applies_to:
+  language: any
+  framework: any
+  environment: any
+references: []
+statement: The application records an alerting-strategy ADR that decides, as a coherent
+  policy, the detection-coverage philosophy (symptom-based and SLO-burn-based, against
+  the SLOs in observability.slo-policy), the severity-to-routing matrix, the escalation and on-call
+  model, the alert lifecycle (acknowledge, silence-with-expiry, auto-resolve), the meta-monitoring
+  approach (the dead-man's-switch), and the post-incident feedback loop that tunes alert
+  rules. The ADR anchors monitoring-alerting.detection-coverage through monitoring-alerting.on-call-rotation-coverage and cross-references observability.slo-policy
+  and observability.alerting-discipline. The absence of a recorded strategy, or one that omits a sub-decision
+  the L2 rules depend on, is the finding.
+rationale: 'Each conformance rule in this concern checks a part of a strategy: coverage
+  (monitoring-alerting.detection-coverage), routing and escalation (monitoring-alerting.routing-and-escalation), lifecycle (monitoring-alerting.alert-lifecycle), meta-monitoring
+  (monitoring-alerting.pipeline-liveness-and-runbook-reachability), on-call coverage (monitoring-alerting.on-call-rotation-coverage). What they conform to is this policy, and
+  without it the parts do not cohere: a service can have hygienic, well-routed alerts
+  that still produce a terrible on-call experience because nobody decided the coverage
+  philosophy, the severity matrix, or how incidents feed back into the rules. Observability
+  defers the operations-layer alerting strategy to this concern precisely because it is
+  a system-spanning decision rather than a per-rule property. The rule is judgmental and
+  requires an ADR because the decisions (which symptoms to alert on, how aggressive the
+  escalation, what the rotation looks like) are organizational and contextual; the substrate
+  structures the decision with a MADR and checks the ADR is present and coherent, owning
+  the structure and the conformance check, not the organization''s choices.'

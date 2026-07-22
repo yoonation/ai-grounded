@@ -1,0 +1,42 @@
+id: privacy.retention-limitation
+name: Personal data has a defined retention period per category and is deleted or irreversibly
+  anonymized at expiry
+layer: semantic
+characteristic: security
+severity: medium
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-06-03'
+  entered_stable: '2026-06-04'
+  authored_by: Myoung Hong
+sources:
+- title: EU GDPR Regulation 2016/679 (Article 5(1)(e) storage limitation, referenced as
+    a concept)
+  url: https://eur-lex.europa.eu/eli/reg/2016/679/oj
+- title: ISO/IEC 27701 privacy information management (retention and disposal of personal
+    data, referenced as a concept)
+  url: https://www.iso.org/standard/71670.html
+applies_to:
+  language: any
+  framework: any
+  environment: any
+references: []
+statement: Each category of personal data has a defined retention period tied to its purpose
+  and any legal retention obligation, and an enforced process deletes or irreversibly
+  anonymizes the data when the period expires. Retention periods are recorded rather than
+  implicit, and indefinite retention requires a recorded basis. The retention schedule
+  and the deletion-versus-anonymization choice are governed by the privacy.data-subject-rights-and-retention policy;
+  the time-driven removal this rule enforces is distinct from the rights-driven removal
+  privacy.data-subject-rights owns, and personal data in logs is shared with logging's retention rule;
+  this rule cross-references them. The review is triggered when a personal-data category
+  is added or a retention period changes.
+rationale: 'Data that is kept past its usefulness has only downside: it cannot advance
+  the purpose that justified collecting it, and it adds to the volume an attacker can
+  take and the records every access and erasure request must traverse. The default failure
+  is inertia: stores grow because deletion is work nobody scheduled, and the absence of
+  a purge is invisible until a breach or an audit reveals years of data nobody needed.
+  The substrate keeps this an L2 review because the right period is a judgment, and pairs
+  it with a test template because the presence and effect of an expiry-purge are concrete.
+  It distinguishes time-driven removal from the erasure right privacy.data-subject-rights owns and defers
+  the schedule to the privacy.data-subject-rights-and-retention policy.'

@@ -1,0 +1,3 @@
+binding_status: capability-bound
+rule: secrets-management.no-secrets-in-source
+gate: secrets

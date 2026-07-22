@@ -1,0 +1,62 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "governance-commons/schemas/binding.schema.json",
+  "title": "Mechanical enforcement binding (transitional: faithful-migrated, recut, capability-bound)",
+  "type": "object",
+  "required": ["binding_status", "rule"],
+  "properties": {
+    "binding_status": {
+      "type": "string",
+      "enum": ["faithful-migrated", "recut", "capability-bound"],
+      "description": "faithful-migrated carries original content verbatim; recut is the interim tool-plus-ruleset form; capability-bound references a gate capability resolved through the selection map into the tool registry."
+    },
+    "rule": { "type": "string", "pattern": "^[a-z0-9-]+\\.[a-z0-9-]+$" },
+    "legacy_ref": { "type": "string", "description": "Provenance pointer to the original binding file (retired during reformat)." },
+    "faithful": {
+      "type": "object",
+      "description": "Original binding content carried verbatim. Present when binding_status is faithful-migrated."
+    },
+    "tools": {
+      "type": "array",
+      "description": "Interim recut form. Present when binding_status is recut.",
+      "items": {
+        "type": "object",
+        "required": ["engine", "ruleset"],
+        "properties": {
+          "engine": { "type": "string" },
+          "ruleset": { "type": "string" },
+          "detects": { "type": "string" }
+        }
+      }
+    },
+    "gate": {
+      "description": "The capability this rule's mechanical floor requires. Present when binding_status is capability-bound. Resolved per ecosystem through the selection map into active registry tools.",
+      "enum": ["format", "lint", "type-check", "test", "dep-vuln", "dep-pinning", "sast", "secrets", "iac-scan", "schema-validate", "license-scan", "provenance-verify"]
+    },
+    "tool": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9-]*$",
+      "description": "Specialized direct registry-id reference, bypassing selection. Optional on capability-bound bindings where one exact tool is the point."
+    },
+    "threshold": { "type": "string" },
+    "notes": { "type": "string" }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "binding_status": { "const": "faithful-migrated" } } },
+      "then": { "required": ["faithful"] }
+    },
+    {
+      "if": { "properties": { "binding_status": { "const": "recut" } } },
+      "then": { "required": ["tools"] }
+    },
+    {
+      "if": { "properties": { "binding_status": { "const": "capability-bound" } } },
+      "then": {
+        "required": ["gate"],
+        "properties": { "threshold": false },
+        "description": "capability-bound carries no threshold; thresholds live in shipped tool-native default configs per profile (D2 config-only)."
+      }
+    }
+  ]
+}

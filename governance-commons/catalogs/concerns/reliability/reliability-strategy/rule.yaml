@@ -1,0 +1,50 @@
+id: reliability.reliability-strategy
+name: The service has an explicitly documented reliability strategy covering which failures
+  it is designed to survive, how dependencies are classified by criticality, and the delivery,
+  isolation, health, and degradation models that follow from those choices
+layer: judgmental
+characteristic: reliability
+severity: high
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-31'
+  entered_stable: '2026-06-01'
+  authored_by: Myoung Hong
+applies_to:
+  language: any
+  framework: any
+  environment: any
+references: []
+statement: 'The service has an explicitly documented decision on its reliability strategy,
+  recorded in a MADR following the substrate''s decision-framework template and stored
+  in the service''s decision-record location (substrate-recommended path: /docs/decisions/ADR-XXX-reliability-strategy.md),
+  referenced from the architectural documentation. The MADR addresses every sub-decision
+  the substrate template requires: the failure-mode catalog (which failures the service
+  is designed to survive and which it explicitly is not); the dependency-criticality classification
+  (each cross-process dependency labeled critical, degradable, or optional, with the request-level
+  consequence of its loss); the delivery and idempotency semantics (at-least-once, at-most-once,
+  or exactly-once-in-effect, and how idempotency is achieved where redelivery is possible);
+  the resource-isolation model (which failure domains are separated by bulkheads, pools,
+  or concurrency limits so a slow dependency cannot starve unrelated paths); the health-and-recovery
+  model (what liveness and readiness each gate on, and how the service recovers after
+  a dependency returns); and the degradation policy (what the service does, from the user''s
+  point of view, when each degradable dependency is unavailable).'
+rationale: 'The reliability strategy is to this concern what the SLO policy is to observability
+  and the organization strategy is to code organization: the anchoring decision the rest
+  of the concern cascades from. Each L2 rule is a conformance check against an intended
+  reliability behavior, and the intended behavior is precisely what this decision records.
+  Idempotency (reliability.idempotency) is judged against the chosen delivery semantics; graceful
+  degradation (reliability.graceful-degradation) is judged against the criticality classification that says
+  which dependencies may fail without failing the request; failure isolation (reliability.failure-isolation)
+  is judged against the failure-domain map; and health signaling (reliability.health-signaling) is judged
+  against the recovery model that says what readiness must reflect. The L1 rules are sized
+  by the same decision: the bound on a queue (reliability.bounded-buffers) follows from how much in-flight
+  work the chosen degradation behavior tolerates, and the supervision of background tasks
+  (reliability.tracked-async-tasks) follows from whether their loss is survivable. Without the decision, the
+  rules degrade into reflexes applied unevenly across dependencies, and the system''s
+  true reliability is whatever the sum of those reflexes happened to produce. The substrate
+  does not prescribe a single reliability target; it requires that the target be chosen,
+  written down, and propagated into the rules that hold the service to it, because a service
+  designed to survive a named set of failures beats one whose resilience is the accident
+  of what its authors remembered to handle.'

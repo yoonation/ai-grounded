@@ -1,0 +1,164 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://ai-grounded/.specify/schemas/events.schema.json",
+  "title": "Feature event log line",
+  "description": "Contract for one line of specs/NNN-feature/events.jsonl (one JSON object per line, append-only). Codifies the shapes previously described only in prose in .claude/docs/agent-coordination.md. The type discriminator is `event`; `event_type` is a historical alias seen on `declined` events and is accepted. `checkpoint` is added here so cost and catch metrics can be attributed to a stage. `defect-found` is the outcome-feedback slot: it is not emitted yet, and the measurement backbone treats catch-by-stage as a process proxy until it is. Permissive on purpose (additionalProperties true) so events written before this schema existed still validate; the backbone reads defensively rather than rejecting history.",
+  "type": "object",
+  "additionalProperties": true,
+  "required": ["ts"],
+  "properties": {
+    "ts": {
+      "type": "string",
+      "description": "ISO-8601 UTC timestamp."
+    },
+    "event": {
+      "type": "string",
+      "description": "Canonical type discriminator.",
+      "enum": [
+        "completed",
+        "closure-claimed",
+        "closure-verified",
+        "closure-rejected",
+        "overridden",
+        "deferred",
+        "declined",
+        "routing-decision",
+        "consultation-evidence",
+        "defect-found"
+      ]
+    },
+    "event_type": {
+      "type": "string",
+      "description": "Historical alias for `event` (seen on `declined`). Accepted; `event` is preferred."
+    },
+    "agent": {
+      "type": "string",
+      "description": "Agent name as registered in .claude/agents/, or the producer of the event."
+    },
+    "checkpoint": {
+      "type": "string",
+      "description": "Artifact-boundary checkpoint the event belongs to. Added in Phase B so cost and catch metrics attribute to a stage. C4 is the checkpoint code the dispatcher emits for the pre-commit stage; pre-commit is its manifest name. Both are accepted.",
+      "enum": ["C1", "C2", "C3", "C4", "pre-commit"]
+    },
+    "invocation_id": {
+      "type": "string",
+      "description": "Unique ID (ULID preferred); matches the artifact frontmatter."
+    },
+    "status": {
+      "type": "string",
+      "description": "informational (no items raised) or pending-resolution (items requiring closure)."
+    },
+    "artifact": {
+      "type": ["string", "null"],
+      "description": "Filename produced, relative to the feature directory."
+    },
+    "linked_artifacts": {
+      "type": "array",
+      "items": {"type": "string"},
+      "description": "Files the agent read during this invocation."
+    },
+    "references": {
+      "type": ["string", "null"],
+      "description": "Upstream invocation_id this work builds on, else null."
+    },
+    "items_raised": {
+      "type": "array",
+      "description": "Items raised requiring closure. Objects with id and priority; an empty array means none.",
+      "items": {
+        "type": "object",
+        "required": ["id", "priority"],
+        "properties": {
+          "id": {"type": "string"},
+          "priority": {"type": "string", "enum": ["P1", "P2", "P3"]}
+        },
+        "additionalProperties": true
+      }
+    },
+    "parallel_group_id": {
+      "type": ["string", "null"],
+      "description": "ULID-prefixed identifier shared by events in the same parallel batch."
+    },
+    "cost": {
+      "type": "object",
+      "description": "Token counts and estimated USD for the invocation.",
+      "properties": {
+        "provider": {"type": "string"},
+        "model": {"type": "string"},
+        "input_tokens": {"type": "integer", "minimum": 0},
+        "output_tokens": {"type": "integer", "minimum": 0},
+        "estimated_usd": {"type": "number", "minimum": 0}
+      },
+      "additionalProperties": true
+    },
+    "routing": {
+      "type": "string",
+      "description": "On routing-decision events: plan (deterministic plan lookup) or light/full (fallback FIT risk gate).",
+      "enum": ["plan", "light", "full"]
+    },
+    "plan_ref": {"type": "string"},
+    "profile": {"type": "string"},
+    "conditions_met": {"type": "integer", "minimum": 0},
+    "conditions": {"type": "object", "additionalProperties": {"type": "boolean"}},
+    "threshold": {"type": "integer"},
+    "assignments": {
+      "type": "array",
+      "description": "On routing-decision plan events: per-agent catalog slices.",
+      "items": {
+        "type": "object",
+        "properties": {
+          "agent": {"type": "string"},
+          "catalogs": {"type": "array", "items": {"type": "string"}}
+        },
+        "additionalProperties": true
+      }
+    },
+    "catalogs_consulted": {
+      "type": "array",
+      "items": {"type": "string"},
+      "description": "On consultation-evidence events: catalogs the agent actually read."
+    },
+    "rules_examined": {
+      "type": ["array", "integer", "null"],
+      "description": "On consultation-evidence events: rules examined (list or count)."
+    },
+    "item_id": {"type": "string"},
+    "closure_evidence": {
+      "type": "object",
+      "additionalProperties": true,
+      "description": "Evidence payload for closure events. For closure-verified events the disk-truth gate (verify_loop_closure.py) requires a `read` block whose path resolves to a real non-empty artifact and whose sha256 is the digest the verifier actually read; a closure-verified lacking valid read evidence is auto-rejected at commit time. `read` is intentionally NOT required at the schema level so historical events without it still validate; the requirement is enforced by the gate for closure-verified specifically, not by schema validation.",
+      "properties": {
+        "item_id": {"type": "string"},
+        "source_invocation_id": {"type": "string"},
+        "source_agent": {"type": "string"},
+        "type": {"type": "string", "enum": ["code", "adr", "spec_amendment", "test"]},
+        "location": {"type": "string", "description": "file:line or path of the cited evidence (human-facing pointer)."},
+        "summary": {"type": "string"},
+        "read": {
+          "type": "object",
+          "description": "Disk-truth read evidence. REQUIRED on closure-verified events. Records the artifact the verifier independently read so the commit-time gate can re-read it.",
+          "required": ["path", "sha256"],
+          "additionalProperties": true,
+          "properties": {
+            "path": {"type": "string", "description": "Repo-root-relative path to the artifact that was read."},
+            "sha256": {"type": "string", "pattern": "^[0-9a-fA-F]{64}$", "description": "SHA-256 hex digest of the artifact at read time."},
+            "bytes": {"type": "integer", "minimum": 0, "description": "Size in bytes at read time (optional)."},
+            "ts": {"type": "string", "description": "ISO-8601 UTC timestamp of the read (optional)."}
+          }
+        }
+      }
+    },
+    "caught_at": {
+      "type": ["string", "null"],
+      "description": "On defect-found events (outcome layer, not yet emitted): the checkpoint that caught the defect, or null if it escaped."
+    },
+    "escaped_to": {
+      "type": ["string", "null"],
+      "description": "On defect-found events: where the defect surfaced if it escaped (for example a later checkpoint, post-merge, or production), else null."
+    },
+    "severity": {
+      "type": "string",
+      "enum": ["P1", "P2", "P3"],
+      "description": "On defect-found events: severity of the escaped or caught defect."
+    }
+  }
+}

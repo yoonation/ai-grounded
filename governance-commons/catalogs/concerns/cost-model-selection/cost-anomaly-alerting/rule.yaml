@@ -1,0 +1,54 @@
+id: cost-model-selection.cost-anomaly-alerting
+name: Cost anomaly detection alerts are configured against documented cost budgets with
+  thresholds, routing, and burndown response policy
+layer: semantic
+characteristic: performance-efficiency
+severity: high
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-21'
+  entered_stable: '2026-05-22'
+  authored_by: Myoung Hong
+sources:
+- title: 'FinOps Foundation Framework: Anomaly Management capability (the discipline of
+    detecting and responding to cost variances)'
+  url: https://www.finops.org/framework/capabilities/anomaly-management/
+applies_to:
+  language: any
+  framework: any
+  environment: any-cloud-deployed
+references: []
+statement: 'The consumer operates cost anomaly alerting at substrate-recommended granularity:
+  per-service for services with documented cost SLOs (per cost-model-selection.cost-model-selection-policy); per-account or
+  per-cost-center for services without documented SLOs as an account-wide safety net.
+  Alerting uses a substrate-recommended burn-rate style: multi-window thresholds that
+  distinguish short-burst anomalies (a misconfiguration consuming 10x baseline for 1 hour)
+  from sustained burn (a gradual creep at 1.5x baseline persisting for days). The substrate-recommended
+  default mirrors the observability.alerting-discipline alerting discipline: 1-day window and 7-day window burn-rate
+  alerts evaluated against the monthly cost budget. Alerts route to the service-owning
+  team for service-scoped alerts and to the consumer''s FinOps or platform-engineering
+  function for account-scoped alerts. Routing is documented; the substrate-recommended
+  pattern is service-owning-team-first with escalation on persistent burn or unacknowledged
+  fire. Burndown response policy is documented as part of the cost-model ADR (cost-model-selection.cost-model-selection-policy).
+  Where the budget burns, the response policy specifies the consumer''s response: workload-level
+  mitigation, service-level rate limiting, escalation to product owner for trade-off renegotiation,
+  or other consumer-defined response. The substrate does not prescribe the response; it
+  prescribes that the response is documented in advance rather than improvised at fire
+  time.'
+rationale: 'Cost is a time-series signal. Without alerting, the consumer learns of cost
+  variance at invoice time: 30 days of unbudgeted spend before the response begins, with
+  the response often constrained because the spend has already compounded. With substrate-recommended
+  burn-rate alerting, the consumer learns of variance at the inflection point: hours or
+  days of unbudgeted spend before response, with response still able to bound the variance
+  before it compounds. The pattern parallels operational SLO alerting (observability.alerting-discipline) deliberately.
+  Operators familiar with burn-rate alerting on reliability SLOs can adopt the same mental
+  model for cost SLOs; the substrate-recommended dashboards (observability.dashboard-discipline and the cost pipeline)
+  co-locate the two so operators see them as components of a single service health view.
+  Per-service granularity is what makes alerting actionable. An account-wide alert that
+  fires when any single service drives a variance routes to a team that does not own the
+  variant service; the alert is then triaged-down rather than acted-on. Per-service alerting
+  routes to the service-owning team, which has the context and authority to respond. Account-wide
+  alerts retain value as a safety net (a service without a documented SLO still appears
+  in the account-wide signal), but they are not the substrate-recommended primary alerting
+  layer.'

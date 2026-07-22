@@ -1,0 +1,53 @@
+id: supply-chain.digest-pinned-artifacts
+name: Production binary artifacts and container images are referenced by immutable digest,
+  not by mutable tag
+layer: mechanical
+characteristic: security
+severity: high
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-23'
+  entered_stable: '2026-05-26'
+  authored_by: Myoung Hong
+sources:
+- title: SLSA v1.1 Build Track requirements (provenance attestation generation and consumer
+    verification require artifact identification by content-addressed digest)
+  url: https://slsa.dev/spec/v1.1/requirements
+- title: NIST SP 800-218 SSDF v1.1 PW.4 (reuse of existing, well-secured software with
+    verifiable integrity)
+  url: https://csrc.nist.gov/pubs/sp/800/218/final
+- title: OWASP ASVS v5.0.0 V14.2 (Build dependency integrity verification)
+  url: https://github.com/OWASP/ASVS/blob/v5.0.0/5.0/en/0x22-V14-Configuration.md
+- title: OWASP Top 10 CI/CD Security Risks CICD-SEC-3 (Dependency Chain Abuse)
+  url: https://owasp.org/www-project-top-10-ci-cd-security-risks/
+- title: CWE-1357 Reliance on Insufficiently Trustworthy Component
+  url: https://cwe.mitre.org/data/definitions/1357.html
+cwe:
+- CWE-1357
+- CWE-494
+applies_to:
+  language: any
+  framework: any
+  environment: any-with-binary-artifacts
+references: []
+statement: 'Every binary artifact referenced in a production deployment manifest is identified
+  by content-addressed digest, not by a mutable tag or version range. The rule applies
+  at the consumption surface across all substrate-recognized artifact surfaces: container
+  images (Dockerfile FROM, docker-compose image, Kubernetes Pod and Deployment image,
+  Helm chart values image, container manifest overlays); CI workflow action references
+  (GitHub Actions uses, GitLab CI include references); infrastructure-as-code provider
+  and module references (terraform required_providers version vs hash, terraform module
+  source pinning); and downloadable binaries referenced in build scripts. Development
+  and test manifests may reference mutable tags during active iteration; the substrate
+  restricts the rule to production-bound manifests identified by path, by branch, by environment
+  overlay, or by explicit manifest-level annotation.'
+rationale: 'The substrate elects digest pinning as the L1 rule rather than version pinning
+  because version tags are mutable in practice across most ecosystems even when semantic
+  versioning is followed: tag re-push permits an attacker who compromises upstream signing
+  credentials to substitute a different artifact under the same version label. Content-addressed
+  digests bind the deployment manifest to the specific bytes the consumer tested. The
+  trade-off the substrate accepts is increased friction at upgrade time, because the consumer
+  must update both the version label (for human readability) and the digest (for byte-level
+  binding) on each upgrade. Substrate-recommended tooling (Renovate, Dependabot) automates
+  digest updates alongside version updates and treats the digest as the canonical identifier.'

@@ -1,0 +1,48 @@
+id: authorization.least-privilege-role-design
+name: Roles and permissions are designed to grant the minimum access needed for the role's
+  function; privilege creep is reviewed and pruned periodically
+layer: semantic
+characteristic: security
+severity: high
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-22'
+  entered_stable: '2026-05-26'
+  authored_by: Myoung Hong
+sources:
+- title: NIST SP 800-53 AC-6 Least Privilege and AC-5 Separation of Duties
+  url: https://csrc.nist.gov/projects/cprt/catalog#/cprt/framework/version/SP_800_53_5_1_1/home
+- title: OWASP ASVS v5.0.0 V8.4.1 (Least privilege role design)
+  url: https://github.com/OWASP/ASVS/blob/v5.0.0/5.0/en/0x17-V8-Authorization.md
+- title: CWE-269 Improper Privilege Management
+  url: https://cwe.mitre.org/data/definitions/269.html
+- title: CWE-250 Execution with Unnecessary Privileges
+  url: https://cwe.mitre.org/data/definitions/250.html
+cwe:
+- CWE-269
+- CWE-250
+applies_to:
+  language: any
+  framework: any
+  environment: any-with-roles-or-permissions
+references: []
+statement: 'Roles and permissions in the application''s authorization policy are designed
+  to grant the minimum access needed for the role''s job function. Roles do not aggregate
+  permissions for unrelated functions; a role granting access to billing functions does
+  not also grant access to user administration unless the role is explicitly the combined
+  billing-and-user-admin role with that composition documented. New permission grants
+  to existing roles undergo deliberate review against the role''s stated purpose. Privilege
+  creep (roles that have accreted permissions over time without explicit re-grant or re-justification)
+  is identified and pruned during periodic audit (substrate-recommended cadence: quarterly
+  for roles in production, more often during periods of high feature velocity).'
+rationale: 'Least privilege bounds the consequence of any compromise. A principal granted
+  only the access needed for their job leaks only that access on credential compromise;
+  a principal granted broad access leaks broad access. Roles are the unit at which permissions
+  are granted to principals; role design quality therefore propagates directly to principal-level
+  access scope. Privilege creep happens by accretion: each permission grant to a role
+  is justified at the time, but the cumulative grants over months and years produce roles
+  that bear little resemblance to the original design. Periodic review surfaces accreted
+  permissions for re-evaluation. The substrate''s stance is that review cadence is more
+  important than review depth; quarterly lightweight review catches creep before it becomes
+  intractable.'

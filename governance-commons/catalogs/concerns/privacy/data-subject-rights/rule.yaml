@@ -1,0 +1,44 @@
+id: privacy.data-subject-rights
+name: 'Data-subject rights are operable end to end: access, rectification, erasure, restriction,
+  portability, and objection reach every store that holds the subject''s personal data'
+layer: semantic
+characteristic: security
+severity: high
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-06-03'
+  entered_stable: '2026-06-04'
+  authored_by: Myoung Hong
+sources:
+- title: EU GDPR Regulation 2016/679 (Articles 15 through 21, the rights of access, rectification,
+    erasure, restriction, portability, and objection, referenced as a concept)
+  url: https://eur-lex.europa.eu/eli/reg/2016/679/oj
+- title: California CCPA and CPRA consumer rights to know, delete, correct, and opt out
+    (referenced as a concept)
+  url: https://oag.ca.gov/privacy/ccpa
+applies_to:
+  language: any
+  framework: any
+  environment: any
+references: []
+statement: 'Each data-subject right (access, rectification, erasure, restriction of processing,
+  portability, and objection) is implemented and reachable through an intake the subject
+  can use, and each right reaches every store the application owns that holds the subject''s
+  personal data: primary stores, replicas, search indexes, caches, queues, exports, and
+  the records held by processors acting on the application''s behalf. Erasure removes
+  or irreversibly anonymizes the data except where a recorded legal basis requires retention.
+  The fulfillment architecture is governed by the privacy.data-subject-rights-and-retention policy, the meaning of deletion
+  is shared with privacy.retention-limitation, and propagation into derived stores is shared with data-classification;
+  this rule cross-references them. The review is triggered when a new personal-data store
+  is added or a rights-fulfillment path changes.'
+rationale: 'A right is only as real as the code that fulfills it, and the place rights
+  fail is not the front door but the long tail of stores the data spread into: the replica
+  that still serves it, the index that still surfaces it, the cache that still returns
+  it, the nightly export that already left. The substrate keeps this an L2 review because
+  whether fulfillment is complete is a judgment about the system''s data topology, and
+  pairs it with a test template because erasure completeness against the stores the system
+  declares it owns is concretely assertable. It defers the fulfillment architecture to
+  the privacy.data-subject-rights-and-retention policy, shares the meaning-of-deletion seam with privacy.retention-limitation retention,
+  the propagation seam with data-classification, and the automated-decision right with
+  responsible-ai, rather than restating any of them.'

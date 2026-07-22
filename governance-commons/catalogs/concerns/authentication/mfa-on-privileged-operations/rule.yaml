@@ -1,0 +1,45 @@
+id: authentication.mfa-on-privileged-operations
+name: Privileged operations require fresh multi-factor authentication independent of session
+  validity
+layer: semantic
+characteristic: security
+severity: high
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-18'
+  entered_stable: '2026-05-18'
+  authored_by: Myoung Hong
+sources:
+- title: OWASP ASVS v5.0.0 V6 authenticator requirements including re-authentication for
+    sensitive operations
+  url: https://github.com/OWASP/ASVS/blob/v5.0.0/5.0/en/0x15-V6-Authentication.md
+- title: CWE-308 Use of Single-factor Authentication
+  url: https://cwe.mitre.org/data/definitions/308.html
+- title: CWE-287 Improper Authentication
+  url: https://cwe.mitre.org/data/definitions/287.html
+cwe:
+- CWE-308
+- CWE-287
+applies_to:
+  language: any
+  framework: any
+  environment: any-with-privileged-operations
+references: []
+statement: Endpoints implementing privileged operations require successful presentation
+  of a fresh MFA challenge before the operation executes. The MFA challenge is considered
+  fresh if the user completed it within a substrate-recommended freshness window (5 to
+  15 minutes; consumer-tunable by risk profile). Privileged operations include password
+  change, MFA factor add/remove, payment method add/remove, API key creation, role or
+  permission change, account deletion or deactivation, sensitive PII export, and any administrative-tier
+  operation.
+rationale: 'Sessions can be compromised through many channels (cookie theft via XSS, refresh
+  token leak, sloppy third-party integrations, social-engineered consent). A compromised
+  session that grants full privilege gives the attacker the same blast radius as the legitimate
+  user. Fresh-MFA gating at privilege boundaries means the attacker''s compromised session
+  is bounded: they can act as the user up to the privilege boundary, but the privileged
+  operations require a fresh MFA challenge the attacker cannot complete (assuming the
+  MFA factor itself is not compromised). The freshness window matters. A one-week freshness
+  window is little better than no freshness check: an attacker who steals a session also
+  steals the recent- MFA-completion record. Short windows (5 to 15 minutes) force the
+  attacker to defeat the MFA factor in addition to the session, which is the actual defense.'

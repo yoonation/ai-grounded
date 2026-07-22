@@ -1,0 +1,43 @@
+id: responsible-ai.responsible-ai-policy
+name: The system has a documented responsible-AI risk-management policy recording its
+  intended and prohibited uses, its risk classification, and the responsible-AI commitments
+  it conforms to
+layer: judgmental
+characteristic: safety
+severity: high
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-06-02'
+  entered_stable: '2026-06-04'
+  authored_by: Myoung Hong
+sources:
+- title: NIST AI Risk Management Framework (the GOVERN function, establishing an AI risk-management
+    policy and culture, referenced as a concept)
+  url: https://www.nist.gov/itl/ai-risk-management-framework
+- title: ISO/IEC 42001 AI management system (an organizational AI policy and management
+    system, referenced as a concept)
+  url: https://www.iso.org/standard/81230.html
+applies_to:
+  language: any
+  framework: any
+  environment: any
+references: []
+statement: 'The system has a recorded responsible-AI risk-management policy ADR, discoverable
+  from its documentation and current relative to the last significant change, covering
+  its sub-decisions: the intended and prohibited uses, the risk classification that sets
+  the rigor the system needs, the fairness commitment (responsible-ai.fairness-objective), the transparency and
+  disclosure commitment, the human-oversight model (responsible-ai.human-oversight), the evaluation and acceptance
+  criteria, the monitoring and drift-response commitment (responsible-ai.drift-monitoring), the incident and
+  feedback handling, and the roles, ownership, and review cadence. The local L1 and L2
+  choices cohere with the policy. The ADR is revisited on a periodic cadence and at significant
+  model, data, or regulatory change.'
+rationale: 'Responsible AI fails as a pile of locally reasonable decisions that do not
+  cohere: a model documented but with no stated prohibited use, evaluated but against
+  no agreed criteria, deployed but with an oversight level nobody chose for its risk.
+  The policy ADR is where the intended and prohibited uses, the risk class, and the commitments
+  on fairness, transparency, oversight, evaluation, and monitoring are made explicit and
+  owned, and it is the standard the eleven conformance rules check against. The substrate
+  requires it to be recorded and complete, not long; a low-risk system''s policy is short,
+  but it is written down and updatable rather than rediscovered after a harm. It is the
+  GOVERN function made concrete for one system.'

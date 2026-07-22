@@ -1,0 +1,26 @@
+# metrics-budget.yaml
+#
+# Consumer-owned thresholds for the measurement guardrail. Read only when
+# tooling/metrics/measure.py is run with --budget; measure.py never blocks on its
+# own, and only --budget --check turns a breach into a nonzero exit for CI.
+#
+# Tune these to your project. A key left unset (null) is not evaluated. The
+# gov-to-code ratio is git-derived and does not depend on agents emitting cost, so
+# it is the dependable dimension; the USD dimensions are only as good as the cost
+# blocks your agents record.
+
+# Ceiling on governance lines per code line for a feature. Governance is the text
+# under specs/<feature>/; code is lines added to non-specs source since the base.
+# A feature that trips this is carrying more governance overhead than its code
+# warrants; tighten the concern selection or move detail to the substrate.
+gov_to_code_ratio_max: 2.0
+
+# Ceiling on total estimated USD for a feature across all recorded agent events.
+# Left null by default because absolute cost is project-specific; set it once you
+# have a few features measured and know your normal range.
+total_usd_max: null
+
+# No single checkpoint should consume more than this share of a feature's total
+# cost. Catches the "one checkpoint ballooned" case (for example a C3 review wave
+# that dwarfs the rest). Expressed as a fraction of total cost.
+checkpoint_cost_share_max: 0.6

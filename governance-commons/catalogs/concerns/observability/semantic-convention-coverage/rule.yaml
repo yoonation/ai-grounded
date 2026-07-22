@@ -1,0 +1,46 @@
+id: observability.semantic-convention-coverage
+name: Spans for HTTP servers, database calls, messaging, and RPC carry the OpenTelemetry
+  semantic-convention attributes appropriate to their span kind
+layer: semantic
+characteristic: maintainability
+severity: high
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-21'
+  entered_stable: '2026-05-22'
+  authored_by: Myoung Hong
+sources:
+- title: 'OpenTelemetry Semantic Conventions: HTTP Spans (server, client, request, response
+    attribute set)'
+  url: https://opentelemetry.io/docs/specs/semconv/http/http-spans/
+- title: 'OpenTelemetry Semantic Conventions: Database Spans (db.system, db.operation,
+    db.statement guidance)'
+  url: https://opentelemetry.io/docs/specs/semconv/database/database-spans/
+- title: 'OpenTelemetry Semantic Conventions: Messaging Spans (messaging.system, messaging.destination,
+    messaging.operation)'
+  url: https://opentelemetry.io/docs/specs/semconv/messaging/messaging-spans/
+- title: 'OpenTelemetry Semantic Conventions: RPC Spans (rpc.system, rpc.service, rpc.method)'
+  url: https://opentelemetry.io/docs/specs/semconv/rpc/rpc-spans/
+applies_to:
+  language: any
+  framework: any
+  environment: any-production
+references: []
+statement: Spans emitted from instrumented services attach the OpenTelemetry semantic-convention
+  attributes appropriate to the span's kind. HTTP server spans carry http.request.method,
+  http.route (the templated route pattern, not the substituted URL), http.response.status_code,
+  and server.address. HTTP client spans carry the equivalent client-side attributes. Database
+  spans carry db.system, db.operation, and db.namespace where applicable. Messaging spans
+  carry messaging.system, messaging.destination.name, and messaging.operation kind. RPC
+  spans carry rpc.system, rpc.service, and rpc.method. Substrate-recommended additional
+  attributes are documented in the review checklist; deviations from the standard attribute
+  set are documented in the consumer's instrumentation ADR.
+rationale: 'The OpenTelemetry semantic conventions exist specifically so that cross-service
+  tooling (vendor backends, open-source collectors, query engines, exemplar correlation)
+  can ask uniform questions across services that may be authored by different teams in
+  different languages. The convention is substantive only when services follow it: a service
+  that emits HTTP spans with attribute name "url" instead of "http.route" is invisible
+  to a query that asks about http.route latency. The L2 review ensures the consumer''s
+  services agree on the convention''s vocabulary so that operational tooling produces
+  a coherent cross-service view.'

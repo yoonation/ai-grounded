@@ -1,0 +1,3 @@
+binding_status: capability-bound
+rule: backup-recovery.backup-retention-set
+gate: iac-scan

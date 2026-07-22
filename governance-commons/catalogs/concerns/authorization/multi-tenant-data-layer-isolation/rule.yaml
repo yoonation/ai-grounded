@@ -1,0 +1,52 @@
+id: authorization.multi-tenant-data-layer-isolation
+name: In multi-tenant systems, data queries enforce tenant isolation at the data-access
+  layer, not only at the application layer
+layer: semantic
+characteristic: security
+severity: critical
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-22'
+  entered_stable: '2026-05-26'
+  authored_by: Myoung Hong
+sources:
+- title: OWASP ASVS v5.0.0 V8.5.1 (Multi-tenant isolation enforced at data layer)
+  url: https://github.com/OWASP/ASVS/blob/v5.0.0/5.0/en/0x17-V8-Authorization.md
+- title: NIST SP 800-53 AC-4 Information Flow Enforcement
+  url: https://csrc.nist.gov/projects/cprt/catalog#/cprt/framework/version/SP_800_53_5_1_1/home
+- title: CWE-284 Improper Access Control
+  url: https://cwe.mitre.org/data/definitions/284.html
+cwe:
+- CWE-284
+- CWE-639
+applies_to:
+  language: any
+  framework: any
+  environment: multi-tenant-systems
+references: []
+statement: 'In multi-tenant systems where multiple customers, organizations, or other
+  tenant entities share the application''s data store, queries against tenant-scoped data
+  enforce tenant boundaries at the data-access layer (database, query builder, ORM middleware),
+  not only at the application layer. Substrate-acceptable enforcement mechanisms include:
+  PostgreSQL Row Level Security policies with tenant-context session variables; per-tenant
+  schemas with schema-routing at connection time; query-builder middleware that injects
+  a tenant filter into every query and fails the query when tenant context is absent;
+  per-tenant databases with connection-string routing. Application-layer tenant filters
+  (each query manually adds a tenant_id WHERE clause) are insufficient because they fail
+  open on missing checks.'
+rationale: 'The application-only enforcement failure mode is consistent across multi-tenant
+  incident reports: a developer adds a new query in a feature change, forgets the tenant
+  filter (because the filter is discipline, not framework-enforced), and the feature ships.
+  The bug is silent: the new query works correctly for the developer''s test tenant because
+  they''re already logged in to a tenant. The cross-tenant leak is invisible until either
+  a customer reports seeing another customer''s data or a security review catches the
+  missing filter. Data-layer enforcement inverts the failure mode. A query without tenant
+  context returns no rows (or raises an error, depending on the mechanism); the missing
+  filter surfaces immediately at development time. The developer cannot accidentally ship
+  a query that crosses tenants because the data layer refuses to execute it. PostgreSQL
+  RLS is the substrate-recommended mechanism where PostgreSQL is the data store. The policy
+  is declared once per table; every query against the table is automatically filtered.
+  The application sets the tenant context via SET LOCAL or SET SESSION at the start of
+  each request; queries through the connection inherit the filter. Forgotten tenant context
+  produces no-data results, not cross-tenant leaks.'

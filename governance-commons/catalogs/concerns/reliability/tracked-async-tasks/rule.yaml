@@ -1,0 +1,51 @@
+id: reliability.tracked-async-tasks
+name: Asynchronously spawned tasks, goroutines, and promises are retained, awaited, or
+  supervised rather than detached and forgotten
+layer: mechanical
+characteristic: reliability
+severity: high
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-31'
+  entered_stable: '2026-06-01'
+  authored_by: Myoung Hong
+sources:
+- title: Ruff RUF006 asyncio-dangling-task (flags asyncio.create_task and ensure_future
+    whose return value is not stored, which the runtime may garbage-collect before completion)
+  url: https://docs.astral.sh/ruff/rules/asyncio-dangling-task/
+- title: typescript-eslint no-floating-promises (flags a Promise that is neither awaited,
+    returned, nor explicitly voided, so its rejection is unhandled and its completion
+    unobserved)
+  url: https://typescript-eslint.io/rules/no-floating-promises/
+- title: Go concurrency-pipeline guidance on goroutine lifecycle and ensuring spawned
+    goroutines have a termination path (concept reference; goroutine-leak detection in
+    Go is primarily a test-time concern, see the binding)
+  url: https://go.dev/blog/pipelines
+applies_to:
+  language: any
+  framework: any
+  environment: any
+references: []
+statement: 'Tasks scheduled to run concurrently and outlive the statement that created
+  them (asyncio tasks, JavaScript promises spawned without await, goroutines, futures
+  submitted to an executor) have their lifecycle managed: the handle is retained in a
+  structure that outlives the task, the task is awaited or joined, or it is registered
+  with a task group, structured-concurrency scope, or supervisor that observes its completion
+  and surfaces its failures. Deliberate fire-and-forget is permitted only when it is explicitly
+  marked (an intentional void of a promise, a documented detached best-effort task) so
+  that the detachment is a visible decision rather than an accident. The rule applies
+  to concurrency primitives that can outlive their creating scope; it does not apply to
+  awaited calls or to synchronous helper calls.'
+rationale: 'Detached concurrent work fails in two silent ways. First, its errors are unobserved:
+  no awaiter receives the exception, so a failure inside the task neither logs nor propagates,
+  defeating the error-handling concern''s logging rule (error-handling.no-exception-swallow) at the point where
+  it matters most. Second, in runtimes that retain only a weak reference to a scheduled
+  task (notably Python asyncio, which is the explicit motivation for Ruff RUF006), a task
+  with no strong reference can be garbage-collected before it finishes and simply vanish,
+  so the work never completes and nothing records that it did not. Requiring a retained
+  handle fixes both: a held reference keeps the task alive, and an await or a task-group
+  join provides a place for its failure to surface. The substrate treats this as a mechanical
+  floor because the discarded-handle pattern is statically visible and the native linters
+  detect it directly; the judgment of whether a particular detachment is safe is the L2
+  layer''s concern, and the shape of the supervising structure is reviewed under reliability.failure-isolation.'

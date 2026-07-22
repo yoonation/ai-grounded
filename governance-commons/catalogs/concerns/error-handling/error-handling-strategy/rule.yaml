@@ -1,0 +1,37 @@
+id: error-handling.error-handling-strategy
+name: The application has an explicit, documented error-handling strategy decision before
+  substantive error-handling implementation begins
+layer: judgmental
+characteristic: reliability
+severity: high
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-24'
+  entered_stable: '2026-05-26'
+  authored_by: Myoung Hong
+sources:
+- title: OWASP ASVS v5.0.0 V7 (Architecture and strategy decisions for error handling
+    and logging)
+  url: https://github.com/OWASP/ASVS/blob/v5.0.0/5.0/en/0x15-V7-Error-Logging.md
+applies_to:
+  environment: any
+references: []
+statement: The application has an Architecture Decision Record (ADR) at a discoverable
+  location (substrate-recommended /docs/decisions/ADR-XXX-error-handling -strategy.md)
+  that documents the application's error-handling strategy. The ADR addresses the substrate-framework
+  decision drivers (error response contract choice, typed error hierarchy organization,
+  retry and timeout policy by service tier, circuit-breaker policy by dependency, fail-fast
+  vs graceful-degradation defaults, error logging severity policy) and references the
+  substrate's decision-framework MADR at governance-commons/decision-frameworks/error-handling-strategy.madr.md.
+  The ADR has Status Accepted (or Superseded by a successor ADR); Status Proposed indefinitely
+  is not acceptable for an application in production.
+rationale: 'Error-handling is a cross-cutting concern that spans many modules. Without
+  an explicit decision, modules diverge: one module uses RFC 7807, another uses JSON:API
+  errors, another invents a custom shape; one module retries unbounded, another retries
+  three times, another does not retry at all; typed error hierarchies differ across boundary
+  seams. The accumulated divergence is hard to reconcile after the fact. The substrate''s
+  L3 rule forces the decision early so the divergence does not accumulate. The ADR is
+  the substrate''s contract: the application commits to a strategy; subsequent contributors
+  implement against the strategy; the substrate''s L1 and L2 rules apply with the strategy''s
+  specific choices made concrete.'

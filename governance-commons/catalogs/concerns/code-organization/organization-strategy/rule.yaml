@@ -1,0 +1,42 @@
+id: code-organization.organization-strategy
+name: The codebase has an explicitly documented code-organization strategy covering architectural
+  style, module-boundary policy, the dependency rule, and where cross-cutting concerns
+  live
+layer: judgmental
+characteristic: maintainability
+severity: high
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-31'
+  entered_stable: '2026-06-01'
+  authored_by: Myoung Hong
+applies_to:
+  language: any
+  framework: any
+  environment: any
+references: []
+statement: 'The codebase has an explicitly documented decision on its code-organization
+  strategy, recorded in a MADR following the substrate''s decision-framework template
+  and stored in the codebase''s decision-record location (substrate-recommended path:
+  /docs/decisions/ADR-XXX-code-organization-strategy.md), referenced from the architectural
+  documentation. The MADR addresses every section the substrate template requires: the
+  architectural style (layered, hexagonal or ports-and-adapters, clean, modular-monolith,
+  vertical-slice, or a documented hybrid); the module-boundary policy (organize by layer,
+  by feature, or by domain bounded context); the dependency rule (which way dependencies
+  must point and how the direction is enforced); where cross-cutting concerns live (logging,
+  authentication, configuration, error handling); and the repository topology (single
+  module, modular monolith, multi-package monorepo, or service-per-repository) where that
+  choice is in scope.'
+rationale: 'The organization strategy is to this concern what the SLO policy is to observability:
+  the anchoring decision the rest of the concern cascades from. The four L2 rules are
+  each conformance checks against an intended structure, and the intended structure is
+  precisely what this decision records. Module cohesion (code-organization.module-boundary-cohesion) is judged against
+  the chosen boundary policy; dependency direction (code-organization.dependency-direction-layering) is judged against
+  the chosen dependency rule; public-surface discipline (code-organization.public-interface-minimalism) presupposes the
+  module boundaries the policy defines; and the abstraction judgments in code-organization.duplication-and-abstraction
+  turn on whether a shared concept may cross a boundary the strategy draws. Without the
+  decision, the L2 rules degrade into taste, and the codebase organizes itself by the
+  accident of who wrote which file first. The substrate does not prescribe one style;
+  it requires that a style be chosen, written down, and enforced, because a chosen-and-enforced
+  structure of almost any reasonable shape beats an unchosen one.'

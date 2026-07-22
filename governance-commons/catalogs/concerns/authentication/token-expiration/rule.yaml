@@ -1,0 +1,36 @@
+id: authentication.token-expiration
+name: Authentication tokens have an explicit expiration set at issuance
+layer: semantic
+characteristic: security
+severity: high
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-18'
+  entered_stable: '2026-05-18'
+  authored_by: Myoung Hong
+sources:
+- title: OWASP ASVS v5.0.0 V7 (Session Management) and V51 (Self-contained Tokens, JWT)
+    expiration requirements
+  url: https://github.com/OWASP/ASVS/blob/v5.0.0/5.0/en/0x16-V7-Session-Management.md
+- title: CWE-613 Insufficient Session Expiration
+  url: https://cwe.mitre.org/data/definitions/613.html
+cwe:
+- CWE-613
+- CWE-384
+applies_to:
+  language: any
+  framework: any
+  environment: any-with-tokens
+references: []
+statement: Every token issued by the application for authentication purposes carries an
+  explicit expiration time established at issuance. Token types include session tokens,
+  JWTs, OAuth access tokens, OAuth refresh tokens, password reset tokens, email verification
+  tokens, magic link tokens, and any other token whose presentation authenticates the
+  bearer. The expiration time is enforced at verification.
+rationale: 'Token expiration limits the blast radius of token compromise. A token leaked
+  through any channel (log leakage, browser history, third-party breach, phishing) authenticates
+  only until expiration. Without expiration, a single leak grants indefinite access. Expiration
+  is also defense in depth against detection gaps: a compromise that goes undetected for
+  30 days is bounded if the token expires within those 30 days.'
+guidance_ref: guidance.md

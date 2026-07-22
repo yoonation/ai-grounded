@@ -1,0 +1,36 @@
+id: agentic-systems.human-action-gating-policy
+name: The system has a recorded human-action-gating policy
+layer: judgmental
+characteristic: safety
+severity: high
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-06-03'
+  entered_stable: '2026-06-04'
+  authored_by: Myoung Hong
+sources:
+- title: OWASP Agentic Security Initiative, agentic threats and mitigations (deciding
+    which agent actions require human control, referenced as a concept)
+  url: https://genai.owasp.org/resource/agentic-ai-threats-and-mitigations/
+- title: EU AI Act Regulation 2024/1689 (Article 14 human oversight, referenced as a concept)
+    as the system-level basis specialized for agent actions
+  url: https://eur-lex.europa.eu/eli/reg/2024/1689/oj
+applies_to:
+  language: any
+  framework: any
+  environment: any
+references: []
+statement: The system has a recorded human-action-gating policy ADR, current relative
+  to the agent's last significant capability change, defining what counts as a consequential
+  action for this agent, which classes require a human gate before execution, which are
+  allowed autonomously within the agentic-systems.action-bounds bounds, and the approval and escalation
+  path. The gate implementation it drives is agentic-systems.human-action-gating and the system-level oversight
+  model it specializes is responsible-ai's responsible-ai.human-oversight, cross-referenced here.
+rationale: A human gate is only protective if it sits in front of the actions that warrant
+  it, and deciding which actions those are is a judgment about consequence and reversibility
+  that no tool can make. The policy is what turns the gate implementation into the right
+  gate. The substrate makes this an L3 ADR because the consequential-action line is contextual
+  and consequential to get wrong, and pairs it with the gate-implementation rule it drives
+  and the responsible-ai oversight model it specializes for actions rather than decisions
+  and outputs.

@@ -1,0 +1,42 @@
+id: responsible-ai.human-oversight
+name: A human-oversight model is decided for the system, setting the degree and mode of
+  human involvement appropriate to its risk
+layer: judgmental
+characteristic: safety
+severity: high
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-06-02'
+  entered_stable: '2026-06-04'
+  authored_by: Myoung Hong
+sources:
+- title: EU AI Act Regulation 2024/1689 (Article 14 human oversight of high-risk systems,
+    referenced as a concept)
+  url: https://eur-lex.europa.eu/eli/reg/2024/1689/oj
+- title: NIST AI Risk Management Framework (the GOVERN and MANAGE functions, human roles
+    in overseeing AI, referenced as a concept)
+  url: https://www.nist.gov/itl/ai-risk-management-framework
+applies_to:
+  language: any
+  framework: any
+  environment: any
+references: []
+statement: A human-oversight model is recorded for the system, setting for each class
+  of decision the mode of human involvement (human in the loop approving each action,
+  human on the loop monitoring and able to intervene, or human in command setting bounds
+  and reviewing after the fact), justified against the decision's risk, and the chosen
+  mode is genuinely implemented so the reviewer has the information, time, and authority
+  to act. The explanation and contestability of an individual decision is responsible-ai.explanation-and-recourse;
+  the per-action human gate on an autonomous agent is owned by agentic-systems. The oversight
+  model is revisited when the system's risk or autonomy changes materially.
+rationale: The oversight model is the decision that sets the worst case for every automated
+  decision a system makes, because it determines whether a person can catch and correct
+  a mistake before it lands. An unchosen oversight model does not mean no oversight question,
+  it means the question was answered by default, usually toward full automation precisely
+  where a person was most needed. Matching the mode to the risk (tight human-in-the-loop
+  approval for the high-impact, lighter on-the-loop monitoring for the routine) keeps
+  the system both safe and usable, and implementing it genuinely (an empowered reviewer,
+  not a rubber stamp) is what makes the oversight real. The substrate makes this an L3
+  ADR because the match is a trade-off, and draws the seam to agentic-systems, which owns
+  the per-action gate on an autonomous agent.

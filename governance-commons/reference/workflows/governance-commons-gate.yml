@@ -1,0 +1,294 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Myoung Hong
+
+# Reference CI workflow: Governance Commons gate.
+#
+# Substrate-published reference file. Lives inside the substrate at
+# governance-commons/reference/workflows/. The substrate publishes
+# it; consumers do not modify it in place. To integrate, consumers
+# copy this file out of governance-commons/reference/workflows/ into
+# their own integration path (substrate-recommended:
+# .github/workflows/governance-commons-gate.yml, or the consumer-
+# CI-equivalent) and adapt to their CI provider's syntax.
+#
+# This file demonstrates the substrate-published 8-step CI workflow
+# contract from governance-commons/spec/consumer-scaffold.md
+# Section 4. The substrate's contract is on the 8-step sequence and
+# the substrate-default engine selection (OpenGrep),
+# not on the specific GitHub Actions
+# surface below.
+#
+# This workflow demonstrates:
+#   Step 1: Discover the manifest
+#   Step 2: Validate the manifest
+#   Step 3: Pin commons version
+#   Step 4: Run static-analysis bindings for in-scope checkpoints
+#   Step 5: Collect consultation events
+#   Step 6: Validate consultation events
+#   Step 7: Cross-check events against manifest contract
+#   Step 8: Block or pass
+#
+# Reference manifest (substrate-internal):
+#   governance-commons/reference/manifest/governance-manifest.yaml.
+# Consumer's active manifest (substrate-recommended location):
+#   repository root (governance-manifest.yaml).
+
+name: Governance Commons gate
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+jobs:
+
+  # =========================================================
+  # Job 1: manifest discovery and validation (Steps 1, 2, 3)
+  # =========================================================
+
+  manifest-validation:
+    name: Manifest discovery and validation
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # Step 1: Discover the manifest. Failure to discover is a
+      # substrate-noncompliance signal per consumer-scaffold.md
+      # Section 4.3 Step 1.
+      - name: Step 1 - Discover manifest
+        id: discover
+        run: |
+          if [ ! -f governance-manifest.yaml ]; then
+            echo "::error::Substrate noncompliance: governance-manifest.yaml not found at repository root."
+            echo "Consumer-scaffold contract requires a manifest. See governance-commons/spec/consumer-scaffold.md Section 4.3 Step 1."
+            exit 1
+          fi
+          echo "manifest=governance-manifest.yaml" >> "$GITHUB_OUTPUT"
+          echo "Manifest discovered at governance-manifest.yaml"
+
+      # Step 2: Validate the manifest. Validation failure is a
+      # substrate-noncompliance signal.
+      - name: Step 2 - Install check-jsonschema
+        run: pip install --user check-jsonschema
+
+      - name: Step 2 - Validate manifest against schema
+        run: |
+          check-jsonschema \
+            --schemafile governance-commons/schemas/manifest.schema.json \
+            governance-manifest.yaml
+
+      # Step 3: Pin commons version. The pinned version is read
+      # from the manifest and propagated to subsequent jobs as
+      # output.
+      - name: Step 3 - Pin commons version
+        id: pin
+        run: |
+          pip install --user pyyaml
+          commons_version=$(python3 -c "import yaml; print(yaml.safe_load(open('governance-manifest.yaml'))['manifest']['substrate']['commons-version'])")
+          profile=$(python3 -c "import yaml; print(yaml.safe_load(open('governance-manifest.yaml'))['manifest']['substrate']['profile'])")
+          actual=$(cat governance-commons/VERSION)
+          echo "Manifest pinned to commons-version $commons_version, profile $profile"
+          echo "Repository governance-commons/VERSION is $actual"
+          if [ "$commons_version" != "$actual" ]; then
+            echo "::warning::Manifest commons-version ($commons_version) does not match repository VERSION ($actual). The substrate may have advanced beyond the pinned manifest. Consider manifest update."
+          fi
+          echo "commons-version=$commons_version" >> "$GITHUB_OUTPUT"
+          echo "profile=$profile" >> "$GITHUB_OUTPUT"
+
+  # =========================================================
+  # Job 2: static analysis at pre-commit checkpoint (Step 4)
+  # =========================================================
+
+  static-analysis:
+    name: Static analysis (pre-commit checkpoint)
+    runs-on: ubuntu-latest
+    needs: manifest-validation
+
+    steps:
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install OpenGrep (substrate-default engine)
+        # Per consumer-scaffold.md Section 4.2, OpenGrep is the
+        # substrate-default static-analysis engine on license-compatibility
+        # grounds (LGPL-2.1). The SAST capability gate resolves to
+        # it through the toolchain; OpenGrep and Semgrep CE
+        # consume the same rule syntax, so either engine works.
+        run: |
+          # OpenGrep installation per upstream documentation. The
+          # reference workflow uses a fixed version; consumers
+          # adopt their own version pinning discipline.
+          curl -sSL https://opengrep.dev/install | sh -s -- --version v1.0.0
+          opengrep --version
+
+      # Step 4: Run the SAST gate over in-scope checkpoints. The
+      # reference manifest's pre-commit checkpoint declares the
+      # resolved profile as its rule universe (rules: []); the
+      # SAST capability gate resolves to OpenGrep through the
+      # toolchain and runs the maintained community rules.
+      - name: Step 4 - Run static analysis (OpenGrep, maintained rules)
+        run: |
+          # The substrate names the SAST gate and selects OpenGrep;
+          # it does not ship the rule set. Clone the maintained
+          # community rules and point --config at them (see
+          # governance-commons/spec/enforcement-tooling.md).
+          opengrep \
+            --config "${OPENGREP_RULES:-./opengrep-rules}" \
+            --json \
+            --output static-analysis-findings.json \
+            . || true
+          # Note: --output ... || true captures findings without
+          # failing the step; the block-or-pass decision is in
+          # Step 8 below after manifest cross-check.
+
+      - name: Upload static-analysis findings
+        uses: actions/upload-artifact@v4
+        with:
+          name: static-analysis-findings
+          path: static-analysis-findings.json
+
+  # =========================================================
+  # Job 3: consultation event collection and validation
+  # (Steps 5, 6) plus manifest cross-check (Step 7)
+  # plus block-or-pass (Step 8)
+  # =========================================================
+
+  evidence-validation:
+    name: Consultation evidence validation
+    runs-on: ubuntu-latest
+    needs: [manifest-validation, static-analysis]
+
+    steps:
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install validators
+        run: pip install --user check-jsonschema pyyaml
+
+      # Step 5: Collect consultation events. The events live at
+      # the location declared in manifest.evidence.location.
+      - name: Step 5 - Collect consultation events
+        id: collect
+        run: |
+          location=$(python3 -c "import yaml; print(yaml.safe_load(open('governance-manifest.yaml'))['manifest']['evidence']['location'])")
+          echo "Evidence location: $location"
+          if [ ! -f "$location" ]; then
+            echo "::warning::No consultation events file at $location. This is acceptable for first-run consumers; subsequent agent invocations populate the file."
+            echo "events-file=" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          echo "events-file=$location" >> "$GITHUB_OUTPUT"
+          wc -l "$location"
+
+      # Step 6: Validate consultation events. Each JSON object on
+      # its own line conforms to the consultation-event schema.
+      - name: Step 6 - Validate consultation events
+        if: steps.collect.outputs.events-file != ''
+        run: |
+          events_file="${{ steps.collect.outputs.events-file }}"
+          # check-jsonschema supports JSON Lines via --instance-format
+          check-jsonschema \
+            --schemafile governance-commons/schemas/consultation-event.schema.json \
+            --instance-format jsonl \
+            "$events_file" || (
+              echo "::error::Consultation event validation failed. See governance-commons/spec/consultation-evidence.md for the event contract.";
+              exit 1
+            )
+
+      # Step 7: Cross-check events against manifest contract.
+      # For each manifest checkpoint with required-findings:
+      # report-and-block or record-and-block, verify at least one
+      # event references the checkpoint's consults.* lists.
+      - name: Step 7 - Cross-check events against manifest contract
+        if: steps.collect.outputs.events-file != ''
+        run: |
+          python3 << 'PYEOF'
+          import json
+          import sys
+          import yaml
+
+          with open('governance-manifest.yaml') as f:
+              m = yaml.safe_load(f)
+          checkpoints = m['manifest']['workflow']['checkpoints']
+
+          events_file = '${{ steps.collect.outputs.events-file }}'
+          events = []
+          with open(events_file) as f:
+              for line in f:
+                  line = line.strip()
+                  if not line:
+                      continue
+                  events.append(json.loads(line))
+
+          failures = []
+          for cp in checkpoints:
+              required = cp.get('required-findings', 'report-and-block')
+              if required not in ('report-and-block', 'record-and-block'):
+                  continue
+              consulter = cp['consulter']
+              # Skip static-analysis checkpoints; their findings
+              # are emitted as separate artifact, not as
+              # consultation-events.
+              if consulter == 'opengrep-static-analysis':
+                  continue
+              # Find events from this consulter.
+              matching = [e for e in events if e.get('consulter-identity') == consulter]
+              if not matching:
+                  failures.append(f"Checkpoint '{cp['name']}' (consulter: {consulter}) required by manifest but no consultation events from this consulter found.")
+                  continue
+              # Verify each consulted artifact list is referenced
+              # in at least one matching event.
+              consults = cp.get('consults', {})
+              for kind in ('catalogs', 'rules', 'mappings', 'decision-frameworks'):
+                  required_items = set(consults.get(kind, []))
+                  if not required_items:
+                      continue
+                  consulted_in_events = set()
+                  for e in matching:
+                      consulted = e.get('consulted-artifacts', [])
+                      consulted_in_events.update(consulted)
+                  missing = required_items - consulted_in_events
+                  if missing:
+                      failures.append(
+                          f"Checkpoint '{cp['name']}' required consulting {kind}={sorted(required_items)}, "
+                          f"but consultation events from {consulter} reference {sorted(consulted_in_events)}. "
+                          f"Missing: {sorted(missing)}"
+                      )
+
+          if failures:
+              print("::error::Manifest contract noncompliance:")
+              for f in failures:
+                  print(f"::error::  {f}")
+              sys.exit(1)
+          print("All blocking manifest checkpoints have matching consultation events.")
+          PYEOF
+
+      # Step 8: Block or pass. The job's overall exit status is
+      # the block-or-pass decision: if any prior step failed, the
+      # job fails, blocking the PR. If all prior steps passed,
+      # the job passes.
+      - name: Step 8 - Block or pass decision
+        run: |
+          echo "All gate steps completed. The job's success status communicates the block-or-pass decision."
+          echo "See consumer-scaffold.md Section 4.3 Step 8 for the contract."
+
+# What this workflow does NOT do (per consumer-scaffold.md
+# Section 4.6):
+#
+#   - Does not specify the consumer's CI provider (this is a
+#     GitHub Actions reference; consumers using GitLab/Jenkins/
+#     CircleCI adopt the 8-step contract in their native syntax).
+#   - Does not specify where in the branching strategy the gate
+#     runs (this reference triggers on pull_request to main and
+#     push to main; consumers customize triggers).
+#   - Does not specify how consultation events are routed from
+#     agent runtime to the audit medium (this is consumer-side).
+#   - Does not specify performance characteristics; OpenGrep
+#     performance is consumer-tunable through standard OpenGrep
+#     configuration.

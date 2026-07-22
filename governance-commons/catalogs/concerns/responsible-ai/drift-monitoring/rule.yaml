@@ -1,0 +1,40 @@
+id: responsible-ai.drift-monitoring
+name: A model-drift monitoring and response strategy is decided, naming what is monitored,
+  the thresholds, and the retraining or rollback triggers
+layer: judgmental
+characteristic: safety
+severity: medium
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-06-02'
+  entered_stable: '2026-06-04'
+  authored_by: Myoung Hong
+sources:
+- title: NIST AI Risk Management Framework (the MEASURE and MANAGE functions, monitoring
+    deployed AI and responding to change, referenced as a concept)
+  url: https://www.nist.gov/itl/ai-risk-management-framework
+- title: EU AI Act Regulation 2024/1689 (Article 72 post-market monitoring for high-risk
+    systems, referenced as a concept)
+  url: https://eur-lex.europa.eu/eli/reg/2024/1689/oj
+applies_to:
+  language: any
+  framework: any
+  environment: any
+references: []
+statement: A model-drift monitoring and response strategy is recorded, naming what is
+  monitored in production (input or feature drift, output distribution, performance against
+  ground truth where available, and the responsible-ai.fairness-objective fairness metrics), the thresholds that
+  constitute meaningful drift, the response each threshold triggers (alert, re-evaluation,
+  retraining, or rollback), and the re-evaluation cadence absent a triggered signal. The
+  telemetry and alerting mechanisms are owned by observability and monitoring-alerting.
+  The strategy is revisited when the model, the data, or the deployment context changes
+  materially.
+rationale: 'A model''s evaluation is a photograph of a moving subject: it is accurate
+  at the instant it is taken and decreasingly so afterward, as the world drifts away from
+  the data the model learned. Without a strategy that says what to watch, what counts
+  as drift, and what to do about it, that decay is invisible until it surfaces as a failure.
+  Deciding the monitored signals, the thresholds, and the triggers up front turns degradation
+  into a managed event. The substrate keeps the rule at medium because the risk is a gradual
+  decay rather than an acute exposure, makes it an L3 ADR because the strategy is a design
+  decision, and defers the telemetry and alerting to the concerns that own them.'

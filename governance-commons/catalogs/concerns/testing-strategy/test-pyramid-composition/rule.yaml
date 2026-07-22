@@ -1,0 +1,40 @@
+id: testing-strategy.test-pyramid-composition
+name: The test suite has a documented and balanced pyramid composition appropriate to
+  the application's architecture
+layer: semantic
+characteristic: functional-suitability
+severity: high
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-25'
+  entered_stable: '2026-05-26'
+  authored_by: Myoung Hong
+sources:
+- title: OWASP ASVS v5.0.0 V14.1 (substrate-relevant testing coverage)
+  url: https://github.com/OWASP/ASVS/blob/v5.0.0/5.0/en/0x22-V14-Config.md
+- title: ISO/IEC/IEEE 29119-2:2021 (test process specification including test architecture
+    decisions)
+  url: https://www.iso.org/standard/79428.html
+cwe:
+- CWE-1006
+applies_to:
+  environment: any
+references: []
+statement: 'The application''s test suite has a documented pyramid composition (or alternative
+  shape: trophy, diamond, custom) declared in the testing-strategy.testing-strategy strategy ADR. The composition
+  specifies the substrate-acceptable ratios across test tiers (unit / integration / contract
+  / end-to-end) and the application''s actual ratios. The ratios are monitored: CI tooling
+  reports test counts per tier; a periodic review (or PR-time check) confirms the actual
+  ratios stay within tolerance of the documented target.'
+rationale: Pyramid composition is the substrate's foundation for the test suite's cost-to-value
+  ratio. Unit tests are fast and produce localized failure signals; integration tests
+  catch boundary defects but at higher cost; end-to-end tests verify the full user-facing
+  system but are slow, flaky, and diagnostically poor. The pyramid metaphor (broad base
+  of unit tests, narrower mid-tier of integration tests, narrow top of end-to-end tests)
+  optimizes this trade-off for many applications. Alternative shapes (Kent C. Dodds' testing
+  trophy, Google's small/medium/large), suit different architectures. The substrate's
+  L2 review confirms that the application has chosen a shape, documented it in the ADR,
+  and is operating consistently with that choice. The rule is L2 because the choice of
+  shape and the acceptable ratios are application-specific. The substrate cannot prescribe;
+  reviewers verify the application has made an explicit choice and is operating accordingly.

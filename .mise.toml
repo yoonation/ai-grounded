@@ -1,0 +1,23 @@
+[tools]
+# Pin tool versions per project. Anyone cloning this repo
+# runs `mise install` and gets the exact same versions.
+#
+# These three are the template defaults referenced in README.md and
+# SETUP.md. Remove any runtime your project does not use, and adjust
+# versions as needed.
+
+python = "3.12"
+terraform = "1.12"
+node = "22"
+
+# gitleaks is REQUIRED by the fail-closed secret-scan gate
+# (.githooks/pre-commit.d/10-gitleaks). It is not a project runtime you can
+# drop: without it, every commit is blocked. Keep this pin.
+gitleaks = "8.30.1"
+
+[env]
+# Project-level environment variables (non-sensitive only).
+# Sensitive values go in .env (gitignored), not here.
+#
+# AWS_REGION = "us-west-2"
+# TF_VAR_environment = "dev"

@@ -1,0 +1,3 @@
+binding_status: capability-bound
+rule: code-organization.no-import-cycles
+gate: lint

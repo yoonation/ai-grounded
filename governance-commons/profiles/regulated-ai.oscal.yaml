@@ -1,0 +1,499 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Myoung Hong
+#
+# Regulated-AI industry-tilt profile. Inherits the production-grade-
+# baseline profile (profile-of-a-profile) and elevates the severities of
+# the concerns that the EU AI Act, NIST AI RMF, and ISO/IEC 42001 make
+# critical: responsible-AI controls and documentation, agent permission
+# boundaries, privacy and data governance for training and inference data,
+# data classification, and post-market monitoring and incident detection.
+# Second M7 industry profile, authored at draft; highest-differentiation
+# tilt for an AI Security Architect portfolio.
+
+profile:
+  uuid: 9312b8a6-7b1a-4283-8273-8c1a492acb25
+  metadata:
+    title: "Regulated-AI Industry-Tilt Profile"
+    published: "2026-06-06T00:00:00Z"
+    last-modified: "2026-06-07T00:00:00Z"
+    version: "1.0.0"
+    oscal-version: "1.1.2"
+    props:
+      - name: profile-id
+        ns: governance-commons
+        value: regulated-ai
+      - name: profile-kind
+        ns: governance-commons
+        value: industry-tilt
+      - name: lifecycle-status
+        ns: governance-commons
+        value: stable
+      - name: entered-stable-at
+        ns: governance-commons
+        value: "2026-06-07"
+      - name: profile-attestation
+        ns: governance-commons
+        value: "myoung-self-attested"
+        remarks: >
+          Attested under Charter Section 2.4.1 (solo-author attestation)
+          at the M7 close consolidation on 2026-06-07. Cooling-off
+          honored: the profile was authored at draft on a prior calendar
+          day (2026-06-06). Promotion from profile version 0.1.0 to 1.0.0
+          and lifecycle-status draft to stable as part of the batch
+          promotion of the four M7 industry-tilt profiles at substrate
+          version 0.10.0.
+      - name: commons-version
+        ns: governance-commons
+        value: "0.9.0"
+      - name: industry
+        ns: governance-commons
+        value: regulated-ai
+      - name: regulatory-basis
+        ns: governance-commons
+        value: EU AI Act, NIST AI RMF, ISO/IEC 42001
+      - name: intended-audience
+        ns: governance-commons
+        value: |
+          Organizations deploying AI systems subject to the EU AI
+          Act (high-risk), the NIST AI Risk Management Framework,
+          and ISO/IEC 42001. Inherits production-grade-baseline and
+          elevates responsible-AI, agentic-systems, privacy, data-
+          classification, and monitoring emphasis.
+      - name: ai-assistance
+        ns: governance-commons
+        value: drafted
+      - name: ai-assistance-detail
+        ns: governance-commons
+        value: |
+          AI drafted the industry-tilt profile from substrate-author
+          intent under human direction. Human authored final intent
+          and approved at draft lifecycle. Profile-attestation and
+          stable promotion are deferred to the M7 close
+          consolidation per Section 2.4.1 cooling-off.
+    parties:
+      - uuid: c2775631-dd4b-4aa3-9e65-3329aa51ad7f
+        type: person
+        name: myoung
+        props:
+          - name: role
+            ns: governance-commons
+            value: author
+          - name: authored-on
+            ns: governance-commons
+            value: "2026-06-06"
+    links:
+      - rel: governance-charter
+        href: ../CHARTER.md
+  imports:
+    - href: ../profiles/production-grade-baseline.oscal.yaml
+      include-all: {}
+  modify:
+    alters:
+      - control-id: responsible-ai.model-documentation-artifact
+        adds:
+          - position: ending
+            props:
+              - name: profile-severity-override
+                ns: governance-commons
+                value: high
+              - name: profile-severity-override-rationale
+                ns: governance-commons
+                value: |
+                  Responsible-AI mechanical controls are baseline
+                  obligations for high-risk AI systems.
+              - name: profile-tilt-basis
+                ns: governance-commons
+                value: EU AI Act Title III (high-risk); NIST AI RMF Govern
+              - name: profile-ai-assistance
+                ns: governance-commons
+                value: drafted-by-ai-approved-by-human
+              - name: profile-ai-assistance-detail
+                ns: governance-commons
+                value: |
+                  AI drafted the industry tilt from substrate-author
+                  intent; human approved at draft lifecycle.
+      - control-id: responsible-ai.ai-disclosure-marker
+        adds:
+          - position: ending
+            props:
+              - name: profile-severity-override
+                ns: governance-commons
+                value: high
+              - name: profile-severity-override-rationale
+                ns: governance-commons
+                value: |
+                  Mechanical responsible-AI checks underpin
+                  demonstrable conformity.
+              - name: profile-tilt-basis
+                ns: governance-commons
+                value: EU AI Act Art 9; NIST AI RMF
+              - name: profile-ai-assistance
+                ns: governance-commons
+                value: drafted-by-ai-approved-by-human
+              - name: profile-ai-assistance-detail
+                ns: governance-commons
+                value: |
+                  AI drafted the industry tilt from substrate-author
+                  intent; human approved at draft lifecycle.
+      - control-id: responsible-ai.model-provenance
+        adds:
+          - position: ending
+            props:
+              - name: profile-severity-override
+                ns: governance-commons
+                value: high
+              - name: profile-severity-override-rationale
+                ns: governance-commons
+                value: |
+                  Responsible-AI review depth is elevated where AI
+                  decisions carry regulated consequence.
+              - name: profile-tilt-basis
+                ns: governance-commons
+                value: EU AI Act Art 14 (human oversight); NIST AI RMF Manage
+              - name: profile-ai-assistance
+                ns: governance-commons
+                value: drafted-by-ai-approved-by-human
+              - name: profile-ai-assistance-detail
+                ns: governance-commons
+                value: |
+                  AI drafted the industry tilt from substrate-author
+                  intent; human approved at draft lifecycle.
+      - control-id: responsible-ai.decision-record-keeping
+        adds:
+          - position: ending
+            props:
+              - name: profile-severity-override
+                ns: governance-commons
+                value: high
+              - name: profile-severity-override-rationale
+                ns: governance-commons
+                value: |
+                  Documentation and traceability of AI behavior is a
+                  conformity requirement.
+              - name: profile-tilt-basis
+                ns: governance-commons
+                value: EU AI Act Art 11 and 12 (technical documentation, logging)
+              - name: profile-ai-assistance
+                ns: governance-commons
+                value: drafted-by-ai-approved-by-human
+              - name: profile-ai-assistance-detail
+                ns: governance-commons
+                value: |
+                  AI drafted the industry tilt from substrate-author
+                  intent; human approved at draft lifecycle.
+      - control-id: responsible-ai.drift-monitoring
+        adds:
+          - position: ending
+            props:
+              - name: profile-severity-override
+                ns: governance-commons
+                value: high
+              - name: profile-severity-override-rationale
+                ns: governance-commons
+                value: |
+                  AI governance and accountability is a quality-
+                  management-system requirement, not optional.
+              - name: profile-tilt-basis
+                ns: governance-commons
+                value: EU AI Act Art 17 (QMS); ISO/IEC 42001
+              - name: profile-ai-assistance
+                ns: governance-commons
+                value: drafted-by-ai-approved-by-human
+              - name: profile-ai-assistance-detail
+                ns: governance-commons
+                value: |
+                  AI drafted the industry tilt from substrate-author
+                  intent; human approved at draft lifecycle.
+      - control-id: agentic-systems.tool-authorization-scope
+        adds:
+          - position: ending
+            props:
+              - name: profile-severity-override
+                ns: governance-commons
+                value: high
+              - name: profile-severity-override-rationale
+                ns: governance-commons
+                value: |
+                  Agent permission boundaries are a primary control
+                  where autonomous AI acts on the world.
+              - name: profile-tilt-basis
+                ns: governance-commons
+                value: EU AI Act high-risk obligations; NIST AI RMF Manage
+              - name: profile-ai-assistance
+                ns: governance-commons
+                value: drafted-by-ai-approved-by-human
+              - name: profile-ai-assistance-detail
+                ns: governance-commons
+                value: |
+                  AI drafted the industry tilt from substrate-author
+                  intent; human approved at draft lifecycle.
+      - control-id: agentic-systems.agent-action-audit-record
+        adds:
+          - position: ending
+            props:
+              - name: profile-severity-override
+                ns: governance-commons
+                value: high
+              - name: profile-severity-override-rationale
+                ns: governance-commons
+                value: |
+                  Input validation between agents constrains
+                  autonomous-system blast radius.
+              - name: profile-tilt-basis
+                ns: governance-commons
+                value: NIST AI RMF Manage; OWASP Agentic
+              - name: profile-ai-assistance
+                ns: governance-commons
+                value: drafted-by-ai-approved-by-human
+              - name: profile-ai-assistance-detail
+                ns: governance-commons
+                value: |
+                  AI drafted the industry tilt from substrate-author
+                  intent; human approved at draft lifecycle.
+      - control-id: privacy.personal-data-purpose-annotation
+        adds:
+          - position: ending
+            props:
+              - name: profile-severity-override
+                ns: governance-commons
+                value: high
+              - name: profile-severity-override-rationale
+                ns: governance-commons
+                value: |
+                  Training-data minimization is a data-governance
+                  obligation for regulated AI.
+              - name: profile-tilt-basis
+                ns: governance-commons
+                value: EU AI Act Art 10 (data governance); GDPR
+              - name: profile-ai-assistance
+                ns: governance-commons
+                value: drafted-by-ai-approved-by-human
+              - name: profile-ai-assistance-detail
+                ns: governance-commons
+                value: |
+                  AI drafted the industry tilt from substrate-author
+                  intent; human approved at draft lifecycle.
+      - control-id: privacy.no-personal-data-in-url
+        adds:
+          - position: ending
+            props:
+              - name: profile-severity-override
+                ns: governance-commons
+                value: high
+              - name: profile-severity-override-rationale
+                ns: governance-commons
+                value: |
+                  Lawful-basis and consent handling for AI data is a
+                  regulated control.
+              - name: profile-tilt-basis
+                ns: governance-commons
+                value: GDPR; EU AI Act Art 10
+              - name: profile-ai-assistance
+                ns: governance-commons
+                value: drafted-by-ai-approved-by-human
+              - name: profile-ai-assistance-detail
+                ns: governance-commons
+                value: |
+                  AI drafted the industry tilt from substrate-author
+                  intent; human approved at draft lifecycle.
+      - control-id: privacy.retention-limitation
+        adds:
+          - position: ending
+            props:
+              - name: profile-severity-override
+                ns: governance-commons
+                value: high
+              - name: profile-severity-override-rationale
+                ns: governance-commons
+                value: |
+                  Data-subject rights handling is elevated where AI
+                  processes personal data at scale.
+              - name: profile-tilt-basis
+                ns: governance-commons
+                value: GDPR; EU AI Act
+              - name: profile-ai-assistance
+                ns: governance-commons
+                value: drafted-by-ai-approved-by-human
+              - name: profile-ai-assistance-detail
+                ns: governance-commons
+                value: |
+                  AI drafted the industry tilt from substrate-author
+                  intent; human approved at draft lifecycle.
+      - control-id: privacy.processor-and-transfer-safeguards
+        adds:
+          - position: ending
+            props:
+              - name: profile-severity-override
+                ns: governance-commons
+                value: high
+              - name: profile-severity-override-rationale
+                ns: governance-commons
+                value: |
+                  Retention discipline for AI training and inference
+                  data is regulated.
+              - name: profile-tilt-basis
+                ns: governance-commons
+                value: GDPR; EU AI Act Art 10
+              - name: profile-ai-assistance
+                ns: governance-commons
+                value: drafted-by-ai-approved-by-human
+              - name: profile-ai-assistance-detail
+                ns: governance-commons
+                value: |
+                  AI drafted the industry tilt from substrate-author
+                  intent; human approved at draft lifecycle.
+      - control-id: data-classification.model-classification-label
+        adds:
+          - position: ending
+            props:
+              - name: profile-severity-override
+                ns: governance-commons
+                value: high
+              - name: profile-severity-override-rationale
+                ns: governance-commons
+                value: |
+                  Training and inference data must be classified to
+                  satisfy AI data-governance obligations.
+              - name: profile-tilt-basis
+                ns: governance-commons
+                value: EU AI Act Art 10 (data governance)
+              - name: profile-ai-assistance
+                ns: governance-commons
+                value: drafted-by-ai-approved-by-human
+              - name: profile-ai-assistance-detail
+                ns: governance-commons
+                value: |
+                  AI drafted the industry tilt from substrate-author
+                  intent; human approved at draft lifecycle.
+      - control-id: data-classification.retention-disposal
+        adds:
+          - position: ending
+            props:
+              - name: profile-severity-override
+                ns: governance-commons
+                value: high
+              - name: profile-severity-override-rationale
+                ns: governance-commons
+                value: Data handling for AI pipelines is a governed control.
+              - name: profile-tilt-basis
+                ns: governance-commons
+                value: EU AI Act Art 10; NIST AI RMF Map
+              - name: profile-ai-assistance
+                ns: governance-commons
+                value: drafted-by-ai-approved-by-human
+              - name: profile-ai-assistance-detail
+                ns: governance-commons
+                value: |
+                  AI drafted the industry tilt from substrate-author
+                  intent; human approved at draft lifecycle.
+      - control-id: data-classification.propagation-inheritance
+        adds:
+          - position: ending
+            props:
+              - name: profile-severity-override
+                ns: governance-commons
+                value: high
+              - name: profile-severity-override-rationale
+                ns: governance-commons
+                value: |
+                  Data flow into and out of AI systems carries
+                  regulated consequence.
+              - name: profile-tilt-basis
+                ns: governance-commons
+                value: EU AI Act; GDPR
+              - name: profile-ai-assistance
+                ns: governance-commons
+                value: drafted-by-ai-approved-by-human
+              - name: profile-ai-assistance-detail
+                ns: governance-commons
+                value: |
+                  AI drafted the industry tilt from substrate-author
+                  intent; human approved at draft lifecycle.
+      - control-id: monitoring-alerting.alert-lifecycle
+        adds:
+          - position: ending
+            props:
+              - name: profile-severity-override
+                ns: governance-commons
+                value: high
+              - name: profile-severity-override-rationale
+                ns: governance-commons
+                value: |
+                  Post-market monitoring and drift detection are
+                  explicit obligations for high-risk AI.
+              - name: profile-tilt-basis
+                ns: governance-commons
+                value: |
+                  EU AI Act Art 72 (post-market monitoring); NIST AI
+                  RMF Measure
+              - name: profile-ai-assistance
+                ns: governance-commons
+                value: drafted-by-ai-approved-by-human
+              - name: profile-ai-assistance-detail
+                ns: governance-commons
+                value: |
+                  AI drafted the industry tilt from substrate-author
+                  intent; human approved at draft lifecycle.
+      - control-id: monitoring-alerting.pipeline-liveness-and-runbook-reachability
+        adds:
+          - position: ending
+            props:
+              - name: profile-severity-override
+                ns: governance-commons
+                value: high
+              - name: profile-severity-override-rationale
+                ns: governance-commons
+                value: Incident detection and reporting for AI systems is mandated.
+              - name: profile-tilt-basis
+                ns: governance-commons
+                value: EU AI Act Art 73 (serious-incident reporting)
+              - name: profile-ai-assistance
+                ns: governance-commons
+                value: drafted-by-ai-approved-by-human
+              - name: profile-ai-assistance-detail
+                ns: governance-commons
+                value: |
+                  AI drafted the industry tilt from substrate-author
+                  intent; human approved at draft lifecycle.
+      - control-id: monitoring-alerting.on-call-rotation-coverage
+        adds:
+          - position: ending
+            props:
+              - name: profile-severity-override
+                ns: governance-commons
+                value: high
+              - name: profile-severity-override-rationale
+                ns: governance-commons
+                value: |
+                  Operational coverage for deployed AI systems is a
+                  management obligation.
+              - name: profile-tilt-basis
+                ns: governance-commons
+                value: NIST AI RMF Manage
+              - name: profile-ai-assistance
+                ns: governance-commons
+                value: drafted-by-ai-approved-by-human
+              - name: profile-ai-assistance-detail
+                ns: governance-commons
+                value: |
+                  AI drafted the industry tilt from substrate-author
+                  intent; human approved at draft lifecycle.
+  back-matter:
+    resources:
+      - uuid: 9011b2fe-da33-41ea-b588-891f26ba9ac0
+        title: "Production-Grade Baseline Profile (parent)"
+        rlinks:
+          - href: ../profiles/production-grade-baseline.oscal.yaml
+        description: |
+          The regulated-ai industry-tilt profile inherits the
+          production-grade-baseline profile (all 184 baseline rule
+          selections) via a single include-all import, then elevates
+          the severities of the concerns this regime makes critical.
+          Inheritance is profile-of-a-profile per the M7 Session 0
+          decision (the profile schema import href accepts a parent
+          profile). Tilt basis: EU AI Act, NIST AI RMF, ISO/IEC
+          42001. Authored at draft (profile version 0.1.0,
+          lifecycle-status draft) at substrate version 0.9.0; the
+          profile-attestation prop and promotion to lifecycle-status
+          stable are deferred to the M7 close consolidation per the
+          Path A precedent.

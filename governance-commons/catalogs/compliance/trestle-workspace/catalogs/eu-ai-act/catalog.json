@@ -1,0 +1,277 @@
+{
+  "catalog": {
+    "uuid": "2f7d8c5a-3b6e-4a91-9d7c-4e2f8b1a3c5d",
+    "metadata": {
+      "title": "EU AI Act - Regulation (EU) 2024/1689 (Title III: High-Risk AI Systems)",
+      "last-modified": "2026-05-12T00:00:00Z",
+      "version": "1.0",
+      "oscal-version": "1.2.1",
+      "remarks": "Hand-authored OSCAL representation of selected articles from Regulation (EU) 2024/1689 of the European Parliament and of the Council of 13 June 2024 laying down harmonised rules on artificial intelligence (Artificial Intelligence Act). Scope: Title III (Chapters 1-3) addressing high-risk AI systems - Articles 6-29 covering classification, requirements for high-risk AI, and obligations of providers and deployers. Articles outside Title III (prohibited practices, specific systems, governance, enforcement) are out of scope for this build-time governance commons. Source text from official EU consolidated version; EU regulations are reusable under EU public reuse policy. Citation: Official Journal of the European Union L series, 12 July 2024.",
+      "parties": [
+        {
+          "uuid": "5b4a3c2d-1e6f-4789-89ab-cdef01234567",
+          "type": "person",
+          "name": "Catalog Maintainer",
+          "remarks": "Set to actual maintainer name during project init."
+        }
+      ],
+      "links": [
+        {
+          "href": "https://eur-lex.europa.eu/eli/reg/2024/1689/oj",
+          "rel": "canonical",
+          "text": "Regulation (EU) 2024/1689 - official consolidated text"
+        },
+        {
+          "href": "https://artificialintelligenceact.eu/",
+          "rel": "reference",
+          "text": "Independent EU AI Act compendium (unofficial reference)"
+        }
+      ]
+    },
+    "groups": [
+      {
+        "id": "title-iii-chapter-1",
+        "class": "chapter",
+        "title": "Title III, Chapter 1 - Classification of AI Systems as High-Risk",
+        "controls": [
+          {
+            "id": "art-6",
+            "class": "article",
+            "title": "Article 6 - Classification rules for high-risk AI systems",
+            "parts": [
+              {
+                "name": "statement",
+                "prose": "An AI system shall be considered to be high-risk where both of the following conditions are fulfilled: (a) the AI system is intended to be used as a safety component of a product, or the AI system is itself a product, covered by the Union harmonisation legislation listed in Annex I; and (b) the product whose safety component is the AI system, or the AI system itself as a product, is required to undergo a third-party conformity assessment with a view to the placing on the market or the putting into service of that product pursuant to the Union harmonisation legislation listed in Annex I. In addition to high-risk AI systems referred to in paragraph 1, AI systems referred to in Annex III shall be considered to be high-risk."
+              }
+            ]
+          },
+          {
+            "id": "art-7",
+            "class": "article",
+            "title": "Article 7 - Amendments to Annex III",
+            "parts": [
+              {
+                "name": "statement",
+                "prose": "The Commission is empowered to adopt delegated acts in accordance with Article 97 to amend Annex III by adding or modifying use-cases of high-risk AI systems where both of the following conditions are fulfilled: (a) the AI systems are intended to be used in any of the areas listed in Annex III; (b) the AI systems pose a risk of harm to the health and safety, or an adverse impact on fundamental rights, that is equivalent to or greater than the risk of harm or of adverse impact posed by the high-risk AI systems already referred to in Annex III."
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "title-iii-chapter-2",
+        "class": "chapter",
+        "title": "Title III, Chapter 2 - Requirements for High-Risk AI Systems",
+        "controls": [
+          {
+            "id": "art-8",
+            "class": "article",
+            "title": "Article 8 - Compliance with the requirements",
+            "parts": [
+              {
+                "name": "statement",
+                "prose": "High-risk AI systems shall comply with the requirements laid down in this Chapter, taking into account their intended purpose as well as the generally acknowledged state of the art on AI and AI-related technologies. The risk management system referred to in Article 9 shall be taken into account when ensuring compliance with those requirements."
+              }
+            ]
+          },
+          {
+            "id": "art-9",
+            "class": "article",
+            "title": "Article 9 - Risk management system",
+            "parts": [
+              {
+                "name": "statement",
+                "prose": "A risk management system shall be established, implemented, documented and maintained in relation to high-risk AI systems. The risk management system shall consist of a continuous iterative process planned and run throughout the entire lifecycle of a high-risk AI system, requiring regular systematic review and updating. It shall comprise the following steps: (a) the identification and analysis of the known and the reasonably foreseeable risks that the high-risk AI system can pose to health, safety or fundamental rights; (b) the estimation and evaluation of the risks that may emerge when the high-risk AI system is used in accordance with its intended purpose and under conditions of reasonably foreseeable misuse; (c) the evaluation of other risks possibly arising, based on the analysis of data gathered from the post-market monitoring system referred to in Article 72; (d) the adoption of appropriate and targeted risk management measures designed to address the risks identified pursuant to point (a)."
+              }
+            ]
+          },
+          {
+            "id": "art-10",
+            "class": "article",
+            "title": "Article 10 - Data and data governance",
+            "parts": [
+              {
+                "name": "statement",
+                "prose": "High-risk AI systems which make use of techniques involving the training of AI models with data shall be developed on the basis of training, validation and testing data sets that meet the quality criteria referred to in paragraphs 2 to 5 whenever such data sets are used. Training, validation and testing data sets shall be subject to data governance and management practices appropriate for the intended purpose of the high-risk AI system. Those practices shall concern in particular: (a) the relevant design choices; (b) data collection processes and the origin of data, and in the case of personal data, the original purpose of the data collection; (c) relevant data-preparation processing operations, such as annotation, labelling, cleaning, updating, enrichment and aggregation; (d) the formulation of assumptions, in particular with respect to the information that the data are supposed to measure and represent; (e) an assessment of the availability, quantity and suitability of the data sets that are needed; (f) examination in view of possible biases that are likely to affect the health and safety of persons, have a negative impact on fundamental rights or lead to discrimination prohibited under Union law; (g) appropriate measures to detect, prevent and mitigate possible biases identified; (h) the identification of relevant data gaps or shortcomings that prevent compliance with this Regulation, and how those gaps and shortcomings can be addressed."
+              }
+            ]
+          },
+          {
+            "id": "art-11",
+            "class": "article",
+            "title": "Article 11 - Technical documentation",
+            "parts": [
+              {
+                "name": "statement",
+                "prose": "The technical documentation of a high-risk AI system shall be drawn up before that system is placed on the market or put into service and shall be kept up-to-date. The technical documentation shall be drawn up in such a way as to demonstrate that the high-risk AI system complies with the requirements set out in this Chapter and to provide national competent authorities and notified bodies with the necessary information in a clear and comprehensive form to assess the compliance of the AI system with those requirements. It shall contain, at a minimum, the elements set out in Annex IV."
+              }
+            ]
+          },
+          {
+            "id": "art-12",
+            "class": "article",
+            "title": "Article 12 - Record-keeping",
+            "parts": [
+              {
+                "name": "statement",
+                "prose": "High-risk AI systems shall technically allow for the automatic recording of events (logs) over the duration of the lifetime of the system. The logging capabilities shall ensure a level of traceability of the AI system's functioning that is appropriate to the intended purpose of the system. In particular, logging capabilities shall enable the recording of events relevant for: (a) the identification of situations that may result in the AI system presenting a risk within the meaning of Article 79(1) or in a substantial modification; (b) the facilitation of the post-market monitoring referred to in Article 72; (c) the monitoring of the operation of high-risk AI systems referred to in Article 26(5)."
+              }
+            ]
+          },
+          {
+            "id": "art-13",
+            "class": "article",
+            "title": "Article 13 - Transparency and provision of information to deployers",
+            "parts": [
+              {
+                "name": "statement",
+                "prose": "High-risk AI systems shall be designed and developed in such a way as to ensure that their operation is sufficiently transparent to enable deployers to interpret a system's output and use it appropriately. An appropriate type and degree of transparency shall be ensured with a view to achieving compliance with the relevant obligations of the provider and deployer set out in Section 3. High-risk AI systems shall be accompanied by instructions for use in an appropriate digital format or otherwise that include concise, complete, correct and clear information that is relevant, accessible and comprehensible to deployers."
+              }
+            ]
+          },
+          {
+            "id": "art-14",
+            "class": "article",
+            "title": "Article 14 - Human oversight",
+            "parts": [
+              {
+                "name": "statement",
+                "prose": "High-risk AI systems shall be designed and developed in such a way, including with appropriate human-machine interface tools, that they can be effectively overseen by natural persons during the period in which they are in use. Human oversight shall aim to prevent or minimise the risks to health, safety or fundamental rights that may emerge when a high-risk AI system is used in accordance with its intended purpose or under conditions of reasonably foreseeable misuse, in particular where such risks persist despite the application of other requirements set out in this Section. The oversight measures shall be commensurate with the risks, level of autonomy and context of use of the high-risk AI system. The natural persons to whom human oversight is assigned shall be enabled, as appropriate and proportionate: (a) to properly understand the relevant capacities and limitations of the high-risk AI system; (b) to remain aware of the possible tendency of automatically relying or over-relying on the output produced by a high-risk AI system; (c) to correctly interpret the high-risk AI system's output; (d) to decide, in any particular situation, not to use the high-risk AI system or to otherwise disregard, override or reverse its output; (e) to intervene in the operation of the high-risk AI system or interrupt the system through a stop button or a similar procedure."
+              }
+            ]
+          },
+          {
+            "id": "art-15",
+            "class": "article",
+            "title": "Article 15 - Accuracy, robustness and cybersecurity",
+            "parts": [
+              {
+                "name": "statement",
+                "prose": "High-risk AI systems shall be designed and developed in such a way that they achieve an appropriate level of accuracy, robustness, and cybersecurity, and that they perform consistently in those respects throughout their lifecycle. The levels of accuracy and the relevant accuracy metrics of high-risk AI systems shall be declared in the accompanying instructions of use. High-risk AI systems shall be as resilient as possible regarding errors, faults or inconsistencies that may occur within the system or the environment in which the system operates, in particular due to their interaction with natural persons or other systems. Technical and organisational measures shall be taken in this regard. High-risk AI systems shall be resilient against attempts by unauthorised third parties to alter their use, outputs or performance by exploiting system vulnerabilities. The technical solutions aimed at ensuring the cybersecurity of high-risk AI systems shall be appropriate to the relevant circumstances and the risks. The technical solutions to address AI-specific vulnerabilities shall include, where appropriate, measures to prevent, detect, respond to, resolve and control for attacks trying to manipulate the training data set (data poisoning), pre-trained components used in training (model poisoning), inputs designed to cause the AI model to make a mistake (adversarial examples or model evasion), confidentiality attacks or model flaws."
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "title-iii-chapter-3-section-2",
+        "class": "section",
+        "title": "Title III, Chapter 3, Section 2 - Obligations of providers and deployers of high-risk AI systems and other parties",
+        "controls": [
+          {
+            "id": "art-16",
+            "class": "article",
+            "title": "Article 16 - Obligations of providers of high-risk AI systems",
+            "parts": [
+              {
+                "name": "statement",
+                "prose": "Providers of high-risk AI systems shall: (a) ensure that their high-risk AI systems are compliant with the requirements set out in Section 2; (b) indicate on the high-risk AI system or, where that is not possible, on its packaging or its accompanying documentation, as applicable, their name, registered trade name or registered trademark, the address at which they can be contacted; (c) have a quality management system in place which complies with Article 17; (d) keep the documentation referred to in Article 18; (e) when under their control, keep the logs automatically generated by their high-risk AI systems as referred to in Article 19; (f) ensure that the high-risk AI system undergoes the relevant conformity assessment procedure as referred to in Article 43, prior to its placing on the market or putting into service; (g) draw up an EU declaration of conformity in accordance with Article 47; (h) affix the CE marking to the high-risk AI system or, where that is not possible, on its packaging or its accompanying documentation, to indicate conformity with this Regulation, in accordance with Article 48; (i) comply with the registration obligations referred to in Article 49(1); (j) take the necessary corrective actions and provide information as required in Article 20; (k) upon a reasoned request of a national competent authority, demonstrate the conformity of the high-risk AI system with the requirements set out in Section 2; (l) ensure that the high-risk AI system complies with accessibility requirements in accordance with Directives (EU) 2016/2102 and (EU) 2019/882."
+              }
+            ]
+          },
+          {
+            "id": "art-17",
+            "class": "article",
+            "title": "Article 17 - Quality management system",
+            "parts": [
+              {
+                "name": "statement",
+                "prose": "Providers of high-risk AI systems shall put a quality management system in place that ensures compliance with this Regulation. That system shall be documented in a systematic and orderly manner in the form of written policies, procedures and instructions, and shall include at least the following aspects: (a) a strategy for regulatory compliance, including compliance with conformity assessment procedures and procedures for the management of modifications to the high-risk AI system; (b) techniques, procedures and systematic actions to be used for the design, design control and design verification of the high-risk AI system; (c) techniques, procedures and systematic actions to be used for the development, quality control and quality assurance of the high-risk AI system; (d) examination, test and validation procedures to be carried out before, during and after the development of the high-risk AI system, and the frequency with which they have to be carried out; (e) technical specifications, including standards, to be applied; (f) systems and procedures for data management; (g) the risk management system referred to in Article 9; (h) the setting-up, implementation and maintenance of a post-market monitoring system, in accordance with Article 72; (i) procedures related to the reporting of a serious incident in accordance with Article 73; (j) the handling of communication with national competent authorities, other relevant authorities, including those providing access to data, notified bodies, other operators, customers or other interested parties; (k) systems and procedures for record-keeping of all relevant documentation and information; (l) resource management, including security-of-supply related measures; (m) an accountability framework setting out the responsibilities of the management and other staff with regard to all the aspects listed in this paragraph."
+              }
+            ]
+          },
+          {
+            "id": "art-18",
+            "class": "article",
+            "title": "Article 18 - Documentation keeping",
+            "parts": [
+              {
+                "name": "statement",
+                "prose": "The provider shall, for a period ending 10 years after the high-risk AI system has been placed on the market or put into service, keep at the disposal of the national competent authorities: (a) the technical documentation referred to in Article 11; (b) the documentation concerning the quality management system referred to in Article 17; (c) the documentation concerning the changes approved by notified bodies, where applicable; (d) the decisions and other documents issued by the notified bodies, where applicable; (e) the EU declaration of conformity referred to in Article 47."
+              }
+            ]
+          },
+          {
+            "id": "art-19",
+            "class": "article",
+            "title": "Article 19 - Automatically generated logs",
+            "parts": [
+              {
+                "name": "statement",
+                "prose": "Providers of high-risk AI systems shall keep the logs referred to in Article 12(1), automatically generated by their high-risk AI systems, to the extent such logs are under their control. Without prejudice to applicable Union or national law, the logs shall be kept for a period appropriate to the intended purpose of the high-risk AI system, of at least six months, unless provided otherwise in the applicable Union or national law, in particular in Union law on the protection of personal data."
+              }
+            ]
+          },
+          {
+            "id": "art-20",
+            "class": "article",
+            "title": "Article 20 - Corrective actions and duty of information",
+            "parts": [
+              {
+                "name": "statement",
+                "prose": "Providers of high-risk AI systems which consider or have reason to consider that a high-risk AI system that they have placed on the market or put into service is not in conformity with this Regulation shall immediately take the necessary corrective actions to bring that system into conformity, to withdraw it, to disable it, or to recall it, as appropriate. They shall inform the distributors of the high-risk AI system concerned and, where applicable, the deployers, the authorised representative and importers accordingly. Where the high-risk AI system presents a risk within the meaning of Article 79(1) and the provider becomes aware of that risk, it shall immediately investigate the causes, in collaboration with the reporting deployer, where applicable, and inform the market surveillance authorities competent for the high-risk AI system concerned."
+              }
+            ]
+          },
+          {
+            "id": "art-25",
+            "class": "article",
+            "title": "Article 25 - Responsibilities along the AI value chain",
+            "parts": [
+              {
+                "name": "statement",
+                "prose": "Any distributor, importer, deployer or other third party shall be considered to be a provider of a high-risk AI system for the purposes of this Regulation and shall be subject to the obligations of the provider under Article 16, in any of the following circumstances: (a) they put their name or trademark on a high-risk AI system already placed on the market or put into service, without prejudice to contractual arrangements stipulating that the obligations are allocated otherwise; (b) they make a substantial modification to a high-risk AI system that has already been placed on the market or has already been put into service in such a way that it remains a high-risk AI system pursuant to Article 6; (c) they modify the intended purpose of an AI system, including a general-purpose AI system, which has not been classified as high-risk and has already been placed on the market or put into service in such a way that the AI system concerned becomes a high-risk AI system in accordance with Article 6."
+              }
+            ]
+          },
+          {
+            "id": "art-26",
+            "class": "article",
+            "title": "Article 26 - Obligations of deployers of high-risk AI systems",
+            "parts": [
+              {
+                "name": "statement",
+                "prose": "Deployers of high-risk AI systems shall take appropriate technical and organisational measures to ensure they use such systems in accordance with the instructions for use accompanying the systems. Deployers shall assign human oversight to natural persons who have the necessary competence, training and authority, as well as the necessary support. Deployers shall ensure that input data is relevant and sufficiently representative in view of the intended purpose of the high-risk AI system, to the extent the deployer exercises control over the input data. Deployers shall monitor the operation of the high-risk AI system on the basis of the instructions for use and, where relevant, inform providers in accordance with Article 72. Where deployers have reason to consider that the use of the high-risk AI system in accordance with the instructions may result in that AI system presenting a risk within the meaning of Article 79(1), they shall, without undue delay, inform the provider or distributor and the relevant market surveillance authority, and shall suspend the use of that system."
+              }
+            ]
+          },
+          {
+            "id": "art-27",
+            "class": "article",
+            "title": "Article 27 - Fundamental rights impact assessment for high-risk AI systems",
+            "parts": [
+              {
+                "name": "statement",
+                "prose": "Prior to deploying a high-risk AI system referred to in Article 6(2), with the exception of high-risk AI systems intended to be used in the area listed in point 2 of Annex III, deployers that are bodies governed by public law, or private entities providing public services, and deployers of high-risk AI systems referred to in points 5(b) and (c) of Annex III, shall perform an assessment of the impact on fundamental rights that the use of such system may produce. For that purpose, deployers shall perform an assessment consisting of: (a) a description of the deployer's processes in which the high-risk AI system will be used in line with its intended purpose; (b) a description of the period of time within which, and the frequency with which, each high-risk AI system is intended to be used; (c) the categories of natural persons and groups likely to be affected by its use in the specific context; (d) the specific risks of harm likely to have an impact on the categories of natural persons or groups of persons identified pursuant to point (c) of this paragraph, taking into account the information given by the provider pursuant to Article 13; (e) a description of the implementation of human oversight measures, according to the instructions for use; (f) the measures to be taken in the case of the materialisation of those risks, including the arrangements for internal governance and complaint mechanisms."
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "back-matter": {
+      "resources": [
+        {
+          "uuid": "6c5b4a3d-2e1f-4567-89ab-cdef01234567",
+          "title": "Regulation (EU) 2024/1689 - official consolidated text",
+          "description": "Official Journal of the European Union version. Authoritative source.",
+          "rlinks": [
+            {
+              "href": "https://eur-lex.europa.eu/eli/reg/2024/1689/oj"
+            }
+          ]
+        },
+        {
+          "uuid": "7d6c5b4a-3e2f-4789-89ab-cdef01234567",
+          "title": "AI Act - independent compendium",
+          "description": "Independent reference site maintained by Future of Life Institute. Useful for navigation but not authoritative.",
+          "rlinks": [
+            {
+              "href": "https://artificialintelligenceact.eu/"
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

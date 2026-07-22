@@ -1,0 +1,38 @@
+id: data-classification.propagation-inheritance
+name: Classification propagates through data flows so that copies, derivations, exports,
+  and caches carry at least the source class
+layer: semantic
+characteristic: security
+severity: medium
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-31'
+  entered_stable: '2026-06-01'
+  authored_by: Myoung Hong
+sources:
+- title: NIST SP 800-60 (the aggregation and propagation of security categories through
+    derived information)
+  url: https://csrc.nist.gov/pubs/sp/800/60/v1/r1/final
+- title: ISO/IEC 27001 information classification (maintaining classification as information
+    is handled, referenced as a concept)
+  url: https://www.iso.org/standard/27001
+applies_to:
+  language: any
+  framework: any
+  environment: any
+references: []
+statement: 'Classification travels with data: a copy, a derived view, an export, a message
+  on a bus, or a cached value carries at least the class of its source, and combinations
+  take the most restrictive input class. A destination that cannot meet a class''s handling
+  requirements does not receive data of that class. Whether a value may be cached in a
+  given tier is this rule''s call; how it is cached is performance-caching''s. The propagation
+  is reviewed when a new copy, derivation, export, or cache of classified data is introduced.'
+rationale: 'A classification scheme that stops at the system of record is a scheme that
+  protects data only until it moves, which is exactly when it is most exposed. The class
+  is a property of the data itself, so it must be inherited by every destination the data
+  reaches, and a destination that cannot honor the class must not receive the data. This
+  rule is the connective tissue of the concern: it keeps data-classification.encryption-per-class and data-classification.access-least-privilege from
+  being bypassed by a copy that drops the class, and it owns the boundary the performance-caching
+  concern points to for what may be cached where. The substrate keeps it at L2 because
+  tracing where data flows and what each destination can protect is a review judgment.'

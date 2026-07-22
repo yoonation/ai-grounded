@@ -1,0 +1,39 @@
+id: performance-caching.stampede-protection
+name: Hot cache keys are protected against a stampede so that a simultaneous miss does
+  not collapse a herd of identical requests onto the source of record
+layer: semantic
+characteristic: performance-efficiency
+severity: high
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-31'
+  entered_stable: '2026-06-01'
+  authored_by: Myoung Hong
+sources:
+- title: Cache stampede (the thundering-herd problem on expiry and the locking, coalescing,
+    and probabilistic mitigations)
+  url: https://en.wikipedia.org/wiki/Cache_stampede
+- title: AWS Builders' Library caching challenges and strategies (stampede and the request-coalescing
+    mitigation)
+  url: https://aws.amazon.com/builders-library/caching-challenges-and-strategies/
+applies_to:
+  language: any
+  framework: any
+  environment: any
+references: []
+statement: A cache key identified as hot and expensive to recompute is protected against
+  a stampede so that a simultaneous miss by many requests does not collapse identical
+  recomputations onto the source of record. The mitigation (a per-key recomputation lock
+  or single-flight, request coalescing, probabilistic early recomputation, or stale-while-revalidate)
+  is matched to the recomputation cost and the staleness tolerance. The need is reviewed
+  when a hot, expensive key is introduced or a key's traffic grows.
+rationale: 'The cache absorbs load by serving a value many times for each time it is computed,
+  so the dangerous moment is the instant that value is absent and every waiting request
+  tries to compute it at once. Without protection, the cache turns a steady source load
+  into a periodic spike synchronized to the expiry, and the spike is worst for the hottest
+  keys. The substrate requires that hot expensive keys carry an explicit mitigation rather
+  than relying on luck that misses will not coincide. The choice among mitigations is
+  a judgment: a lock serializes recomputation, coalescing shares one result, probabilistic
+  early expiry spreads recomputation before the cliff, and stale-while-revalidate trades
+  brief staleness for no spike at all.'

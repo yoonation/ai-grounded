@@ -1,0 +1,54 @@
+id: authorization.authorization-model-selection
+name: Authorization model selection (RBAC versus ABAC versus ReBAC versus hybrid) is explicitly
+  decided and documented via the substrate's MADR framework
+layer: judgmental
+characteristic: security
+severity: critical
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-22'
+  entered_stable: '2026-05-26'
+  authored_by: Myoung Hong
+sources:
+- title: OWASP ASVS v5.0.0 V8 (Access Control architectural decisions)
+  url: https://github.com/OWASP/ASVS/blob/v5.0.0/5.0/en/0x17-V8-Authorization.md
+- title: NIST SP 800-162 Guide to Attribute Based Access Control (ABAC) Definition and
+    Considerations
+  url: https://csrc.nist.gov/publications/detail/sp/800-162/final
+- title: NIST SP 800-53 AC-3(7) Role-Based Access Control, AC-3(8) Discretionary Access
+    Control, AC-3(13) Attribute-Based Access Control
+  url: https://csrc.nist.gov/projects/cprt/catalog#/cprt/framework/version/SP_800_53_5_1_1/home
+applies_to:
+  language: any
+  framework: any
+  environment: any-with-authorization
+references: []
+statement: 'Applications subject to this rule have an explicitly documented decision on
+  their authorization model. The decision is recorded in a MADR document following the
+  substrate''s decision-framework template (see decision-framework link). The MADR is
+  stored in the application''s decision-record location (substrate-recommended: /docs/decisions/ADR-XXX-authorization-model.md)
+  and is referenced from the application''s architectural documentation. The MADR addresses
+  every section the substrate''s template requires; deviations from substrate-recommended
+  choices are explicitly justified.'
+rationale: 'The authorization model choice is the structural decision that propagates
+  through every authz-related code path. RBAC encodes "the principal has a role; the role
+  grants permissions; the permissions allow actions." ABAC encodes "the principal''s attributes,
+  evaluated against the resource''s attributes and the environmental attributes, evaluate
+  to a decision under a policy expression." ReBAC encodes "the principal stands in a documented
+  relationship to the resource; the relationship grants actions per a graph of permissions."
+  Each model fits some applications well and others poorly. RBAC fits applications where
+  user populations divide cleanly into job functions with stable permission grants. ABAC
+  fits applications where authorization depends on context that varies per request (department,
+  clearance level, time of day, request origin). ReBAC fits applications where the authorization
+  graph is the dominant structure (file sharing, social-graph access, document collaboration).
+  Hybrid composition fits applications whose authorization concerns span multiple patterns.
+  The wrong-model failure mode is consistent: authorization code that fights the chosen
+  model accretes complexity. RBAC encoding of attribute-based requirements produces explosive
+  role proliferation (one role per attribute combination). ABAC encoding of simple role
+  requirements produces policy expressions that replicate what a role lookup would have
+  expressed in one line. ReBAC encoding of role-based access produces relationship graphs
+  that flatten back into roles. The substrate''s stance: make the choice deliberately.
+  The MADR captures the deliberation. The choice does not commit the application forever
+  (models can evolve), but the choice does commit the application''s near-term authorization
+  surface to the chosen model''s idioms.'

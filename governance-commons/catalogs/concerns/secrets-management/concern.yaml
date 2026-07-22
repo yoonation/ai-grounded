@@ -1,0 +1,10 @@
+id: secrets-management
+name: Secrets Management
+characteristic: security
+status: stable
+summary: >
+  How secret material is protected: secrets kept out of source, logs, and
+  telemetry; runtime retrieval from a dedicated secrets platform;
+  encryption at rest with a separately-managed key; least-privilege access
+  per consumer; a rotation policy on a documented schedule; sensitive
+  files gitignored; and a recorded platform selection.

@@ -1,0 +1,47 @@
+id: observability.trace-context-propagation
+name: Outbound HTTP and gRPC calls in instrumented services propagate W3C trace context
+  (traceparent header or equivalent) so that downstream spans attach to the correct trace
+layer: semantic
+characteristic: maintainability
+severity: high
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-21'
+  entered_stable: '2026-05-22'
+  authored_by: Myoung Hong
+sources:
+- title: W3C Trace Context Recommendation (traceparent header format and propagation requirements)
+  url: https://www.w3.org/TR/trace-context/
+- title: 'OpenTelemetry Specification: API Propagators (propagator API and inject/extract
+    semantics)'
+  url: https://opentelemetry.io/docs/specs/otel/context/api-propagators/
+- title: 'OpenTelemetry: Instrumenting Libraries (auto-instrumentation and manual propagation
+    patterns)'
+  url: https://opentelemetry.io/docs/concepts/instrumentation/libraries/
+applies_to:
+  language: any
+  framework: any
+  environment: any-production
+references: []
+statement: Outbound HTTP and gRPC calls from instrumented services propagate the active
+  OpenTelemetry context to the downstream service. Propagation occurs through W3C Trace
+  Context headers (traceparent and tracestate) for HTTP, through gRPC metadata for gRPC,
+  and through explicit propagator.inject calls for any transport where auto-instrumentation
+  is unavailable. Calls that construct request objects manually without invoking a propagator
+  inject step are detected and flagged. The instrumentation entrypoint (HTTPClient wrapper,
+  gRPC interceptor) is the substrate-recommended attachment point; per-call manual propagation
+  is substrate-acceptable when consistent.
+rationale: 'Distributed tracing has value only when traces survive across service boundaries.
+  A service that emits spans locally but does not propagate context to its callees produces
+  trace fragments: each service appears as a root span, no causal chain reconstructs the
+  request flow. During incident investigation operators expect to follow a slow request
+  from ingress through every downstream call; fragmented traces force the operator to
+  manually correlate by timestamp and customer identifier, which is slow and error-prone.
+  The substrate-recommended instrumentation pattern is automatic: language-specific OpenTelemetry
+  instrumentation packages (opentelemetry-instrumentation-requests, opentelemetry-instrumentation-httpx,
+  opentelemetry-instrumentation-aiohttp, equivalents across languages) wrap the most-used
+  client libraries so context propagation is automatic. Manual propagation is reserved
+  for: custom transports not covered by auto-instrumentation; integrations where wrapping
+  is impractical (a legacy HTTP client passed across an internal abstraction boundary);
+  cases where the propagation point is structurally separate from the call site.'

@@ -1,0 +1,334 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Myoung Hong
+
+
+# Cloud scaling failure modes
+# Recurring ways that code interacting with managed cloud services works at low
+# volume and fails at scale, because the service's scaling model has sharp
+# edges that are invisible until load arrives. Examples lean on AWS naming
+# because that is where they are most documented, but the shapes generalize to
+# other providers. These are anti-patterns to detect in review, siblings of the
+# code-smells catalog rather than principles. Descriptions here are
+# substrate-original paraphrase of public guidance; no source text is
+# reproduced. Consult while reviewing code that calls managed storage,
+# serverless, or database services.
+
+metadata:
+  catalog_id: cloud-scaling-failure-modes
+  catalog_name: Cloud Scaling Failure Modes
+  schema_version: 1.0.0
+  category_system: cloud-anti-pattern
+  upstream_source: https://en.wikipedia.org/wiki/Cloud_computing
+  last_reviewed: 2026-07-03
+  next_review_due: 2027-07-03
+  maintainer: <set-during-init>
+  review_protocol: governance-commons/MAINTENANCE.md
+
+patterns:
+
+  - id: CSF-HOT-KEY-PARTITION
+    name: Low-cardinality partition key (hot partition)
+    category: cloud-anti-pattern
+    intent: >
+      A key-value or wide-column store distributes load by partition key. A
+      key with few distinct values, or one dominated by a single value,
+      concentrates traffic on one partition while the rest sit idle.
+    consequences: >
+      The hot partition throttles under load even though provisioned capacity
+      looks adequate in aggregate; throughput stalls and tail latency spikes.
+    avoid_when: >
+      Choosing a low-cardinality or monotonically skewed partition key. Pick a
+      high-cardinality key that spreads access evenly, or add a sharding suffix
+      to fan a hot key across partitions.
+
+  - id: CSF-SEQUENTIAL-OBJECT-PREFIX
+    name: Sequential object-key prefix
+    category: cloud-anti-pattern
+    intent: >
+      Some object stores historically scaled request rate by key prefix.
+      Monotonic prefixes (a timestamp or incrementing id at the front of the
+      key) funnel writes into one prefix range.
+    consequences: >
+      Request rate concentrates on a narrow prefix and throttles, where a
+      distributed prefix would have scaled out.
+    avoid_when: >
+      Putting a sequential value at the start of the key. Lead with a
+      high-entropy component (a hash prefix) so keys spread across the keyspace.
+
+  - id: CSF-DEEP-SYNCHRONOUS-CHAINING
+    name: Deep synchronous function chaining
+    category: cloud-anti-pattern
+    intent: >
+      One serverless function synchronously invokes the next, which invokes the
+      next, building a deep call chain where each layer blocks waiting on the
+      one below.
+    consequences: >
+      Latency and cost stack at every hop, timeouts compound, and a failure
+      deep in the chain is hard to isolate or retry. Concurrency limits
+      multiply across layers.
+    avoid_when: >
+      Chaining functions synchronously for a multi-step workflow. Use an
+      orchestrator or a queue between steps so stages decouple, retry
+      independently, and scale on their own.
+    applies_pattern_to: >
+      reliability concern: failure-isolation, tracked-async-tasks.
+
+  - id: CSF-UNBATCHED-PER-ITEM-CALLS
+    name: Unbatched per-item service calls
+    category: cloud-anti-pattern
+    intent: >
+      Calling a managed service once per item in a loop, or exceeding a batch
+      operation's size limit and silently dropping the remainder, instead of
+      using the service's batch interface within its limits.
+    consequences: >
+      Per-call overhead and request-rate limits dominate; throughput collapses
+      and cost climbs, or items are quietly lost when a batch exceeds the cap.
+    avoid_when: >
+      Looping single-item calls where a batch API exists. Batch within the
+      documented limit, handle partial-batch failures explicitly, and check
+      the unprocessed-items response.
+
+  - id: CSF-CONNECTION-PER-REQUEST
+    name: Connection per request to a managed database
+    category: cloud-anti-pattern
+    intent: >
+      Opening a fresh database connection on each request or each function
+      invocation rather than reusing a pool, against a managed database with a
+      finite connection ceiling.
+    consequences: >
+      Connection establishment overhead dominates latency, and a burst of
+      concurrent invocations exhausts the connection limit, failing requests
+      that the database could otherwise have served.
+    avoid_when: >
+      Connecting per request from a high-concurrency or serverless caller. Use
+      a connection pool or a managed proxy that multiplexes connections.
+    applies_pattern_to: >
+      reliability concern: bounded-buffers.
+
+  - id: CSF-RETRY-STORM
+    name: Retry storm and thundering herd
+    category: cloud-anti-pattern
+    intent: >
+      Many clients retrying a throttled or failed dependency at the same fixed
+      interval, or all reconnecting at once after an outage, amplifying load
+      precisely when the dependency is weakest.
+    consequences: >
+      Retries become a self-inflicted denial of service that prevents recovery;
+      a brief blip turns into a sustained outage.
+    avoid_when: >
+      Retrying on a fixed schedule without jitter, or without a cap and circuit
+      breaker. Use exponential backoff with jitter, a retry budget, and a
+      breaker that stops hammering a failing dependency.
+    applies_pattern_to: >
+      reliability concern: failure-isolation, graceful-degradation.
+
+  - id: CSF-UNBOUNDED-FANOUT
+    name: Unbounded fan-out
+    category: cloud-anti-pattern
+    intent: >
+      A single event or request triggers an unbounded number of downstream
+      calls or messages (one per record in a growing dataset), with no cap on
+      concurrency or total work.
+    consequences: >
+      Downstream services and queues are overwhelmed in proportion to data
+      that only grows; cost and load have no ceiling and scale with the worst
+      input rather than a budget.
+    avoid_when: >
+      Fanning out one-per-record without a concurrency limit or a budget. Bound
+      the fan-out, page the work, and apply backpressure so producers slow when
+      consumers fall behind.
+    applies_pattern_to: >
+      cost-model-selection concern; reliability concern: bounded-buffers.
+
+  - id: CSF-COLD-START-LATENCY
+    name: Cold start on on-demand compute or database
+    category: cloud-anti-pattern
+    intent: >
+      On-demand serverless compute and auto-pausing serverless databases spin
+      resources down when idle. The first request after idle, or a burst that
+      outruns warm capacity, pays initialization cost (AWS exemplars: Lambda
+      cold starts, Aurora Serverless resume-from-pause).
+    consequences: >
+      User-visible latency spikes exactly on the requests that arrive after
+      quiet periods or at the front of a burst; p99 latency diverges sharply
+      from p50 and SLOs fail on traffic edges.
+    avoid_when: >
+      Serving latency-sensitive paths from cold-startable resources without
+      mitigation. Keep a floor of pre-warmed capacity (provisioned
+      concurrency, minimum capacity units) on latency-sensitive paths, or
+      route them to always-on compute.
+
+  - id: CSF-CONCURRENCY-CEILING
+    name: Implicit platform concurrency ceiling
+    category: cloud-anti-pattern
+    intent: >
+      Serverless platforms cap concurrent executions per account or region
+      (AWS exemplar: the default Lambda concurrent-execution limit). Code that
+      assumes unbounded parallelism hits the ceiling under burst.
+    consequences: >
+      Invocations throttle or queue at the platform limit; one bursty workload
+      starves every other function sharing the account-level pool.
+    avoid_when: >
+      Deploying burst-prone workloads without checking the platform's
+      concurrency model. Reserve per-function concurrency for critical paths,
+      request limit raises ahead of need, and load-shed or queue above the
+      ceiling.
+
+  - id: CSF-EXECUTION-TIME-CEILING
+    name: Long-running work on time-capped compute
+    category: cloud-anti-pattern
+    intent: >
+      Serverless functions enforce a hard maximum execution time (AWS
+      exemplar: the 15-minute Lambda cap). Jobs whose duration grows with data
+      volume eventually cross it.
+    consequences: >
+      Work is killed mid-run at the cap; partial side effects are left behind
+      and the job fails only at scale, after working in every small test.
+    avoid_when: >
+      Placing batch or data-proportional work on time-capped compute. Move
+      long jobs to unbounded compute, or checkpoint and chunk the work so each
+      unit fits well inside the cap.
+
+  - id: CSF-MISSING-INGRESS-THROTTLE
+    name: Unset ingress throttle at the API edge
+    category: cloud-anti-pattern
+    intent: >
+      Managed API gateways support per-route throttles and quotas but do not
+      require them (AWS exemplar: API Gateway route throttling). Routes
+      deployed without limits pass every burst straight through.
+    consequences: >
+      A traffic spike or misbehaving client saturates the backend at full
+      force; failures cascade downstream instead of being shaped at the edge.
+    avoid_when: >
+      Shipping public or shared routes without explicit rate limits. Set
+      per-route throttles and quotas as part of the route's definition, sized
+      from downstream capacity.
+
+  - id: CSF-CAPACITY-MODE-MISMATCH
+    name: Capacity mode mismatched to traffic shape
+    category: cloud-anti-pattern
+    intent: >
+      Managed databases offer provisioned capacity (cheap for steady load,
+      throttles above the line) and on-demand (absorbs spikes, costs more per
+      request) (AWS exemplar: DynamoDB provisioned vs on-demand). Choosing by
+      default rather than by traffic shape mismatches the model.
+    consequences: >
+      Spiky traffic on provisioned capacity throttles at the worst moment;
+      steady traffic on on-demand pays a multiple of the provisioned price.
+    avoid_when: >
+      Picking a capacity mode without looking at the traffic profile. Match
+      the mode to the measured shape and revisit as the shape changes;
+      autoscaled provisioned capacity still needs headroom for step bursts.
+
+  - id: CSF-AUTOSCALER-REACTION-LAG
+    name: Autoscaler reaction lag versus burst speed
+    category: cloud-anti-pattern
+    intent: >
+      Horizontal autoscalers observe, decide, and then provision; node
+      provisioning takes minutes and scale-out policies have cooldowns (AWS
+      exemplars: EKS HPA cooldowns, cluster-autoscaler node lead time). Bursts
+      faster than the reaction loop outrun it.
+    consequences: >
+      The burst is over, or the error budget spent, before capacity arrives;
+      autoscaling gives a false sense of elasticity for fast-onset load.
+    avoid_when: >
+      Relying on reactive autoscaling for known or fast-onset bursts.
+      Pre-scale ahead of predictable peaks, keep warm headroom sized to the
+      burst slope, and load-shed while capacity catches up.
+
+  - id: CSF-TELEMETRY-VOLUME-COST
+    name: Unbounded telemetry volume and cardinality
+    category: cloud-anti-pattern
+    intent: >
+      Managed logging and metrics services meter ingestion and charge by
+      volume and cardinality (AWS exemplar: CloudWatch Logs ingestion limits
+      and pricing). Log lines per request and high-cardinality structured
+      fields multiply with traffic.
+    consequences: >
+      Telemetry cost grows superlinearly with load, ingestion throttles drop
+      data during incidents (exactly when it is needed), and noisy logs bury
+      the signal.
+    avoid_when: >
+      Logging per-item detail or high-cardinality labels on hot paths.
+      Sample, aggregate, and cap cardinality; budget telemetry per request
+      the way latency is budgeted.
+
+  - id: CSF-DELAYED-METRICS-FEEDBACK
+    name: Control decisions on delayed metrics
+    category: cloud-anti-pattern
+    intent: >
+      Managed metrics pipelines deliver datapoints with a lag, often a minute
+      or more (AWS exemplar: CloudWatch metric latency). Alarms, autoscaling,
+      and dashboards built on them see the past, not the present.
+    consequences: >
+      Control loops react late and overshoot or oscillate; operators diagnose
+      incidents against a picture that trails reality.
+    avoid_when: >
+      Driving tight control loops or incident response from delayed metrics
+      alone. Account for the lag in alarm and scaling design, and use direct
+      signals (queue depth, in-flight counts) where the loop must be fast.
+
+  - id: CSF-CONNECTION-DRAIN-DEPLOY-STALL
+    name: Long-lived connections stall deploys and drains
+    category: cloud-anti-pattern
+    intent: >
+      Load balancers wait for in-flight work up to a draining timeout before
+      releasing a target (AWS exemplar: ELB connection draining). Long-lived
+      connections (streaming, websockets, slow requests) hold targets to the
+      full timeout.
+    consequences: >
+      Rollouts and scale-in crawl at the drain timeout per batch; shortening
+      the timeout instead cuts live connections mid-flight.
+    avoid_when: >
+      Serving long-lived connections without a deploy story. Bound connection
+      lifetimes, support reconnect, and size drain timeouts and rollout
+      batches together.
+
+  - id: CSF-NETWORK-PATH-BANDWIDTH-CEILING
+    name: Hidden bandwidth ceiling on a network path
+    category: cloud-anti-pattern
+    intent: >
+      Managed network components carry per-component bandwidth ceilings that
+      do not show up in application configuration (AWS exemplars: NAT gateway
+      throughput, inter-VPC peering limits). Egress-heavy or cross-network
+      traffic concentrates on them.
+    consequences: >
+      Throughput plateaus at the hidden ceiling while every service-level
+      metric looks healthy; the bottleneck is found only by tracing the
+      network path.
+    avoid_when: >
+      Routing high-volume flows through shared network chokepoints unexamined.
+      Identify the bandwidth ceiling of every hop on the hot path, spread load
+      across gateways or endpoints, and keep bulk transfer off shared NAT.
+
+  - id: CSF-CONTROL-PLANE-RATE-LIMIT
+    name: Control-plane calls on the data path
+    category: cloud-anti-pattern
+    intent: >
+      Identity, secrets, and key-management services are control-plane
+      services with strict rate limits (AWS exemplars: STS AssumeRole, Secrets
+      Manager, KMS request limits). Calling them per request puts a
+      control-plane limit on the data path's throughput.
+    consequences: >
+      The data path throttles at the control-plane limit long before compute
+      or storage saturates; retries against the limit make it worse.
+    avoid_when: >
+      Fetching credentials, secrets, or per-item crypto on every request.
+      Cache tokens and secrets with sensible TTLs, use envelope encryption
+      with data keys, and keep control-plane calls off hot loops.
+
+  - id: CSF-PER-ITEM-CRYPTO-CALLS
+    name: Per-item calls to a managed crypto service
+    category: cloud-anti-pattern
+    intent: >
+      Encrypting or decrypting each record with a direct call to the managed
+      key service inside a loop (AWS exemplar: KMS encrypt/decrypt per item)
+      rather than using data-key envelope encryption.
+    consequences: >
+      Throughput caps at the key service's rate limit and cost scales with
+      record count; batch jobs stall on a service designed for key
+      operations, not bulk data.
+    avoid_when: >
+      Looping direct key-service calls over records. Generate a data key
+      once, encrypt records locally with it, and store the wrapped key
+      alongside the data.

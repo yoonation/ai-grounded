@@ -1,0 +1,53 @@
+# Build artifacts and caches
+dist/
+build/
+coverage/
+.cache/
+__pycache__/
+*.pyc
+*.pyo
+
+# Dependencies
+node_modules/
+.venv/
+venv/
+
+# Terraform state and providers (large, sensitive)
+*.tfstate
+*.tfstate.backup
+.terraform/
+
+# Lock files (large, rarely useful for context)
+*.lock
+package-lock.json
+yarn.lock
+
+# Credentials (should never be read into context)
+.env
+.env.*
+*.pem
+*.key
+*.p12
+credentials/
+secrets.json
+
+# OS and editor files
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Git internals
+.git/
+
+# Large generated files
+*.min.js
+*.min.css
+*.map
+*.wasm
+
+# Container and image files
+*.tar
+*.gz
+*.zip

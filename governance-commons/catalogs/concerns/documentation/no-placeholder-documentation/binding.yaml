@@ -1,0 +1,3 @@
+binding_status: capability-bound
+rule: documentation.no-placeholder-documentation
+gate: lint

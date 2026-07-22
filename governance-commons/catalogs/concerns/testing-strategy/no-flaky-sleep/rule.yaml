@@ -1,0 +1,44 @@
+id: testing-strategy.no-flaky-sleep
+name: Tests do not use unconditional time-based sleeps for synchronization
+layer: mechanical
+characteristic: functional-suitability
+severity: medium
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-25'
+  entered_stable: '2026-05-26'
+  authored_by: Myoung Hong
+sources:
+- title: OWASP ASVS v5.0.0 V14.1 (test reliability is a substrate requirement; flaky tests
+    undermine the evidence-of-control basis)
+  url: https://github.com/OWASP/ASVS/blob/v5.0.0/5.0/en/0x22-V14-Config.md
+- title: CWE-1006 Bad Coding Practices (timing-based test synchronization is a known anti-pattern)
+  url: https://cwe.mitre.org/data/definitions/1006.html
+cwe:
+- CWE-1006
+applies_to:
+  language: any
+  framework: any-testing-framework
+  environment: any
+references: []
+statement: 'Test functions do not contain unconditional time-based sleep calls (Python
+  `time.sleep`, `asyncio. sleep` for non-await-coordinated waits; Java `Thread.sleep`,
+  `TimeUnit.sleep`; JavaScript bare `setTimeout` for synchronization rather than deferral;
+  Go `time.Sleep`; Ruby `sleep`; C# `Thread.Sleep`, `Task.Delay` for synchronization).
+  When a test must wait for an asynchronous condition, it uses an explicit waiter helper:
+  framework primitives (Jest''s `waitFor`, Vitest''s `vi.waitFor`, Awaitility''s `await().atMost`,
+  RSpec''s `eventually` custom matchers), polling helpers with timeout bounds, or event-driven
+  completion signals (futures, promises, channels) rather than fixed-interval sleeps.'
+rationale: Time-based sleeps in tests are flakiness factories. The author picks an interval
+  that works on their machine; CI machines are slower or under contention; the test passes
+  on the author's branch and fails intermittently in main. The team rebuilds confidence
+  in the suite by reruns rather than by fixing the synchronization; over time, "rerun
+  until green" culture takes hold and the test suite loses its signal value. The substrate-preferred
+  pattern is to express the actual synchronization condition explicitly. If the test waits
+  for a queue to drain, it polls the queue's size until the timeout. If the test waits
+  for a background job to complete, it observes the job's completion signal. If the test
+  waits for an HTTP callback, it awaits the framework's request mock. The rule operates
+  at L1 because sleep calls are directly detectable. The complementary L2 rule testing-strategy.deterministic-execution
+  covers the broader determinism surface where sleeps are only one of several flakiness
+  vectors.

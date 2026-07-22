@@ -1,0 +1,25 @@
+# Gitleaks configuration for the governance-commons substrate.
+# Extends the built-in gitleaks ruleset (all default secret detectors stay ON)
+# and allowlists ONLY the substrate's intentional demonstration content.
+#
+# Why this allowlist exists: governance-commons is a security-education library.
+# Its example files (good.md and anti-pattern.md under examples/ folders) contain
+# fake, illustrative credentials on purpose, to teach what good and bad code look
+# like. Those are not real secrets. Without this allowlist, gitleaks flags them and
+# blocks every commit that touches example content.
+#
+# Scope is deliberately narrow: only example directories inside governance-commons
+# are allowlisted. Real source, config, bindings, and rule definitions are still
+# fully scanned. A genuine secret placed outside an examples/ folder is still caught.
+
+title = "governance-commons gitleaks config"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Substrate demonstration content: example and anti-pattern files carry intentional fake secrets to teach patterns."
+paths = [
+  '''governance-commons/catalogs/concerns/[^/]+/[^/]+/examples/.*''',
+  '''governance-commons/examples/.*''',
+]

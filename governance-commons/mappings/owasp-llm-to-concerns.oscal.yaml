@@ -1,0 +1,387 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Myoung Hong
+
+# OWASP Top 10 for Large Language Model Applications (2025) to
+# substrate concern rules.
+#
+# Source taxonomy: governance-commons/catalogs/threats/owasp-llm-top10.yaml
+# Target catalogs: substrate concern catalogs at
+# governance-commons/catalogs/concerns/ (umbrella "concerns";
+# qualified rule IDs in target-rule provide specific references).
+#
+# Dominant relation type is "addressed-by" since OWASP risks are
+# threats and substrate concern rules are controls. Coverage gaps
+# (OWASP risks not addressed by current substrate L1 rules) are
+# recorded explicitly.
+
+mapping:
+  uuid: "8de2278f-897a-437c-b761-6ad8466e8a13"
+
+  metadata:
+    title: "OWASP LLM Top 10 to Substrate Concerns"
+    version: "1.0.0"
+    last-modified: "2026-05-30T00:00:00Z"
+
+    props:
+      - name: mapping-id
+        ns: governance-commons
+        value: "owasp-llm-to-concerns"
+      - name: lifecycle-status
+        ns: governance-commons
+        value: stable
+      - name: commons-version
+        ns: governance-commons
+        value: "0.6.0"
+      - name: entered-draft-at
+        ns: governance-commons
+        value: "2026-05-28"
+      - name: entered-stable-at
+        ns: governance-commons
+        value: "2026-05-30"
+      - name: reviewer
+        ns: governance-commons
+        value: "myoung-self-attested"
+      - name: reviewed
+        ns: governance-commons
+        value: "2026-05-30"
+      - name: attestation-mechanism
+        ns: governance-commons
+        value: "Charter Section 2.4.1 solo-author attestation; M3 close Path A consolidation"
+        remarks: >
+          Attested under Charter Section 2.4.1 (solo-author
+          attestation) on 2026-05-30. Cooling-off interval honored:
+          mapping drafted 2026-05-28 (M3 Session 2a), attested
+          2026-05-30 (subsequent calendar day or later per Section
+          2.4.1 minimum-interval-one-calendar-day rule). Section 2.4
+          validation criteria applied: relation rationales are
+          defensible; coverage-gap records are honest; target-rule
+          references resolve to live substrate-rule IDs; no relation
+          duplicates another mapping's claim. Promotion executed as
+          part of the M3 close Path A consolidation (1 spec doc + 4
+          mappings + 3 schemas all promoted in one consolidation
+          event).
+      - name: ai-assistance
+        ns: governance-commons
+        value: drafted-and-reviewed
+      - name: ai-assistance-detail
+        ns: governance-commons
+        value: >
+          AI drafted as the first M3 Session 2a mapping. Each OWASP
+          LLM Top 10 risk mapped to substrate concern rules that
+          materially address the risk per the OWASP risk
+          description and the substrate concern catalog content.
+          Substrate-author review required for stable promotion
+          per Charter Section 2.4.1 attestation discipline.
+
+    source-catalog:
+      catalog-id: "owasp-llm-top10"
+      catalog-version: "2025"
+      href: "../catalogs/threats/owasp-llm-top10.yaml"
+
+    target-catalog:
+      catalog-id: "concerns"
+      catalog-version: "0.6.0"
+      href: "../catalogs/concerns/"
+
+    methodology: >
+      For each OWASP LLM Top 10 risk, the substrate-author
+      identified substrate concern rules whose intent materially
+      addresses the threat described by the risk. "Materially
+      addresses" means: applying the rule reduces the likelihood
+      or impact of the threat, or provides detection capability
+      for the threat, in a way that a consumer relying on the
+      substrate could reasonably claim governance coverage of the
+      threat. Coverage is partial where the rule mitigates one
+      dimension of the threat but not all; partial-coverage
+      relations use the coverage-dimension field to record which
+      dimension. Relation type "addressed-by" is used for the
+      dominant pattern (substrate rule addresses OWASP risk).
+
+  relations:
+
+    - id: "LLM01-addressed-by-no-shell-injection"
+      source-rule: "LLM01"
+      target-rule: "input-validation.no-shell-injection"
+      relation-type: addressed-by
+      rationale: >
+        input-validation.no-shell-injection (no shell injection) defends against the
+        injection pattern where attacker-controlled input
+        terminates the intended instruction context. The same
+        defense pattern applies to prompt injection: separating
+        instruction context from data context prevents the
+        attacker's data from being interpreted as instructions.
+      coverage-dimension: "injection-context-separation"
+
+    - id: "LLM01-addressed-by-contextual-output-encoding"
+      source-rule: "LLM01"
+      target-rule: "input-validation.contextual-output-encoding"
+      relation-type: addressed-by
+      rationale: >
+        input-validation.contextual-output-encoding (contextual output encoding) addresses the
+        case where an LLM's output is subsequently rendered or
+        executed in another context; encoding prevents injection
+        into that downstream context.
+      coverage-dimension: "downstream-context-encoding"
+
+    - id: "LLM01-addressed-by-no-client-side-only-authz"
+      source-rule: "LLM01"
+      target-rule: "authorization.no-client-side-only-authz"
+      relation-type: addressed-by
+      rationale: >
+        authorization.no-client-side-only-authz (no client-side-only authorization) blocks
+        the prompt-injection attack pattern where the attacker
+        convinces the LLM to bypass client-side guards. Server-
+        side authorization re-verification defeats this pattern
+        regardless of LLM compromise.
+      coverage-dimension: "post-injection-privilege-bound"
+
+    - id: "LLM02-addressed-by-no-sensitive-data-in-logs"
+      source-rule: "LLM02"
+      target-rule: "logging.no-sensitive-data-in-logs"
+      relation-type: addressed-by
+      rationale: >
+        logging.no-sensitive-data-in-logs (no sensitive data in logs) prevents the
+        common LLM disclosure path where sensitive data consumed
+        by the LLM is then echoed into logs. Removing the
+        log-emission step removes the disclosure surface.
+
+    - id: "LLM02-addressed-by-no-secrets-in-source"
+      source-rule: "LLM02"
+      target-rule: "secrets-management.no-secrets-in-source"
+      relation-type: addressed-by
+      rationale: >
+        secrets-management.no-secrets-in-source (no secrets in source) prevents the
+        LLM-training-data and LLM-context-window disclosure path
+        where secrets are embedded in source code that the LLM
+        has access to.
+
+    - id: "LLM02-addressed-by-no-sensitive-data-in-telemetry"
+      source-rule: "LLM02"
+      target-rule: "observability.no-sensitive-data-in-telemetry"
+      relation-type: addressed-by
+      rationale: >
+        observability.no-sensitive-data-in-telemetry (no sensitive data in telemetry) prevents the
+        LLM disclosure path where telemetry captures LLM inputs
+        or outputs containing sensitive data.
+      coverage-dimension: "telemetry-disclosure-path"
+
+    - id: "LLM03-addressed-by-slsa-provenance-verification"
+      source-rule: "LLM03"
+      target-rule: "supply-chain.slsa-provenance-verification"
+      relation-type: addressed-by
+      rationale: >
+        supply-chain.slsa-provenance-verification (SLSA provenance verification) addresses
+        the LLM supply-chain risk of compromised model artifacts,
+        fine-tuning datasets, and adapter weights by requiring
+        provenance attestation for build inputs.
+
+    - id: "LLM03-addressed-by-signature-verification"
+      source-rule: "LLM03"
+      target-rule: "supply-chain.signature-verification"
+      relation-type: addressed-by
+      rationale: >
+        supply-chain.signature-verification (signature verification) addresses the
+        supply-chain risk of tampered LLM artifacts by requiring
+        cryptographic signature verification of downloaded models
+        and supporting artifacts.
+
+    - id: "LLM03-addressed-by-vulnerable-dependencies"
+      source-rule: "LLM03"
+      target-rule: "dependency-management.vulnerable-dependencies"
+      relation-type: addressed-by
+      rationale: >
+        dependency-management.vulnerable-dependencies (vulnerable dependencies) addresses the
+        upstream-dependency dimension of LLM supply chain risk
+        where compromised dependencies in the LLM serving stack
+        create attack surface.
+      coverage-dimension: "upstream-dependencies"
+
+    - id: "LLM04-addressed-by-sbom-presence-and-validity"
+      source-rule: "LLM04"
+      target-rule: "supply-chain.sbom-presence-and-validity"
+      relation-type: addressed-by
+      rationale: >
+        supply-chain.sbom-presence-and-validity (SBOM presence and validity) addresses the
+        poisoning risk by establishing material provenance for
+        training data and model artifacts; without SBOM,
+        consumers cannot detect introduction of poisoned
+        materials.
+
+    - id: "LLM04-addressed-by-no-unsafe-deserialization"
+      source-rule: "LLM04"
+      target-rule: "input-validation.no-unsafe-deserialization"
+      relation-type: addressed-by
+      rationale: >
+        input-validation.no-unsafe-deserialization (no unsafe deserialization) addresses the
+        runtime poisoning vector where adversarial inputs
+        deserialize into executable structures that taint the
+        runtime; safe deserialization blocks this pattern.
+      coverage-dimension: "runtime-poisoning-vector"
+
+    - id: "LLM05-addressed-by-contextual-output-encoding"
+      source-rule: "LLM05"
+      target-rule: "input-validation.contextual-output-encoding"
+      relation-type: addressed-by
+      rationale: >
+        input-validation.contextual-output-encoding (contextual output encoding) directly
+        addresses the LLM05 risk: when the LLM's output is
+        rendered or executed downstream, output must be
+        context-encoded for the destination (HTML, SQL, shell,
+        etc.) to prevent injection.
+
+    - id: "LLM05-addressed-by-no-stack-trace-in-response"
+      source-rule: "LLM05"
+      target-rule: "error-handling.no-stack-trace-in-response"
+      relation-type: addressed-by
+      rationale: >
+        error-handling.no-stack-trace-in-response (no stack trace in response) addresses the
+        improper-output-handling case where LLM errors leak
+        stack traces or internal state through response bodies,
+        exposing infrastructure detail to attackers.
+      coverage-dimension: "error-response-leakage"
+
+    - id: "LLM06-addressed-by-authz-before-resource-access"
+      source-rule: "LLM06"
+      target-rule: "authorization.authz-before-resource-access"
+      relation-type: addressed-by
+      rationale: >
+        authorization.authz-before-resource-access (authorization before resource access)
+        directly addresses excessive agency: every resource the
+        LLM/agent accesses goes through authorization, so the
+        agent cannot exceed its granted privileges via
+        manipulation of the LLM.
+
+    - id: "LLM06-addressed-by-mass-assignment-allowlist"
+      source-rule: "LLM06"
+      target-rule: "authorization.mass-assignment-allowlist"
+      relation-type: addressed-by
+      rationale: >
+        authorization.mass-assignment-allowlist (mass assignment allowlist) addresses the
+        excessive-agency vector where the LLM produces a
+        structured update that includes attacker-injected fields
+        the agent should not be authorized to set.
+
+    - id: "LLM07-addressed-by-no-secrets-in-source"
+      source-rule: "LLM07"
+      target-rule: "secrets-management.no-secrets-in-source"
+      relation-type: addressed-by
+      rationale: >
+        secrets-management.no-secrets-in-source (no secrets in source) addresses the
+        upstream cause of system-prompt-leakage: when secrets
+        are embedded in system prompts (and system prompts are
+        stored in source), removing the embedding removes the
+        leakage risk.
+      coverage-dimension: "secrets-in-system-prompts"
+
+    - id: "LLM07-addressed-by-no-sensitive-data-in-logs"
+      source-rule: "LLM07"
+      target-rule: "logging.no-sensitive-data-in-logs"
+      relation-type: addressed-by
+      rationale: >
+        logging.no-sensitive-data-in-logs (no sensitive data in logs) addresses the
+        leakage path where system prompts are logged in full and
+        become accessible through log exposure.
+      coverage-dimension: "log-exposure-path"
+
+    - id: "LLM08-addressed-by-parameterized-queries"
+      source-rule: "LLM08"
+      target-rule: "input-validation.parameterized-queries"
+      relation-type: addressed-by
+      rationale: >
+        input-validation.parameterized-queries (parameterized queries) addresses the
+        vector-store query path where adversarial embedding
+        queries inject through string concatenation; using
+        parameterized vector-store queries blocks this pattern.
+      coverage-dimension: "vector-store-query-injection"
+
+    - id: "LLM08-addressed-by-protected-route-declares-authz"
+      source-rule: "LLM08"
+      target-rule: "authorization.protected-route-declares-authz"
+      relation-type: addressed-by
+      rationale: >
+        authorization.protected-route-declares-authz (protected route declares authorization)
+        addresses the vector-store access-control dimension
+        where embeddings expose data the user is not authorized
+        to view; authorization on the retrieval-augmented-
+        generation path is required.
+      coverage-dimension: "rag-access-control"
+
+    - id: "LLM09-addressed-by-skip-requires-reason"
+      source-rule: "LLM09"
+      target-rule: "testing-strategy.skip-requires-reason"
+      relation-type: addressed-by
+      rationale: >
+        testing-strategy.skip-requires-reason (skip requires reason) addresses the
+        misinformation-propagation case where tests verifying
+        LLM-generated output are silently skipped, hiding
+        misinformation regressions.
+      coverage-dimension: "test-coverage-for-llm-outputs"
+
+    - id: "LLM09-addressed-by-no-bare-except"
+      source-rule: "LLM09"
+      target-rule: "error-handling.no-bare-except"
+      relation-type: addressed-by
+      rationale: >
+        error-handling.no-bare-except (no bare except) addresses the
+        misinformation-propagation case where LLM output errors
+        are silently swallowed; surfacing errors allows
+        operators to detect misinformation events.
+      coverage-dimension: "error-surfacing"
+
+    - id: "LLM10-addressed-by-cost-attribution-tags"
+      source-rule: "LLM10"
+      target-rule: "cost-model-selection.cost-attribution-tags"
+      relation-type: addressed-by
+      rationale: >
+        cost-model-selection.cost-attribution-tags (cost attribution tags) addresses the
+        unbounded-consumption risk by ensuring every LLM
+        invocation is attributable to a consumer dimension
+        (tenant, user, request), enabling consumption anomaly
+        detection and per-dimension limits.
+
+    - id: "LLM10-addressed-by-workload-resource-limits"
+      source-rule: "LLM10"
+      target-rule: "cost-model-selection.workload-resource-limits"
+      relation-type: addressed-by
+      rationale: >
+        cost-model-selection.workload-resource-limits (workload resource limits) directly
+        addresses unbounded consumption: workloads (including
+        LLM-invoking workloads) have resource limits that
+        prevent unbounded consumption even under attack.
+
+  coverage-gaps:
+
+    - source-rule: "LLM01"
+      gap-description: >
+        Partial coverage. Prompt-injection mitigation in
+        LLM-specific terms (instruction-data separation in
+        prompts, system-prompt hardening, output filtering) is
+        not directly addressed by current substrate L1 rules.
+        The substrate addresses architectural fundamentals
+        (input validation, authorization re-verification, output
+        encoding) but does not yet provide LLM-specific rules at
+        L1.
+      recommended-action: >
+        Substrate concern catalog for AI-specific concerns
+        (responsible-AI / AI-safety) anticipated in future
+        milestone; will provide LLM-specific L1 rules.
+
+    - source-rule: "LLM06"
+      gap-description: >
+        Partial coverage. Substrate addresses agency boundaries
+        at the authorization layer but does not address
+        LLM-specific patterns like tool-use approval workflows,
+        agent action confirmation gates, or autonomous action
+        limits.
+      recommended-action: >
+        Agentic AI concern catalog anticipated in future
+        milestone.
+
+    - source-rule: "LLM09"
+      gap-description: >
+        Partial coverage. Substrate addresses test discipline and
+        error surfacing but does not address LLM-specific
+        misinformation patterns like factual-grounding, citation
+        verification, or hallucination detection.
+      recommended-action: >
+        AI safety concern catalog anticipated in future milestone.

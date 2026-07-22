@@ -1,0 +1,3 @@
+binding_status: capability-bound
+rule: testing-strategy.no-empty-test-body
+gate: lint

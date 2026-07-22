@@ -1,0 +1,82 @@
+{
+  "profile": {
+    "uuid": "8b3f4d62-1a9c-4e2f-9d8b-7c2a8f4e1d3a",
+    "metadata": {
+      "title": "AI Security Baseline",
+      "last-modified": "2026-05-12T00:00:00Z",
+      "version": "0.1.0",
+      "oscal-version": "1.2.1",
+      "remarks": "Tailored control set for AI security architecture work. Draws from NIST 800-53 Rev 5 (security and privacy controls), with future additions from NIST AI RMF and EU AI Act once those catalogs are hand-authored in Batch 1C-ii-c. This profile is a starting point; projects extend or replace per their needs.",
+      "parties": [
+        {
+          "uuid": "7f4e9a82-3b1c-4d56-8e7f-2a9b8c1d4e5f",
+          "type": "person",
+          "name": "Profile Maintainer",
+          "remarks": "Set to actual maintainer name during project init."
+        }
+      ]
+    },
+    "imports": [
+      {
+        "href": "trestle://catalogs/nist-800-53-rev5/catalog.json",
+        "include-controls": [
+          {
+            "with-ids": [
+              "ac-2",
+              "ac-3",
+              "ac-6",
+              "au-2",
+              "au-3",
+              "au-6",
+              "au-9",
+              "au-12",
+              "ca-2",
+              "ca-7",
+              "cm-2",
+              "cm-3",
+              "cm-7",
+              "cp-2",
+              "ia-2",
+              "ia-5",
+              "ir-4",
+              "ir-6",
+              "pl-2",
+              "pl-8",
+              "ra-3",
+              "ra-5",
+              "sa-3",
+              "sa-8",
+              "sa-9",
+              "sa-11",
+              "sa-15",
+              "si-2",
+              "si-4",
+              "si-7",
+              "si-10",
+              "sr-2",
+              "sr-3",
+              "sr-4",
+              "sr-11"
+            ]
+          }
+        ]
+      }
+    ],
+    "merge": {
+      "as-is": true
+    },
+    "modify": {
+      "alters": [],
+      "set-parameters": []
+    },
+    "back-matter": {
+      "resources": [
+        {
+          "uuid": "a1b2c3d4-e5f6-4789-9abc-def012345678",
+          "title": "Selection rationale",
+          "description": "These 800-53 controls were selected as most directly applicable to AI security architecture work. Control families covered: Access Control (AC) for least-privilege agent capabilities; Audit and Accountability (AU) for AI action logging; Assessment, Authorization, and Monitoring (CA) for continuous compliance; Configuration Management (CM) for AI system change control; Contingency Planning (CP) for circuit breakers; Identification and Authentication (IA) for agent identity; Incident Response (IR) for AI incident playbooks; Planning (PL) for spec-driven discipline; Risk Assessment (RA) for threat modeling; System and Services Acquisition (SA) for AI supply chain security; System and Information Integrity (SI) for AI integrity and monitoring; Supply Chain Risk Management (SR) for AI component provenance. Will be extended in Batch 1C-ii-c with references to NIST AI RMF subcategories and EU AI Act articles."
+        }
+      ]
+    }
+  }
+}

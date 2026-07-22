@@ -1,0 +1,51 @@
+id: supply-chain.signature-verification
+name: Artifact signature verified against the consumer's allowed-signers policy before
+  production deployment
+layer: mechanical
+characteristic: security
+severity: critical
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-23'
+  entered_stable: '2026-05-26'
+  authored_by: Myoung Hong
+sources:
+- title: Sigstore project (cosign, Fulcio, Rekor; substrate-default signing and verification
+    infrastructure)
+  url: https://www.sigstore.dev/
+- title: cosign verify documentation (signature and attestation verification CLI patterns)
+  url: https://docs.sigstore.dev/cosign/verifying/verify/
+- title: OWASP ASVS v5.0.0 V14.2 (Build dependency integrity via signed artifact verification)
+  url: https://github.com/OWASP/ASVS/blob/v5.0.0/5.0/en/0x22-V14-Configuration.md
+- title: NIST SP 800-218 SSDF v1.1 PW.4.4 (verify the integrity of acquired software)
+  url: https://csrc.nist.gov/pubs/sp/800/218/final
+- title: CWE-345 Insufficient Verification of Data Authenticity
+  url: https://cwe.mitre.org/data/definitions/345.html
+cwe:
+- CWE-345
+- CWE-494
+applies_to:
+  language: any
+  framework: any
+  environment: production
+references: []
+statement: 'Every signed artifact consumed in production has its signature verified against
+  the consumer''s allowed-signers policy at deployment time. The allowed-signers policy
+  enumerates the specific signing identities the consumer accepts (substrate-default OIDC-bound:
+  identities in the form ''<user-or-service-account>@<oidc-issuer>''; certificate-based
+  policies are also substrate-accepted). The verification step blocks deployment on failure:
+  unknown signers, expired signatures, certificate-chain failures, or transparency-log
+  absence (when transparency-log verification is enabled) all halt the pipeline. The rule
+  applies independently of supply-chain.slsa-provenance-verification: an artifact may carry a SLSA provenance attestation
+  and additionally be signed; both are verified.'
+rationale: Signature verification is the substrate's anchor for the question "who committed
+  to these bytes?" In a keyless (OIDC-bound) signing world, the answer is expressed as
+  an identity claim issued by a verifiable OIDC issuer, recorded in a transparency log,
+  and bound to the artifact via a Sigstore-bundle format. The consumer policy decides
+  which identity claims it accepts; the Sigstore infrastructure provides the signing,
+  transparency, and verification surface. The substrate elects keyless (OIDC-bound) signing
+  as the recommended default because long-lived private keys at the producer side become
+  a leakage and rotation liability. OIDC-bound short-lived signing certificates issued
+  by Fulcio against verifiable OIDC issuers limit the credential window to seconds and
+  shift the trust anchor from a private key to the OIDC issuer's identity discipline.

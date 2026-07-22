@@ -1,0 +1,40 @@
+id: performance-database.keyset-pagination
+name: Deep result navigation uses keyset (cursor) pagination rather than large OFFSET
+  scans
+layer: semantic
+characteristic: performance-efficiency
+severity: medium
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-31'
+  entered_stable: '2026-06-01'
+  authored_by: Myoung Hong
+sources:
+- title: Keyset (seek) pagination versus OFFSET (a public explanation of the deep-offset
+    cost, referenced as concept)
+  url: https://use-the-index-luke.com/no-offset
+- title: Postgres LIMIT and OFFSET (the offset cost this rule avoids for deep navigation)
+  url: https://www.postgresql.org/docs/current/queries-limit.html
+applies_to:
+  language: any
+  framework: any
+  environment: any
+references: []
+statement: 'Collection endpoints that back lists large enough to be navigated deeply paginate
+  by keyset: the page boundary is a cursor encoding the last seen value of a stable, indexed
+  sort key, and the next page is fetched with a predicate on that key plus a LIMIT, rather
+  than with a large OFFSET. The ordering is total and stable (the sort key plus a tiebreaker
+  such as the primary key) so that pages neither overlap nor skip rows as data changes.
+  Shallow pagination over small lists may use offset; the rule targets the deep-navigation
+  case where offset cost becomes a cliff.'
+rationale: 'OFFSET is implemented by scanning and throwing away the skipped rows, so it
+  does work proportional to how far into the list the page is; the hundredth page of a
+  long list pays for the ninety-nine pages before it on every request. Keyset pagination
+  replaces that scan with an indexed seek to the boundary, making every page the same
+  cost regardless of depth, at the price of a cursor-based interface rather than arbitrary
+  page numbers. The trade is almost always worth it for lists that are genuinely navigated
+  deeply or exposed to automated traversal, and unnecessary for short lists. The stable-order
+  requirement is the subtle part: without a total, deterministic order, concurrent inserts
+  cause keyset (and offset) pages to drift, so the rule requires a tiebreaker on a unique
+  column.'

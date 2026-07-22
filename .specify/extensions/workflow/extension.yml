@@ -1,0 +1,55 @@
+schema_version: "1.0"
+
+extension:
+  id: workflow
+  name: "Workflow Checkpoints"
+  version: "1.0.0"
+  description: "Dispatches concern-driven agent invocation at the framework's four artifact-boundary checkpoints (post-spec, post-plan, post-implementation, pre-commit)"
+  author: ai-grounded-framework
+  license: Apache-2.0
+
+requires:
+  speckit_version: ">=0.2.0"
+
+provides:
+  commands:
+    - name: speckit.workflow.post-spec
+      file: commands/speckit.workflow.post-spec.md
+      description: "Dispatch agents at the post-spec checkpoint"
+    - name: speckit.workflow.post-plan
+      file: commands/speckit.workflow.post-plan.md
+      description: "Dispatch plan-time reviewers at the post-plan checkpoint"
+    - name: speckit.workflow.post-impl
+      file: commands/speckit.workflow.post-impl.md
+      description: "Dispatch downstream verifiers at the post-implementation checkpoint"
+    - name: speckit.workflow.pre-commit
+      file: commands/speckit.workflow.pre-commit.md
+      description: "Recommend closure-auditor invocation for final audit-trail verification before commit"
+
+hooks:
+  after_specify:
+    command: speckit.workflow.post-spec
+    optional: true
+    prompt: "Run the post-spec checkpoint?"
+    description: "Dispatch concern-driven upstream challengers"
+  after_clarify:
+    command: speckit.workflow.post-spec
+    optional: true
+    prompt: "Re-run the post-spec checkpoint after clarifications?"
+    description: "Re-evaluate routing if clarifications introduced new concerns"
+  after_plan:
+    command: speckit.workflow.post-plan
+    optional: true
+    prompt: "Run the post-plan checkpoint?"
+    description: "Dispatch plan-time reviewers"
+  after_implement:
+    command: speckit.workflow.post-impl
+    optional: true
+    prompt: "Run the post-implementation checkpoint?"
+    description: "Dispatch downstream verifiers"
+
+tags:
+  - "workflow"
+  - "dispatch"
+  - "checkpoints"
+  - "loop-closure"

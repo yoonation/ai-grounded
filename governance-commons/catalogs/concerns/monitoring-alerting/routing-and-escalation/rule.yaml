@@ -1,0 +1,43 @@
+id: monitoring-alerting.routing-and-escalation
+name: Alerts route by severity to the correct receiver, and a paging alert left unacknowledged
+  within a bound escalates to a secondary responder
+layer: semantic
+characteristic: reliability
+severity: high
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-06-03'
+  entered_stable: '2026-06-04'
+  authored_by: Myoung Hong
+sources:
+- title: Google SRE Book Chapter 6 Practical Alerting (routing by severity and escalation
+    to a responder, referenced as a concept)
+  url: https://sre.google/sre-book/practical-alerting/
+- title: Prometheus Alertmanager configuration (severity-based routing and grouping, referenced
+    as a concept)
+  url: https://prometheus.io/docs/alerting/latest/configuration/
+applies_to:
+  language: any
+  framework: any
+  environment: any
+references: []
+statement: 'Alerts route to a destination determined by their severity: paging-tier alerts
+  reach a paging receiver that notifies the on-call responder, ticket-tier alerts create
+  work items, and record-only alerts are logged without paging. A paging alert that is
+  not acknowledged within a bounded interval escalates to a secondary responder. The rule
+  consumes the severity label observability.alerting-discipline requires and the resolved route monitoring-alerting.alert-route-resolves-to-receiver requires;
+  it owns the severity-to-destination mapping and the escalation behavior. A critical
+  alert that does not reach a paging path, or a page with no escalation on no-acknowledgement,
+  is the finding.'
+rationale: Observability's alert-discipline rule explicitly defers the paging escalation
+  policy and routing across teams to this concern, because those are operational decisions
+  about who is notified and how a missed page is recovered, not properties of an individual
+  alert rule. The dominant failure here is the critical alert that fires correctly and
+  routes to a channel no one is paged on, so it sits until business hours, and the page
+  that goes to a single responder with no backstop, so an asleep or unavailable primary
+  means the incident is unhandled. Severity-driven routing and escalation-on-no-ack are
+  the operational answers. The rule is review-and-test rather than static because the
+  correct routing matrix and escalation timing depend on the on-call model and cannot
+  be read from source; the testable core is that a critical alert reaches a pager and
+  an unacknowledged page escalates.

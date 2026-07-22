@@ -1,0 +1,49 @@
+id: code-organization.dependency-direction-layering
+name: Dependencies among modules point in the architecturally intended direction, toward
+  more stable abstractions
+layer: semantic
+characteristic: maintainability
+severity: high
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-31'
+  entered_stable: '2026-06-01'
+  authored_by: Myoung Hong
+sources:
+- title: The Dependency Inversion Principle (depend on abstractions; high-level modules
+    do not depend on low-level modules; concept referenced)
+  url: https://en.wikipedia.org/wiki/Dependency_inversion_principle
+- title: Hexagonal (ports-and-adapters) architecture, an expression of the dependency
+    rule where the domain core depends on no outer ring
+  url: https://en.wikipedia.org/wiki/Hexagonal_architecture_(software)
+- title: import-linter layers contract (encoding and enforcing an intended dependency
+    direction as a checkable contract)
+  url: https://import-linter.readthedocs.io/en/stable/contract_types.html
+applies_to:
+  language: any
+  framework: any
+  environment: any
+references: []
+statement: 'Dependencies among first-party modules point in the direction the architecture
+  intends: volatile and detailed modules depend on stable and abstract ones, and the domain
+  core does not depend on delivery mechanisms, frameworks, or infrastructure detail. The
+  rule presupposes code-organization.no-import-cycles (the graph is acyclic) and adds the question L1 cannot
+  answer: given that the arrows form a directed acyclic graph, do they point the right
+  way? The intended direction is set by the architectural style the consumer chose in
+  code-organization.organization-strategy (layered, hexagonal, clean, vertical-slice); this rule checks conformance
+  to that chosen direction. Where the direction must be inverted to keep a stable module
+  from depending on a volatile one, the substrate-recommended mechanism is an abstraction
+  (interface, protocol, trait) owned by the stable module and implemented by the volatile
+  one.'
+rationale: 'The Dependency Inversion Principle and the Stable Dependencies Principle together
+  state the property: depend in the direction of stability, and where the natural dependency
+  would run from stable to volatile, invert it with an abstraction. This is the structural
+  choice that most determines whether a system''s core can be tested and evolved independently
+  of its edges. A domain core that depends only on abstractions can be exercised without
+  a database, a message bus, or a web server, which makes its tests fast and its logic
+  portable; a core that imports the ORM and the framework is welded to them. The rule
+  is semantic because direction is meaningful only relative to an intended architecture:
+  an import from module A to module B is correct under one architectural style and a violation
+  under another. Only a human holding the intended architecture in mind can judge a given
+  edge, which is why the rule pairs with the L3 strategy that records that architecture.'

@@ -1,0 +1,37 @@
+id: data-classification.access-least-privilege
+name: Access to classified data is restricted to need-to-know for its class and is auditable
+layer: semantic
+characteristic: security
+severity: high
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-31'
+  entered_stable: '2026-06-01'
+  authored_by: Myoung Hong
+sources:
+- title: NIST SP 800-53 (the AC access-control family, least privilege and need-to-know;
+    the AU audit family)
+  url: https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final
+- title: NIST least-privilege definition (granting the minimum access required, referenced
+    as a concept)
+  url: https://csrc.nist.gov/glossary/term/least_privilege
+applies_to:
+  language: any
+  framework: any
+  environment: any
+references: []
+statement: 'Access to classified data is restricted to need-to-know for its class: the
+  set of principals with read access to confidential or restricted data is minimized and
+  justified by role and purpose, access to the higher classes is logged to an audit trail,
+  and grants are reviewed on a cadence. Broad default grants are not used for the higher
+  classes. The requirement is reviewed when a new principal is granted access to classified
+  data; the authorization concern owns the enforcement mechanism.'
+rationale: The class of a datum is a statement about who should see it, and least-privilege
+  access is how that statement is enforced. Every principal granted access to high-class
+  data is an additional way that data can leak through a compromised credential or a misused
+  one, so minimizing the grant set is the control, and auditing it is what makes misuse
+  detectable. The substrate owns the per-class requirement (minimize and audit) and defers
+  the enforcement mechanism to the authorization concern, keeping this an L2 review because
+  whether a grant is truly need-to-know is a judgment about roles and purposes rather
+  than a syntactic fact.

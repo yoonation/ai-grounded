@@ -1,0 +1,279 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Myoung Hong
+
+# Consumer project manifest for this framework template.
+#
+# Forked from the substrate reference instance at
+# governance-commons/reference/manifest/governance-manifest.yaml per the
+# consumer-scaffold contract (governance-commons/spec/consumer-scaffold.md
+# Section 5, Obligation 1: "the consumer publishes a governance-manifest.yaml,
+# substrate recommends repo root"). This consumer names the file
+# project-manifest.yaml, because it now houses more than the substrate slicing
+# block: the operator profile, the project stack facts, and the project concern
+# posture (see the stack: and concerns: sections below). The substrate scaffold
+# spec still names the file governance-manifest.yaml; a doc-sync to the substrate
+# reference is queued. The substrate does not enforce the filename (its schema
+# validates content, not the name), so this rename is consumer-side only.
+#
+# This is a CONSUMER artifact: the substrate ships the format, schema, and
+# reference; consumers fork and tailor. The manifest: block below stays the
+# substrate-defined contract (validated against
+# governance-commons/schemas/manifest.schema.json); the stack: and concerns:
+# sections are consumer-owned (validated against
+# .specify/schemas/project-manifest.schema.json). Editing this file does not
+# touch substrate content (Charter Article III 3.2).
+#
+# Purpose: this manifest is the single source of truth for which substrate
+# content each workflow checkpoint consults. It replaces the prior practice of
+# each agent prompt hard-coding unbounded directory reads (e.g. "read all of
+# catalogs/compliance/", which is ~12 MB of trestle-workspace OSCAL, and "read
+# the constitution", which is the ~36 KB Charter). The substrate caps injected
+# context at 30K-50K tokens per invocation (consumer-scaffold.md Section 3.1);
+# the Charter alone is ~36K, so constitution slicing is required, not optional.
+#
+# The four checkpoints map 1:1 to the framework's dispatch checkpoints:
+#   post-spec-drafting    = C1 (post-spec)
+#   post-design           = C2 (post-plan)
+#   post-implementation   = C3 (post-implementation)
+#   pre-commit            = C4 (pre-commit hook)
+#
+# Tailoring vs the substrate reference (coverage-faithful to this framework's
+# agent rubrics, no coverage dropped):
+#   - C1 names all FIVE threat catalogs (the reference named three); the
+#     threat-modeler rubric covers STRIDE, OWASP LLM, OWASP Agentic ASI,
+#     OWASP Agentic Skills, and MITRE ATLAS, so all five are required.
+#   - compliance is named as the bounded reference summaries
+#     (compliance/iso-42001/reference, compliance/soc2-tsc/reference), NOT the
+#     12 MB trestle-workspace catalog dump. This is the primary token win.
+#   - constitution-articles uses the substrate-recommended slot name
+#     (consumer-scaffold.md Section 3.2); the reference used x-constitution-articles.
+#     The checkpoint-level constitution-articles below is the PRIMARY consulter's
+#     slice. Other agents that run at the same checkpoint (e.g. staff-engineer at
+#     post-spec-drafting, code-reviewer at post-implementation) declare their own
+#     article slice in their agent definition; per consumer-scaffold Section 3.2
+#     the per-agent definition is authoritative and may name articles beyond this
+#     checkpoint default. The agent prompt, not this field, governs what an
+#     individual agent loads.
+#
+# NOT wired by this manifest yet (deferred, separate from F1 #3/#4): the
+# consultation-evidence emission (Obligation 4) and closure verification
+# (Obligation 5). The evidence block below declares the contract target so the
+# manifest validates and the future wiring inherits the location; no agent
+# emits consultation events yet.
+
+manifest:
+  schema-version: "1.0.0"
+
+  consumer:
+    identifier: "ai-grounded-governance-scaffold"
+    type: build-time-framework
+    contact: "myoung@governance-commons.invalid"
+
+  substrate:
+    commons-version: "1.3.0"
+    profile: "production-grade-baseline"
+    profile-version: "1.0.0"
+
+  workflow:
+    # ORDER IS LOAD-BEARING: tooling/compose/compose_context.py maps C1..C4 to
+    # these entries BY POSITION, not by name. Keep the list in lifecycle order
+    # (post-spec, post-plan, post-impl, pre-commit); reordering silently
+    # misroutes every agent's context slice.
+    checkpoints:
+
+      # C1 - upstream threat modeling, before implementation.
+      - name: post-spec-drafting
+        trigger: spec-completion
+        consulter: threat-modeler
+        consults:
+          catalogs:
+            - threats/stride
+            - threats/owasp-llm-top10
+            - threats/owasp-agentic-asi-2026
+            - threats/owasp-agentic-skills-top10
+            - threats/mitre-atlas
+            - concerns/authentication
+            - concerns/authorization
+            - concerns/input-validation
+            - concerns/data-classification
+            - concerns/secrets-management
+            - concerns/supply-chain
+            - concerns/agentic-systems
+            - compliance/iso-42001/reference
+            - compliance/soc2-tsc/reference
+          # Decision-framework ids use <concern>.<rule-slug>, resolving to the
+          # co-located framework at
+          # governance-commons/catalogs/concerns/<concern>/<rule-slug>/decision.md.
+          # The one shared flat framework stays at
+          # governance-commons/decision-frameworks/technology-selection.madr.md.
+          decision-frameworks:
+            - authentication.authentication-strategy
+            - authorization.authorization-model-selection
+            - input-validation.input-validation-strategy
+            - data-classification.data-classification-policy
+        constitution-articles:
+          - Article-V
+          - Article-VI
+        required-findings: report-and-block
+        blocking: true
+
+      # C2 - post-plan: implementation-shaping concerns and test design.
+      - name: post-design
+        trigger: design-completion
+        consulter: test-architect
+        consults:
+          catalogs:
+            - concerns/authentication
+            - concerns/authorization
+            - concerns/input-validation
+            - concerns/error-handling
+            - concerns/logging
+            - concerns/observability
+            - concerns/testing-strategy
+            - concerns/supply-chain
+            - concerns/secrets-management
+            - concerns/dependency-management
+            - concerns/cost-model-selection
+          decision-frameworks:
+            - error-handling.error-handling-strategy
+            - logging.architecture
+            - observability.slo-policy
+            - testing-strategy.testing-strategy
+        constitution-articles:
+          - Article-II
+          - Article-V
+          - Article-VI
+        required-findings: report-only
+        blocking: false
+
+      # C3 - post-implementation review and security verification.
+      - name: post-implementation
+        trigger: code-completion
+        consulter: security-reviewer
+        consults:
+          catalogs:
+            - concerns/authentication
+            - concerns/authorization
+            - concerns/input-validation
+            - concerns/error-handling
+            - concerns/logging
+            - concerns/observability
+            - concerns/secrets-management
+            - concerns/dependency-management
+            - concerns/testing-strategy
+            - concerns/supply-chain
+            - threats/owasp-llm-top10
+            - threats/mitre-atlas
+            - compliance/iso-42001/reference
+            - compliance/soc2-tsc/reference
+        constitution-articles:
+          - Article-II
+          - Article-V
+          - Article-VI
+        required-findings: report-and-block
+        blocking: true
+
+      # C4 - pre-commit static analysis (the loop-closure / opengrep step).
+      # ADVISORY (blocking: false). A commit-time SAST gate now exists
+      # (.githooks/pre-commit.d/30-sast), chained via the pre-commit dispatcher;
+      # it runs OpenGrep against the maintained upstream security rules over
+      # staged files in REPORT-ONLY mode. It stays report-only here (blocking:
+      # false) because the gate defaults to report-only (set SAST_STRICT=1 to
+      # enforce). Flip to blocking: true once SAST_STRICT is adopted. The gate
+      # runs the maintained rules directly; the rule list below remains the
+      # substrate traceability contract, not the gate's config.
+      #
+      # Rule universe: the resolved profile (production-grade-baseline).
+      # The hand-maintained L1 rule-ID list that stood here was removed
+      # 2026-07-03: the IDs used the retired registry-id naming and resolved
+      # to nothing after the L1 capability-gate toolchain refactor (see
+      # governance-commons/CHANGELOG.md). The empty list below satisfies the
+      # manifest schema; the profile is the selection mechanism. If rule-level
+      # targeting ever returns, it arrives as a selector expanded from the
+      # profile.
+      - name: pre-commit
+        trigger: pre-commit-hook
+        consulter: opengrep-static-analysis
+        consults:
+          rules: []
+        required-findings: report-only
+        blocking: false
+
+  evidence:
+    medium: jsonl-append-only
+    location: ".governance-commons/consultation-events.jsonl"
+    integrity: append-only-filesystem
+
+  provenance:
+    author: "myoung"
+    authored: "2026-06-05"
+    last-modified: "2026-06-05"
+    ai-assistance: "AI-assisted fork of the substrate reference manifest into a consumer instance for the framework template (F1 Session 2). Tailored coverage-faithful to the framework's agent rubrics: all five threat catalogs at C1, compliance named as bounded reference summaries rather than the trestle-workspace dump, constitution-articles per checkpoint for slicing. Catalog and constitution slicing wired into the catalog- and constitution-consuming agents; consultation-evidence emission and closure verification (Obligations 4 and 5) deferred."
+
+# ---------------------------------------------------------------------------
+# stack: governance-relevant facts about what this project is built on.
+# Populated at bootstrap by the operator from the stack ADR (which the
+# concern-selector directs authoring, via the technology-selection framework, when
+# these facts lack a backing record) or derived from the toolchain files. Version PINS stay in .mise.toml / package.json (tool-owned);
+# this section holds the governance-level facts the concern-selector needs, and
+# tooling/manifest/check.py verifies the pins-source files exist (existence
+# only; no content-alignment check is implemented). Distinct mechanism
+# from dependency/version drift (H6: one mechanism per drift shape).
+# ---------------------------------------------------------------------------
+stack:
+  languages: []        # e.g. [typescript, python]
+  datastore: none      # none | sqlite | postgres | mysql | other
+  surfaces: []         # cli | http-api | web-frontend | library | none
+  uses-llm: false      # does the project call models / use agents at runtime
+  pins-source: []      # tool files holding exact pins, e.g. [".mise.toml", "package.json"]
+
+# ---------------------------------------------------------------------------
+# context: the profile dial's context facts. The operator declares what the
+# project is; tooling/dial/resolve.py derives the rigor band (which catalogs
+# fire, severity floor, andon, review wave, ADR requirement, substrate profile)
+# from these via high-water-mark per axis. Validated against
+# .specify/schemas/project-manifest.schema.json. A missing block or fact defaults
+# to its lowest level (the lean cell) and is reported under defaulted_facts, so an
+# unfilled manifest resolves lean rather than failing. Each fact is a small fixed
+# enum anchored on a named scheme (FIPS 199, threat-model trust boundary, EU AI
+# Act / NIST AI RMF); see the Stage 0 decision log.
+#
+# Risk axis (high-water-mark): data-sensitivity, network-exposure, criticality.
+# Process-weight axis (high-water-mark): deployment-target, operator-count.
+# Overlay (additive, not an axis): agentic-surface.
+#
+# The values below are the template defaults for this build-time framework, which
+# is itself a local, solo, source-pinned tool. A real consumer overwrites them.
+# ---------------------------------------------------------------------------
+context: {}
+# Uninstantiated template: no facts asserted, so reconcile reports not-applicable.
+# Instantiate by setting these (options shown); any one fact engages the dial.
+# data-sensitivity: personal-or-none | confidential | regulated
+# network-exposure: none-local | internal | public-internet
+# criticality: low | moderate | high   (blast-radius, reversibility)
+# deployment-target: local-only | single-tenant-service | multi-tenant-production
+# operator-count: solo | team | org
+# agentic-surface: none | llm-assisted | autonomous
+
+# ---------------------------------------------------------------------------
+# concerns: project-level concern posture the concern-selector establishes once.
+# Per-feature narrowing lives in specs/NNN-feature/feature-concerns.yaml; this is
+# the project-wide default the per-feature selection starts from.
+# ---------------------------------------------------------------------------
+concerns:
+  always: []           # concern catalogs always in scope for this project
+  never: []            # concern catalogs never applicable to this project
+
+# ---------------------------------------------------------------------------
+# build: how to produce and smoke-test the shipped artifact. Consumed by the
+# real-artifact verification tool (tooling/artifact/check.py), which rebuilds
+# from source and smoke-runs the result so a stale or non-running artifact is
+# caught before it ships. All fields optional; absent means nothing to verify.
+# The template itself has no build (bash/python/markdown), so this is a
+# commented example a consumer fills in.
+# ---------------------------------------------------------------------------
+# build:
+#   command: "pnpm build"             # build the shipped artifact from source
+#   artifact: "dist/cli.js"           # what gets run / shipped
+#   smoke: "node dist/cli.js --help"  # trivial invocation that must exit 0
+#   test: "pnpm test"                 # optional, recorded for traceability

@@ -1,0 +1,47 @@
+id: performance-database.no-query-in-loop
+name: Database queries are not issued from inside a loop over a collection; related data
+  is fetched in a single set-based query or via the ORM's eager-loading mechanism
+layer: mechanical
+characteristic: performance-efficiency
+severity: high
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-31'
+  entered_stable: '2026-06-01'
+  authored_by: Myoung Hong
+sources:
+- title: SQLAlchemy relationship-loading guide (selectinload and joinedload as the eager-loading
+    remedies for N+1)
+  url: https://docs.sqlalchemy.org/en/20/orm/queryguide/relationships.html
+- title: Django QuerySet select_related and prefetch_related (the ORM eager-loading directives
+    that collapse N+1 into one or two queries)
+  url: https://docs.djangoproject.com/en/stable/ref/models/querysets/#select-related
+- title: Prisma relation queries and the include directive (eager loading in the TypeScript
+    ORM)
+  url: https://www.prisma.io/docs/orm/prisma-client/queries/relation-queries
+applies_to:
+  language: any
+  framework: any
+  environment: any
+references: []
+statement: Database queries are not issued from inside a loop that iterates over rows
+  returned by a prior query or over a request-scaled collection. Related data needed for
+  each element is fetched up front in a single set-based query (a JOIN, or a single query
+  with an IN clause over the collected keys) or through the ORM's eager-loading mechanism.
+  The rule applies to read and write queries alike on the OLTP request path; it does not
+  apply to a fixed small number of queries that happen to sit in a loop with a constant
+  low bound, to analytics or batch paths exempted by directory, or to loops whose body
+  issues no datastore query. The presence of a datastore query in a load-scaled loop is
+  the finding; the correct rewrite (set-based versus eager-load) is chosen in review.
+rationale: 'Each database round trip carries fixed overhead independent of the data it
+  moves: a connection checkout, a network round trip, query planning, and result marshalling.
+  Issuing that overhead once per row instead of once per request multiplies it by the
+  row count, and the row count is exactly the quantity that grows as the application succeeds.
+  The defect is therefore self-concealing in two ways: it is invisible against small development
+  datasets, and it gets worse precisely when the system is most valuable. The substrate
+  treats the loop-query pattern as a mechanical floor because the structure is statically
+  visible and the fix is a well-trodden ORM idiom, while the cost of leaving it is a latency
+  regression that is hard to attribute after the fact (it presents as general slowness,
+  not a single slow query). The complementary L2 rule performance-database.index-alignment ensures the single
+  set-based query the remediation produces is itself backed by an index.'

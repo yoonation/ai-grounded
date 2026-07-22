@@ -1,0 +1,396 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Myoung Hong
+
+
+# Gang of Four design patterns
+# The 23 object-oriented patterns catalogued by Gamma, Helm, Johnson, and
+# Vlissides, grouped into creational, structural, and behavioral families.
+# Descriptions here are substrate-original paraphrase of public concepts;
+# no source text, code, or diagrams are reproduced. Each entry names the
+# problem the pattern solves and when its indirection is and is not worth
+# paying for. Consult while designing object collaborations.
+
+metadata:
+  catalog_id: gang-of-four
+  catalog_name: Gang of Four Design Patterns
+  schema_version: 1.0.0
+  category_system: creational | structural | behavioral
+  upstream_source: https://en.wikipedia.org/wiki/Design_Patterns
+  last_reviewed: 2026-06-14
+  next_review_due: 2027-06-14
+  maintainer: <set-during-init>
+  review_protocol: governance-commons/MAINTENANCE.md
+
+patterns:
+
+  # --- Creational ---
+
+  - id: GOF-FACTORY-METHOD
+    name: Factory Method
+    category: creational
+    intent: >
+      Define an interface for creating an object but let subclasses decide
+      which concrete class to instantiate.
+    when_to_use: >
+      When a class cannot anticipate the concrete type it must create, or
+      wants to delegate that choice to subclasses.
+    consequences: >
+      Decouples construction from use and centralizes the choice; adds a
+      parallel hierarchy of creators.
+    avoid_when: >
+      A simple constructor or a single static helper suffices; do not add a
+      creator hierarchy for one product type.
+
+  - id: GOF-ABSTRACT-FACTORY
+    name: Abstract Factory
+    category: creational
+    intent: >
+      Provide an interface for creating families of related objects without
+      naming their concrete classes.
+    when_to_use: >
+      When a system must work with one of several coherent product families
+      (for example, a UI toolkit per platform) and must not mix them.
+    consequences: >
+      Guarantees a consistent family and isolates concrete classes; adding a
+      new product to the family means changing every factory.
+    avoid_when: >
+      Products are not actually related as a family, or only one family will
+      ever exist.
+
+  - id: GOF-BUILDER
+    name: Builder
+    category: creational
+    intent: >
+      Separate the construction of a complex object from its representation
+      so the same process can produce different results.
+    when_to_use: >
+      When an object needs many optional parts or step-by-step assembly, and
+      a telescoping constructor would be unreadable.
+    consequences: >
+      Readable construction and immutable results; adds a builder type and
+      indirection.
+    avoid_when: >
+      The object has few fields; a constructor or named arguments are
+      clearer.
+
+  - id: GOF-PROTOTYPE
+    name: Prototype
+    category: creational
+    intent: >
+      Create new objects by cloning an existing instance rather than
+      instantiating a class.
+    when_to_use: >
+      When object creation is expensive or configuration-heavy and a
+      pre-built exemplar can be copied and tweaked.
+    consequences: >
+      Avoids costly setup and decouples from concrete classes; deep-versus-
+      shallow copy semantics become a hazard to manage.
+    avoid_when: >
+      Objects are cheap to construct or hold references that make copying
+      ambiguous.
+
+  - id: GOF-SINGLETON
+    name: Singleton
+    category: creational
+    intent: >
+      Ensure a class has exactly one instance and provide a global access
+      point to it.
+    when_to_use: >
+      Rarely. When exactly one instance must coordinate access to a shared
+      resource and that constraint is genuinely a domain invariant.
+    consequences: >
+      Guarantees one instance; in practice it introduces global state,
+      hidden coupling, and test difficulty, and concurrency makes correct
+      lazy initialization subtle.
+    avoid_when: >
+      You reach for it as a convenient global. Prefer dependency injection of
+      a single instance owned by the composition root; this is the most
+      frequently misused GoF pattern.
+
+  # --- Structural ---
+
+  - id: GOF-ADAPTER
+    name: Adapter
+    category: structural
+    intent: >
+      Convert the interface of a class into another interface clients expect,
+      letting incompatible types collaborate.
+    when_to_use: >
+      When integrating an existing or third-party class whose interface does
+      not match the one your code depends on.
+    consequences: >
+      Reuses existing code behind a clean seam; another layer to maintain and
+      a place where impedance mismatches hide.
+    avoid_when: >
+      You control both sides and can simply align the interfaces.
+
+  - id: GOF-BRIDGE
+    name: Bridge
+    category: structural
+    intent: >
+      Decouple an abstraction from its implementation so the two can vary
+      independently.
+    when_to_use: >
+      When both an abstraction and its implementation have independent
+      dimensions of variation that would otherwise explode into a class per
+      combination.
+    consequences: >
+      Avoids a combinatorial class hierarchy; adds indirection and an
+      up-front split that is hard to introduce late.
+    avoid_when: >
+      Only one dimension varies; inheritance or a single interface is
+      simpler.
+
+  - id: GOF-COMPOSITE
+    name: Composite
+    category: structural
+    intent: >
+      Compose objects into tree structures and let clients treat individual
+      objects and compositions uniformly.
+    when_to_use: >
+      When the domain is naturally a part-whole hierarchy (file systems,
+      UI trees, expression trees) and clients should not special-case leaves
+      versus containers.
+    consequences: >
+      Uniform client code and easy recursion; the shared interface can become
+      bloated with operations that only make sense for containers.
+    avoid_when: >
+      The structure is flat or the leaf and container behaviors differ too
+      much to share an interface honestly.
+
+  - id: GOF-DECORATOR
+    name: Decorator
+    category: structural
+    intent: >
+      Attach responsibilities to an object dynamically by wrapping it in
+      objects that share its interface.
+    when_to_use: >
+      When you need to add behavior (logging, caching, compression) to
+      individual objects without subclassing every combination.
+    consequences: >
+      Flexible, composable layering at runtime; many small wrapper objects
+      and stack-order sensitivity that can confuse debugging.
+    avoid_when: >
+      The added behavior is fixed and small; a subclass or a flag is clearer.
+
+  - id: GOF-FACADE
+    name: Facade
+    category: structural
+    intent: >
+      Provide a unified higher-level interface to a set of interfaces in a
+      subsystem, making it easier to use.
+    when_to_use: >
+      When a subsystem is complex and most clients need only a simple,
+      common slice of its capability.
+    consequences: >
+      Simplifies the common case and decouples clients from subsystem
+      internals; risks becoming a god object if it grows to expose
+      everything.
+    avoid_when: >
+      The subsystem is already simple, or clients legitimately need the full
+      surface.
+
+  - id: GOF-FLYWEIGHT
+    name: Flyweight
+    category: structural
+    intent: >
+      Share fine-grained objects to support large numbers of them
+      efficiently by separating intrinsic shared state from extrinsic
+      context.
+    when_to_use: >
+      When an application creates a very large number of similar objects and
+      memory is the binding constraint (glyphs, tiles, particles).
+    consequences: >
+      Large memory savings; complexity from splitting state and the need to
+      pass extrinsic context on every operation.
+    avoid_when: >
+      Object counts are modest; the sharing machinery is pure overhead.
+
+  - id: GOF-PROXY
+    name: Proxy
+    category: structural
+    intent: >
+      Provide a surrogate for another object to control access to it
+      (lazy loading, remote access, protection, caching).
+    when_to_use: >
+      When access to the real object should be mediated: defer expensive
+      creation, guard permissions, or stand in for a remote resource.
+    consequences: >
+      Transparent access control and laziness; an extra layer and the risk
+      that the proxy quietly changes performance or failure behavior.
+    avoid_when: >
+      No access control or indirection is needed; direct use is clearer.
+
+  # --- Behavioral ---
+
+  - id: GOF-CHAIN-OF-RESPONSIBILITY
+    name: Chain of Responsibility
+    category: behavioral
+    intent: >
+      Pass a request along a chain of handlers, each deciding to handle it or
+      forward it, decoupling sender from receiver.
+    when_to_use: >
+      When more than one object may handle a request and the handler is not
+      known in advance (middleware pipelines, event escalation).
+    consequences: >
+      Flexible, reconfigurable handling; no guarantee a request is handled and
+      flow can be hard to trace.
+    avoid_when: >
+      The handler is always known; a direct call is simpler.
+
+  - id: GOF-COMMAND
+    name: Command
+    category: behavioral
+    intent: >
+      Encapsulate a request as an object, letting you parameterize, queue,
+      log, and undo operations.
+    when_to_use: >
+      When you need undo/redo, deferred or queued execution, or an audit log
+      of actions.
+    consequences: >
+      Decouples invoker from receiver and enables undo and queuing; a class
+      per action adds volume.
+    avoid_when: >
+      A plain function call or callback meets the need with no undo or
+      queuing.
+
+  - id: GOF-INTERPRETER
+    name: Interpreter
+    category: behavioral
+    intent: >
+      Define a representation for a small language's grammar and an
+      interpreter that evaluates sentences in it.
+    when_to_use: >
+      When a simple, stable domain language recurs (search filters, rules,
+      formulas) and a class-per-grammar-rule model is maintainable.
+    consequences: >
+      Grammar maps cleanly to classes for small languages; scales poorly as
+      grammar grows, where a parser generator is better.
+    avoid_when: >
+      The language is complex or performance-sensitive; use a real parser.
+
+  - id: GOF-ITERATOR
+    name: Iterator
+    category: behavioral
+    intent: >
+      Provide sequential access to the elements of an aggregate without
+      exposing its underlying representation.
+    when_to_use: >
+      When clients should traverse a collection uniformly regardless of its
+      internal structure. Most languages provide this natively.
+    consequences: >
+      Uniform traversal and multiple simultaneous walks; usually already
+      built into the standard library, so rolling your own is rare.
+    avoid_when: >
+      The language's native iteration already covers the case.
+
+  - id: GOF-MEDIATOR
+    name: Mediator
+    category: behavioral
+    intent: >
+      Define an object that encapsulates how a set of objects interact,
+      replacing many-to-many references with a hub.
+    when_to_use: >
+      When a cluster of objects communicates in a tangled web and the
+      coupling is the problem (dialog controls, chat rooms).
+    consequences: >
+      Reduces direct coupling and centralizes interaction logic; the mediator
+      can swell into a god object that knows too much.
+    avoid_when: >
+      Interactions are few and direct; a hub adds a bottleneck.
+
+  - id: GOF-MEMENTO
+    name: Memento
+    category: behavioral
+    intent: >
+      Capture an object's internal state so it can be restored later, without
+      violating encapsulation.
+    when_to_use: >
+      When you need snapshots for undo, checkpoints, or transactional
+      rollback of an object's state.
+    consequences: >
+      Clean undo without exposing internals; memory cost grows with snapshot
+      size and frequency.
+    avoid_when: >
+      State is trivial to recompute or the object is naturally immutable.
+
+  - id: GOF-OBSERVER
+    name: Observer
+    category: behavioral
+    intent: >
+      Define a one-to-many dependency so that when one object changes state,
+      its dependents are notified automatically.
+    when_to_use: >
+      When changes to one object must propagate to an open-ended set of others
+      without tight coupling (event systems, reactive UI).
+    consequences: >
+      Loose coupling and dynamic subscription; update cascades, ordering, and
+      lifecycle leaks (dangling subscriptions) become the hazards.
+    avoid_when: >
+      The set of dependents is fixed and small; a direct call is simpler and
+      more traceable.
+
+  - id: GOF-STATE
+    name: State
+    category: behavioral
+    intent: >
+      Let an object alter its behavior when its internal state changes,
+      appearing to change its class.
+    when_to_use: >
+      When behavior depends on a state that changes at runtime and the logic
+      would otherwise be a sprawling conditional (workflow engines, protocol
+      handlers).
+    consequences: >
+      Replaces large conditionals with focused state classes and makes
+      transitions explicit; adds a class per state.
+    avoid_when: >
+      There are only two states or transitions are trivial.
+
+  - id: GOF-STRATEGY
+    name: Strategy
+    category: behavioral
+    intent: >
+      Define a family of interchangeable algorithms behind a common interface
+      and select one at runtime.
+    when_to_use: >
+      When several algorithms solve the same problem and the choice varies by
+      context (sorting, pricing, compression, routing).
+    consequences: >
+      Swappable behavior and isolated, testable algorithms; the client must
+      know enough to choose, and each strategy is another type.
+    avoid_when: >
+      Only one algorithm exists or the choice never varies.
+
+  - id: GOF-TEMPLATE-METHOD
+    name: Template Method
+    category: behavioral
+    intent: >
+      Define the skeleton of an algorithm in a base method, deferring some
+      steps to subclasses.
+    when_to_use: >
+      When several variants share an overall sequence but differ in specific
+      steps (parsing pipelines, report generators).
+    consequences: >
+      Reuses the invariant structure and localizes variation; relies on
+      inheritance, which is rigid compared to composition (Strategy).
+    avoid_when: >
+      Variation is better expressed by injecting behavior (favor Strategy
+      over deep inheritance).
+
+  - id: GOF-VISITOR
+    name: Visitor
+    category: behavioral
+    intent: >
+      Represent an operation to be performed on the elements of an object
+      structure, letting you add operations without changing the elements.
+    when_to_use: >
+      When a stable object structure needs many unrelated operations and you
+      would rather not scatter them across the element classes (AST analysis,
+      document export).
+    consequences: >
+      New operations land without touching elements; the trade is reversed,
+      adding a new element type forces changes to every visitor, and double
+      dispatch adds ceremony.
+    avoid_when: >
+      The element set changes often, or operations are few; the inversion
+      costs more than it saves.

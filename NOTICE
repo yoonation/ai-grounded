@@ -1,0 +1,172 @@
+AI Grounded
+Copyright 2026 Myoung Hong
+
+This project was originally created by Myoung Hong in May 2026
+as a spec-driven development template integrating GitHub spec-kit, a
+7-article project constitution, twelve specialized AI sub-agents with
+enforced loop closure between upstream challengers and downstream
+verifiers, and a governance substrate covering OSCAL compliance catalogs,
+threat catalogs, Cedar policies, attestation specs, and incident response
+playbooks.
+
+The original works of authorship contributed by Myoung Hong
+include but are not limited to:
+
+  - The 7-article project constitution
+  - The twelve specialized sub-agent definitions
+  - The agent coordination protocol and loop-closure architecture
+  - The governance-commons structured representations
+  - The customizations to spec-kit's spec template
+  - All documentation in this repository unless otherwise noted
+
+==============================================================================
+
+THIRD-PARTY COMPONENTS
+
+This product includes or references software and content developed by
+third parties, listed below. Each third-party component remains licensed
+under its own terms; this section is provided for attribution and to
+acknowledge the upstream sources this template builds upon.
+
+==============================================================================
+
+  GitHub spec-kit
+  https://github.com/github/spec-kit
+  Licensed under the MIT License
+  Copyright (c) GitHub, Inc.
+
+  When this template is initialized via 'specify init', spec-kit installs
+  files under .specify/ and .claude/skills/speckit-* that remain subject
+  to the spec-kit MIT License. This repository also redistributes some of
+  those spec-kit-derived files directly (for example under .specify/scripts/
+  and .specify/templates/). The full MIT License text, including GitHub's
+  copyright and permission notice, is reproduced at
+  THIRD-PARTY-LICENSES/spec-kit-MIT.txt.
+
+------------------------------------------------------------------------------
+
+  AWS Cedar Policy Language and SDK
+  https://github.com/cedar-policy
+  Licensed under the Apache License, Version 2.0
+  Copyright Amazon.com, Inc., its affiliates, and contributors.
+  Cedar is a trademark of The Linux Foundation.
+
+  This template's Cedar policies are original works authored against the
+  Cedar language specification. The Cedar SDK and runtime are not
+  redistributed as part of this template; consumers install Cedar
+  independently to evaluate the policies.
+
+------------------------------------------------------------------------------
+
+  IBM compliance-trestle
+  https://github.com/IBM/compliance-trestle
+  Licensed under the Apache License, Version 2.0
+  Copyright IBM Corporation and contributors.
+
+  This template's OSCAL workspace structure follows the conventions
+  established by compliance-trestle. The trestle tooling is not
+  redistributed; consumers install it independently to manipulate the
+  OSCAL catalogs and profiles.
+
+------------------------------------------------------------------------------
+
+  NIST OSCAL Catalogs
+  https://pages.nist.gov/OSCAL/
+  Public Domain (17 U.S.C. § 105)
+
+  This template includes structured representations of the following NIST
+  publications in OSCAL format:
+
+    - NIST SP 800-53 (Security and Privacy Controls)
+    - NIST SP 800-171 (Protecting Controlled Unclassified Information)
+    - NIST SP 800-218 (Secure Software Development Framework)
+    - NIST Cybersecurity Framework v2.0
+    - NIST AI Risk Management Framework (NIST AI RMF)
+
+  NIST publications are works of the United States Government and are
+  not subject to copyright protection in the United States.
+
+------------------------------------------------------------------------------
+
+  European Union AI Act
+  https://artificialintelligenceact.eu/
+
+  This template includes a structured representation of the EU AI Act
+  for compliance mapping purposes, which reproduces selected article text
+  from the official EUR-Lex consolidated version of Regulation (EU)
+  2024/1689. EU legislative texts are freely reusable under the European
+  Union's public reuse policy; this template cites the Act and links to
+  the specific articles.
+
+------------------------------------------------------------------------------
+
+  OWASP Foundation (OWASP Top 10; GenAI Security Project: LLM Top 10,
+  Agentic ASI Top 10, Agentic Skills Top 10)
+  https://owasp.org/  and  https://genai.owasp.org/
+  Content licensed under Creative Commons Attribution 4.0 (CC BY 4.0) or
+  Attribution-ShareAlike 4.0 (CC BY-SA 4.0), depending on the project.
+  Copyright OWASP Foundation, Inc.
+
+  This template's threat catalogs (owasp-top10.yaml, owasp-llm-top10.yaml,
+  owasp-agentic-asi-2026.yaml, and owasp-agentic-skills-top10.yaml under
+  governance-commons/catalogs/threats/) reference OWASP categories by
+  identifier and title only. Detailed descriptions, vectors, mitigations,
+  and analysis within this template are original works authored to apply
+  OWASP's frameworks to specific use cases; no OWASP prose is reproduced
+  verbatim, so the CC BY-SA ShareAlike term is not triggered. The OWASP
+  source material is not redistributed; consumers are encouraged to consult
+  the original OWASP publications at the URLs above.
+
+------------------------------------------------------------------------------
+
+  MITRE ATLAS (Adversarial Threat Landscape for Artificial-Intelligence Systems)
+  https://atlas.mitre.org/
+  Licensed under the Apache License, Version 2.0
+  Copyright The MITRE Corporation.
+
+  This template's threat catalogs reference MITRE ATLAS techniques by
+  identifier (AML.TNNNN format). The ATLAS catalog itself is not
+  redistributed within this template; consumers should consult the
+  authoritative source at the URL above.
+
+------------------------------------------------------------------------------
+
+  Microsoft STRIDE Threat Modeling Methodology
+  https://learn.microsoft.com/en-us/azure/security/develop/threat-modeling-tool-threats
+
+  STRIDE is a threat-modeling methodology, not a copyrighted work.
+  This template's STRIDE catalog applies the methodology to specific
+  threat categories using original analysis.
+
+------------------------------------------------------------------------------
+
+  SLSA Framework (Supply-chain Levels for Software Artifacts)
+  https://slsa.dev/
+  Specification licensed under Creative Commons Attribution 4.0 (CC BY 4.0)
+  Code (where applicable) licensed under the Apache License, Version 2.0
+  Copyright The SLSA Authors.
+
+  This template's attestation specifications reference SLSA v1.0 and
+  describe how to produce SLSA-compliant provenance for AI-assisted
+  work. SLSA's specification text is not republished; this template
+  provides original guidance on applying SLSA in this context.
+
+------------------------------------------------------------------------------
+
+  in-toto Framework
+  https://in-toto.io/
+  Licensed under the Apache License, Version 2.0
+  Copyright The in-toto Authors.
+
+  This template's attestation specifications reference the in-toto
+  attestation format. The in-toto reference implementation is not
+  redistributed; consumers install in-toto independently.
+
+==============================================================================
+
+QUESTIONS
+
+For questions about licensing, attribution, or usage rights for this
+template, please open an issue on the upstream repository. For questions
+about third-party components, please consult the upstream source listed
+above for each component.

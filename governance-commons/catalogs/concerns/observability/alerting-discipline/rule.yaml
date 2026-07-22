@@ -1,0 +1,37 @@
+id: observability.alerting-discipline
+name: Alerts are actionable, deduplicated, severity-tiered, and linked to runbooks
+layer: semantic
+characteristic: maintainability
+severity: high
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-21'
+  entered_stable: '2026-05-22'
+  authored_by: Myoung Hong
+sources:
+- title: Prometheus Alerting Best Practices (technical alerting hygiene guidance)
+  url: https://prometheus.io/docs/practices/alerting/
+applies_to:
+  language: any
+  framework: any
+  environment: any-production
+references: []
+statement: 'Alert rules carry: a severity label drawn from a bounded vocabulary appropriate
+  to the consumer''s paging policy (substrate-recommended starting set: critical for human-paging
+  conditions, warning for ticket-creating conditions, info for record-only conditions);
+  a runbook_url annotation linking to the documented response; a summary annotation concise
+  enough to fit a notification body and distinguishing the alert from related alerts;
+  a source-of-truth pointer indicating where the alert rule is authored (git path, dashboard
+  URL). Alert rule logic explicitly avoids deduplicated cascades: where multiple symptoms
+  of a single root cause are being monitored, the alert configuration uses inhibition
+  rules or alert grouping so a single notification surfaces per root-cause event.'
+rationale: 'The on-call experience is the integration test for the entire observability
+  investment. A well-instrumented service that produces poor alerts produces a worse on-call
+  experience than a less-instrumented service whose alerts are crisp. Alert discipline
+  is therefore the highest-leverage L2 check in observability: it is what operators actually
+  consume during incidents. Substrate-author note: many of the concepts substantively
+  informing this rule (alerting on symptoms not causes, alerting on burn rate, alert quality
+  as a leading indicator of operational maturity) originate from the Google SRE Book and
+  SRE Workbook. The substrate paraphrases the concepts and cites the source without reproducing
+  the text.'

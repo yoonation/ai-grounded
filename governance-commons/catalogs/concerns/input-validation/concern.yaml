@@ -1,0 +1,10 @@
+id: input-validation
+name: Input Validation
+characteristic: security
+status: stable
+summary: >
+  How untrusted input is made safe at the boundary: schema validation and
+  type narrowing at every input boundary, canonical encoding before
+  validation, parameterized queries, contextual output encoding,
+  prevention of shell, path-traversal, SSRF, and unsafe-deserialization
+  injection, and file-upload validation.

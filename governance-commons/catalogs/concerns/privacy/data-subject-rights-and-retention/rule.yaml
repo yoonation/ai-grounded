@@ -1,0 +1,44 @@
+id: privacy.data-subject-rights-and-retention
+name: 'The data-subject-rights and retention architecture is decided and recorded: how
+  erasure propagates, the portability format, request handling, and the retention schedule'
+layer: judgmental
+characteristic: security
+severity: high
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-06-03'
+  entered_stable: '2026-06-04'
+  authored_by: Myoung Hong
+sources:
+- title: EU GDPR Regulation 2016/679 (Articles 17 erasure, 20 portability, and 12 modalities
+    for exercising rights, with Article 5(1)(e) storage limitation, referenced as a concept)
+  url: https://eur-lex.europa.eu/eli/reg/2016/679/oj
+- title: ISO/IEC 27701 privacy information management (data-subject request handling and
+    retention and disposal, referenced as a concept)
+  url: https://www.iso.org/standard/71670.html
+applies_to:
+  language: any
+  framework: any
+  environment: any
+references: []
+statement: 'The system records an Architecture Decision Record establishing how data-subject
+  rights and retention are fulfilled: how an erasure propagates to every store that holds
+  the subject''s data (primary, replicas, indexes, caches, queues, exports, and processors),
+  the portability format and scope, how requests are received, identity-verified, and
+  answered within the regulatory deadline, the choice among deletion, irreversible anonymization,
+  and pseudonymization per category, the retention schedule per category, and the legal-hold
+  exceptions. The ADR is the target the privacy.data-subject-rights and privacy.retention-limitation conformance rules
+  check against; the propagation and logging seams are shared with data-classification
+  and logging, cross-referenced. The ADR is reviewed when a new personal-data store or
+  a rights-fulfillment path is introduced.'
+rationale: 'Rights and retention fail in the same place: the long tail of stores the data
+  spread into, where an improvised per-store approach forgets a replica, an index, a cache,
+  or an export. The only way they succeed at scale is by being designed once, as a fan-out
+  and a schedule the system can show is complete, rather than rediscovered for each request.
+  The substrate makes this an explicit ADR because the propagation map, the portability
+  format, the request SLA, and the deletion-meaning are design judgments about the system''s
+  own topology, and provides the MADR and a review checklist that confirms the design
+  exists and coheres. It is the architectural counterpart to the privacy.data-subject-rights and privacy.retention-limitation
+  conformance rules and shares the propagation seam with data-classification and the logging
+  seam with logging rather than restating them.'

@@ -1,0 +1,45 @@
+id: authentication.authentication-strategy
+name: Authentication strategy selection is explicitly decided and documented via the substrate's
+  MADR framework
+layer: judgmental
+characteristic: security
+severity: critical
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-19'
+  entered_stable: '2026-05-19'
+  authored_by: Myoung Hong
+sources:
+- title: OWASP ASVS v5.0.0 V6 authenticator selection requirements
+  url: https://github.com/OWASP/ASVS/blob/v5.0.0/5.0/en/0x15-V6-Authentication.md
+- title: NIST SP 800-63B-4 Authenticator Assurance Levels (AAL1, AAL2, AAL3) and authenticator
+    type requirements
+  url: https://pages.nist.gov/800-63-4/sp800-63b.html
+applies_to:
+  language: any
+  framework: any
+  environment: any-with-authentication
+references: []
+statement: 'Applications subject to this rule have an explicitly documented decision on
+  their primary authentication strategy. The decision is recorded in a MADR document following
+  the substrate''s decision-framework template (see decision-framework-binding link).
+  The MADR is stored in the application''s decision-record location (substrate-recommended:
+  /docs/decisions/ADR-XXX-authentication-strategy.md) and is referenced from the application''s
+  architectural documentation. The MADR addresses every section the substrate''s template
+  requires; deviations from substrate-recommended choices are explicitly justified.'
+rationale: Authentication strategy is the foundational choice that determines which L1
+  and L2 rules apply, how hard each rule is to satisfy, and what additional concerns the
+  application inherits. Password-based authentication inherits the full AUTH-L1 + AUTH-L2
+  rule set including password policy, rate limiting, breach corpus screening, and lockout
+  policy. Passkey-based authentication eliminates several of those rules but adds enrollment-flow
+  and recovery-flow complexity. Federated authentication delegates most of the auth surface
+  to an identity provider but introduces dependency management and identity-lifecycle
+  concerns. Making this choice without explicit analysis is the most common failure mode.
+  Teams default to password-based authentication because it is familiar; they then implement
+  it incompletely because the rule surface is larger than they anticipated. An explicit,
+  documented decision forces the team to consider their context (user population, regulatory
+  requirements, identity infrastructure, recovery flow tolerance) before committing to
+  an implementation path. This rule is judgmental because the right answer depends on
+  context. The substrate provides analysis of each option but does not prescribe a single
+  choice. The substrate does require that the choice be deliberate.

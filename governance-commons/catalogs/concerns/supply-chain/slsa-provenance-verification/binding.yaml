@@ -1,0 +1,4 @@
+binding_status: capability-bound
+rule: supply-chain.slsa-provenance-verification
+gate: provenance-verify
+tool: slsa-verifier

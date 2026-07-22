@@ -1,0 +1,552 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Myoung Hong
+
+
+# Cedar policy language context for AI tools.
+#
+# Cedar is used in this commons for policies/ - the authorization
+# DSL for AI governance. Newer than mainstream policy languages
+# (OPA/Rego); AI tools have less training data and frequently
+# produce invalid Cedar.
+#
+# Maintenance cadence: quarterly (stable language, but evolving
+# patterns)
+
+library:
+  name: cedar
+  ecosystem: policy-language
+  current_version: "4.x"
+  last_reviewed: "2026-05-12"
+  review_cadence: quarterly
+  primary_docs: https://docs.cedarpolicy.com
+
+# ============================================================
+# What Cedar is
+# ============================================================
+
+description: |
+  Cedar is an open-source policy language and evaluation engine
+  created by AWS, now governed by an open community.
+
+  Key properties:
+
+  - Declarative: policies describe what's allowed, not how to compute
+  - Statically analyzable: a Cedar analyzer can verify properties
+    of policy sets (e.g., "no policy permits Delete without approval")
+  - Fast: evaluation in microseconds even for large policy sets
+  - Schema-typed: policies validate against a schema at compile time
+
+  Cedar is used by:
+
+  - AWS Verified Permissions (managed Cedar service)
+  - This governance commons (for AI agent authorization)
+  - A growing number of AuthZ-as-a-Service products
+
+# ============================================================
+# Cedar syntax fundamentals
+# ============================================================
+
+syntax_basics:
+  - concept: "Policy structure"
+    description: >
+      Every Cedar policy is permit or forbid, with three
+      principal/action/resource constraints, plus optional when
+      and unless clauses.
+    example: |
+      permit (
+          principal == User::"alice",
+          action == Action::"read",
+          resource == File::"document.txt"
+      );
+
+      permit (
+          principal,                           // any principal
+          action in [Action::"read", Action::"list"],
+          resource is File                     // any File entity
+      )
+      when {
+          resource.owner == principal
+      };
+
+  - concept: "Entity types"
+    description: >
+      Entities have types (like User, File). Type names follow
+      PascalCase convention. Entity literals are Type::"id".
+    example: |
+      // Type::"id" syntax for entity literals
+      User::"alice"
+      File::"document-123"
+      Action::"read"
+
+      // In policies
+      permit (
+          principal == User::"alice",
+          ...
+      );
+
+  - concept: "Namespaces"
+    description: >
+      Group related entity types under a namespace to avoid collisions.
+    example: |
+      namespace Governance {
+          entity User;
+          entity File;
+          action "read";
+      }
+
+      // In policies, reference with namespace prefix:
+      permit (
+          principal == Governance::User::"alice",
+          action == Governance::Action::"read",
+          resource is Governance::File
+      );
+
+  - concept: "Constraints in head"
+    description: >
+      The three constraints (principal, action, resource) can use:
+      ==, in, is. Combine for precision.
+    example: |
+      // Exact match
+      permit (
+          principal == User::"alice",
+          ...
+      );
+
+      // Entity hierarchy: principal is in a group
+      permit (
+          principal in Group::"admins",
+          ...
+      );
+
+      // Type check
+      permit (
+          principal is User,
+          ...
+      );
+
+      // Combined
+      permit (
+          principal is User in Group::"admins",
+          ...
+      );
+
+  - concept: "when and unless clauses"
+    description: >
+      Constrain matches with boolean conditions in when/unless.
+      when is positive (must be true); unless is negative (must be
+      false).
+    example: |
+      permit (
+          principal is User,
+          action == Action::"read",
+          resource is File
+      )
+      when {
+          resource.classification == "public" ||
+          principal.role == "admin"
+      }
+      unless {
+          resource.deleted == true
+      };
+
+  - concept: "Attributes"
+    description: >
+      Entities have attributes; access with dot notation.
+      Boolean, long, string, set, record types supported.
+    example: |
+      // Schema declares attributes:
+      entity User {
+          role: String,
+          age: Long,
+          permissions: Set<String>
+      };
+
+      // Policies reference attributes:
+      permit (...) when {
+          principal.age >= 18 &&
+          principal.permissions.contains("read")
+      };
+
+  - concept: "Operators"
+    description: >
+      Standard logical and comparison operators.
+    list: |
+      &&, ||, !                          // Logical
+      ==, !=                             // Equality
+      <, <=, >, >=                       // Numeric comparison
+      +, -, *                            // Arithmetic (long only)
+      in                                 // Entity hierarchy / set membership
+      .contains(...)                     // Set/string contains
+      .containsAll([...])                // Set superset check
+      .containsAny([...])                // Set intersection check
+      has                                // Attribute presence check
+      like                               // String pattern match (with *)
+
+  - concept: "Context"
+    description: >
+      Request-time information beyond principal/action/resource.
+      Access via context.<field>.
+    example: |
+      permit (...)
+      when {
+          context.mfa_completed == true &&
+          context.request_time > 1700000000
+      };
+
+# ============================================================
+# Common patterns
+# ============================================================
+
+current_patterns:
+  - name: "Role-based access control"
+    description: >
+      Allow actions based on the principal's role attribute.
+    example: |
+      permit (
+          principal is User,
+          action == Action::"manage_users",
+          resource is User
+      )
+      when {
+          principal.role == "admin"
+      };
+
+  - name: "Owner-based access control"
+    description: >
+      Allow access to resources you own.
+    example: |
+      permit (
+          principal is User,
+          action in [Action::"read", Action::"update", Action::"delete"],
+          resource is Document
+      )
+      when {
+          resource.owner == principal
+      };
+
+  - name: "Hierarchical groups"
+    description: >
+      Use entity hierarchy for group-based access.
+    example: |
+      permit (
+          principal in Group::"editors",
+          action == Action::"edit",
+          resource is Document
+      );
+
+      // Principals in subgroups inherit:
+      // If User::"alice" in Group::"senior-editors",
+      // and Group::"senior-editors" in Group::"editors",
+      // then alice matches the principal constraint.
+
+  - name: "Time-based access"
+    description: >
+      Restrict actions to specific time windows.
+    example: |
+      permit (
+          principal is User,
+          action == Action::"deploy",
+          resource is Environment
+      )
+      when {
+          context.request_time >= context.business_hours_start &&
+          context.request_time <= context.business_hours_end
+      };
+
+  - name: "MFA gates"
+    description: >
+      Require multi-factor authentication for sensitive actions.
+    example: |
+      permit (
+          principal is User,
+          action in [Action::"delete", Action::"update_security"],
+          resource
+      )
+      when {
+          context.mfa_completed == true &&
+          context.mfa_timestamp > context.request_time - 3600
+      };
+
+  - name: "Forbid as override"
+    description: >
+      Forbid policies override permit policies. Use forbid for
+      hard restrictions even when other policies might allow.
+    example: |
+      // Even if other policies allow, forbid wins
+      forbid (
+          principal is User,
+          action == Action::"delete",
+          resource is Document
+      )
+      when {
+          resource.protected == true
+      };
+
+# ============================================================
+# Schema patterns
+# ============================================================
+
+schema_patterns:
+  - pattern: "Basic entity declaration"
+    example: |
+      namespace MyApp {
+          entity User = {
+              email: String,
+              age: Long,
+              verified: Bool,
+              tags: Set<String>
+          };
+      }
+
+  - pattern: "Entity with member types (for hierarchy)"
+    example: |
+      namespace MyApp {
+          entity User in [Group, Organization] = {
+              email: String
+          };
+      }
+      // Allows: User::"alice" in Group::"admins"
+      // Allows: User::"alice" in Organization::"acme"
+
+  - pattern: "Action with applies-to"
+    example: |
+      namespace MyApp {
+          action "Read" appliesTo {
+              principal: [User, Service],
+              resource: [Document, Folder],
+              context: {
+                  mfa_completed: Bool,
+                  ip_address: String
+              }
+          };
+      }
+
+  - pattern: "Optional attributes"
+    example: |
+      namespace MyApp {
+          entity User = {
+              email: String,
+              phone?: String   // Optional - check with 'has' before use
+          };
+      }
+
+      // In policy:
+      permit (...)
+      when {
+          principal has phone &&
+          principal.phone like "+1*"
+      };
+
+# ============================================================
+# Common hallucination patterns
+# ============================================================
+
+common_hallucinations:
+  - pattern: |
+      allow Alice to read document.txt
+    problem: >
+      Cedar doesn't use English-like syntax. It's a structured
+      DSL with permit/forbid.
+    correct: |
+      permit (
+          principal == User::"alice",
+          action == Action::"read",
+          resource == File::"document.txt"
+      );
+
+  - pattern: |
+      permit (
+          principal,
+          action,
+          resource
+      ) when {
+          principal.id == "alice"
+      };
+    problem: >
+      Entity literals use Type::"id" syntax. principal.id isn't
+      how Cedar refers to the principal identity.
+    correct: |
+      permit (
+          principal == User::"alice",
+          action,
+          resource
+      );
+
+  - pattern: |
+      permit (...)
+      when {
+          principal.role = "admin"
+      };
+    problem: >
+      Single = is assignment in most languages but Cedar uses == for
+      equality. Single = causes a parse error.
+    correct: |
+      when {
+          principal.role == "admin"
+      }
+
+  - pattern: |
+      permit (...)
+      when {
+          if principal.age > 18 then true else false
+      };
+    problem: >
+      Cedar doesn't have if-then-else expressions. Use boolean
+      composition directly.
+    correct: |
+      when {
+          principal.age > 18
+      }
+
+  - pattern: |
+      permit (...)
+      when {
+          principal.role in ["admin", "editor"]
+      };
+    problem: >
+      Mixing entity hierarchy 'in' with set membership. For set
+      check, the set must be a set literal of the same type, and
+      typically you use contains or comparisons.
+    correct: |
+      when {
+          principal.role == "admin" || principal.role == "editor"
+      }
+
+  - pattern: |
+      permit (...)
+      when {
+          "admin" in principal.roles
+      };
+    problem: >
+      Set membership uses .contains on the set, not 'in'.
+    correct: |
+      when {
+          principal.roles.contains("admin")
+      }
+
+  - pattern: |
+      forbid (...) when { ... } and (...) when { ... };
+    problem: >
+      You can't chain policies with 'and'. Each policy is independent;
+      effects combine through Cedar's evaluation rules (forbid wins).
+    correct: |
+      // Write two separate policies:
+      forbid (...) when { ... };
+      forbid (...) when { ... };
+
+  - pattern: |
+      permit (...)
+      when {
+          principal.attr  // attr might be missing
+      };
+    problem: >
+      Accessing a missing attribute raises an error. If attribute
+      is optional in schema, check existence first with 'has'.
+    correct: |
+      when {
+          principal has attr && principal.attr == "value"
+      }
+
+  - pattern: |
+      permit (
+          principal == User::alice,    // missing quotes
+          ...
+      );
+    problem: >
+      Entity IDs must be string literals with quotes.
+    correct: |
+      principal == User::"alice"
+
+  - pattern: |
+      permit (
+          principal,
+          action == "read",            // string instead of action entity
+          resource
+      );
+    problem: >
+      Actions are entities of type Action; require full Action::"name"
+      syntax.
+    correct: |
+      action == Action::"read"
+
+# ============================================================
+# CLI usage
+# ============================================================
+
+cli_usage:
+  - command: "cedar validate"
+    description: "Validate a policy file against a schema."
+    example: |
+      cedar validate \
+          --schema schema.cedarschema \
+          --policies policies.cedar
+
+  - command: "cedar authorize"
+    description: "Evaluate a request against policies and produce decision."
+    example: |
+      cedar authorize \
+          --schema schema.cedarschema \
+          --policies policies.cedar \
+          --request-json request.json
+
+      # request.json:
+      # {
+      #   "principal": "User::\"alice\"",
+      #   "action": "Action::\"read\"",
+      #   "resource": "File::\"document.txt\"",
+      #   "context": {}
+      # }
+
+  - command: "cedar check-parse"
+    description: "Verify policy syntactic validity (no schema check)."
+    example: "cedar check-parse --policies policies.cedar"
+
+  - command: "cedar format"
+    description: "Auto-format Cedar policies."
+    example: "cedar format --policies policies.cedar"
+
+  - command: "Install"
+    example: |
+      # Cargo
+      cargo install cedar-policy-cli
+
+      # mise (recommended for this framework)
+      mise use -g cedar-policy-cli@latest
+
+# ============================================================
+# Cedar vs other policy languages
+# ============================================================
+
+comparison:
+  cedar_vs_opa_rego: |
+    OPA/Rego: more general-purpose, more flexible, harder to analyze
+    Cedar: AuthZ-specialized, more constrained, formally analyzable
+
+    Cedar is a better fit when:
+    - The authorization logic is the core concern (vs general policy)
+    - Static analysis of policy properties matters
+    - Performance at scale (microsecond evaluation) is needed
+
+    Rego is a better fit when:
+    - You need cross-domain policy (config validation, K8s admission)
+    - You need richer data manipulation in policies
+    - You already have OPA infrastructure
+
+  cedar_vs_xacml: |
+    XACML: XML-based, very expressive but complex
+    Cedar: text-based DSL, more focused scope, faster
+
+    Cedar is essentially "XACML done modernly". Both can express
+    similar policies; Cedar is much easier to read and maintain.
+
+# ============================================================
+# References
+# ============================================================
+
+references:
+  - https://docs.cedarpolicy.com/
+  - https://docs.cedarpolicy.com/policies/syntax-policy.html
+  - https://github.com/cedar-policy/cedar
+  - https://www.cedarpolicy.com/
+  - https://aws.amazon.com/verified-permissions/
+  - https://docs.cedarpolicy.com/policies/syntax-grammar.html

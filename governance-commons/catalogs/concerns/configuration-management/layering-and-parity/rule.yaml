@@ -1,0 +1,44 @@
+id: configuration-management.layering-and-parity
+name: Configuration layering and precedence are explicit, environment parity is preserved,
+  and secrets are referenced not inlined
+layer: semantic
+characteristic: flexibility
+severity: medium
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-06-04'
+  entered_stable: '2026-06-06'
+  authored_by: Myoung Hong
+sources:
+- title: 'The Twelve-Factor App, Factor III (Config): one codebase, many deploys parameterized
+    by environment-specific config'
+  url: https://12factor.net/config
+- title: 'The Twelve-Factor App, Factor X (Dev/prod parity): keep development, staging,
+    and production as similar as possible, including their configuration surface'
+  url: https://12factor.net/dev-prod-parity
+- title: 'OWASP Top 10 A05:2021 Security Misconfiguration: divergent per-environment configuration
+    and inlined secrets are misconfiguration sources'
+  url: https://owasp.org/Top10/A05_2021-Security_Misconfiguration/
+applies_to:
+  language: any
+  framework: any
+  environment: any
+references: []
+statement: The configuration system defines and documents the precedence order across
+  its sources (for example built-in defaults, then a base configuration file, then an
+  environment-specific file, then environment variables, then explicit runtime overrides),
+  so the effective source of any value is predictable. The set of required configuration
+  keys is the same across all deployment environments, enforced by a shared schema or
+  required-key list so a key cannot exist in one environment and silently be absent in
+  another. Secrets are never inlined into configuration that is committed to source or
+  baked into images; they are referenced by indirection (a secret reference, a vault path,
+  or a runtime injection handle) and resolved at runtime, with the handling rules owned
+  by secrets-management.
+rationale: 'Implicit precedence is a defect waiting for a coincidence: two sources set
+  the same key, and which one wins depends on load order no one wrote down. Documenting
+  precedence makes overrides intentional. Environment parity attacks the most common configuration
+  incident directly: a value that was only ever set in the environment where it was first
+  needed, then missing the day a new environment or a failover brings up the workload
+  elsewhere. Requiring secrets by reference keeps the configuration surface safe to commit
+  and keeps the secrets-management boundary from eroding one convenient paste at a time.'

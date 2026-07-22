@@ -1,0 +1,46 @@
+id: supply-chain.build-environment-isolation
+name: Build environment isolated and reproducibility verified on a substrate-documented
+  cadence
+layer: semantic
+characteristic: security
+severity: high
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-23'
+  entered_stable: '2026-05-26'
+  authored_by: Myoung Hong
+sources:
+- title: SLSA v1.1 Build Platform requirements (hermeticity, isolation, hardening across
+    Build L1 through L3)
+  url: https://slsa.dev/spec/v1.1/requirements#build-platform
+- title: Reproducible Builds project (definition and verification discipline)
+  url: https://reproducible-builds.org/docs/definition/
+- title: NIST SP 800-218 SSDF v1.1 PO.5 (Secure Software Development Environment)
+  url: https://csrc.nist.gov/pubs/sp/800/218/final
+- title: OWASP Top 10 CI/CD Security Risks CICD-SEC-4 (Poisoned Pipeline Execution) and
+    CICD-SEC-7 (Insecure System Configuration)
+  url: https://owasp.org/www-project-top-10-ci-cd-security-risks/
+references: []
+statement: 'The consumer''s production build environment satisfies the following substrate-required
+  properties: (a) ephemeral build infrastructure (each build runs in a fresh, isolated
+  environment without state persisted from prior builds); (b) substrate-recommended SLSA
+  Build Level alignment per the consumer''s profile policy from supply-chain.supply-chain-integrity-strategy (production-grade-baseline:
+  Build L2 hosted-platform; stricter profiles: Build L3 hardened-platform); (c) network
+  policy during build that is either fully hermetic (no external network access; all dependencies
+  pre-fetched and digest-pinned) or substrate-acceptable controlled network (access restricted
+  to substrate-allowed upstream endpoints with documented allow-list); (d) reproducibility
+  verification on a substrate-documented cadence (substrate-recommended at every release
+  for stricter profiles; semi-annual for production-grade-baseline).'
+rationale: The substrate elects SLSA Build Level alignment as the principle organizing
+  the L2 isolation discipline because SLSA's level definitions encode an industry-consensus
+  progression. Build L1 (the consumer's build process is scripted and generates provenance)
+  is the substrate-minimum starting point. Build L2 (the build platform generates provenance
+  rather than the producer claiming the platform did) is the substrate-default for production-grade-baseline.
+  Build L3 (the build platform is hardened against insider tampering, with hermetic execution
+  and isolated build environments) is the substrate-recommended target for stricter profiles.
+  Reproducibility verification is the substrate's check on the rest of the discipline.
+  If two builds of the same source at the same commit produce byte-identical artifacts,
+  the build environment is substantively reproducible. Drift between builds surfaces either
+  build-environment non-determinism (which substrate-rejects in production paths) or build-environment
+  compromise (which substrate-treats as incident).

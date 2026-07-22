@@ -1,0 +1,54 @@
+id: code-organization.data-model-single-source-of-truth
+name: Data-model fields that are constant across a referencing dimension live once in a
+  referenced entity, not duplicated per-referrer
+layer: semantic
+characteristic: maintainability
+severity: medium
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-06-28'
+  entered_stable: '2026-06-30'
+  authored_by: Myoung Hong
+sources:
+- title: The Don't-Repeat-Yourself principle (every piece of knowledge has a single
+    authoritative representation; concept referenced, from The Pragmatic Programmer)
+  url: https://en.wikipedia.org/wiki/Don%27t_repeat_yourself
+- title: Database normalization (organizing a schema so that each fact is stored once;
+    concept referenced)
+  url: https://en.wikipedia.org/wiki/Database_normalization
+- title: The wrong abstraction (prefer a little duplication over the wrong abstraction;
+    concept referenced, Sandi Metz)
+  url: https://sandimetz.com/blog/2016/1/20/the-wrong-abstraction
+applies_to:
+  language: any
+  framework: any
+  environment: any
+references: []
+statement: 'A field that is constant across a referencing dimension is stored once on the
+  referenced entity and referenced by key, not copied onto every referrer. When a value
+  is the same for every persona an operator owns, every order a customer places, or every
+  instance that shares a parent, that value is one piece of knowledge about the parent and
+  belongs on the parent; duplicating it per-referrer means a single change of mind requires
+  one edit per copy and invites the copies to drift. The data model is required to make this
+  decision explicit: for each entity, declare which fields are owned per-instance and which
+  are shared across a referencing dimension and therefore live on a referenced entity. The
+  rule asks the modeler to distinguish a field that is genuinely shared knowledge (which
+  should be normalized to one home) from a field that merely holds the same value today and
+  will diverge tomorrow (which should be left per-instance), the same judgment that
+  duplication-and-abstraction makes for code, here applied to persisted entities. This is a
+  declaration requirement, not an automatic normalization: the modeler may keep a duplicate
+  deliberately and record why, but the cardinality decision is stated rather than skipped.'
+rationale: 'Normalization is about knowledge, not about storage: its target is the
+  duplication of a fact, so that one change of that fact is one change in one place. The
+  common failure at the data layer mirrors the one duplication-and-abstraction guards at the
+  code layer, but it is more expensive, because data persists and propagates: a value
+  duplicated onto every referrer is copied into every export, cache, and downstream system,
+  and a later correction has to chase all of them. The original FW-001 instance, an identity
+  field carried on every persona row rather than on the one operator they all reference, is
+  exactly this. The rule is semantic because only a human who understands the domain can say
+  whether two columns hold one shared fact or two facts that happen to coincide today; a tool
+  can confirm that the cardinality decision was declared, which is the checkable contract the
+  data-model-normalization gate enforces, but it cannot confirm the decision is correct, which
+  is the reasoning the rule preserves for review. Forcing the declaration at plan time is the
+  point: the failure was never a wrong answer, it was a missing question.'

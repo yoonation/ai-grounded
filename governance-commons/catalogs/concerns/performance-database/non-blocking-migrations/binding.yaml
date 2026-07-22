@@ -1,0 +1,3 @@
+binding_status: capability-bound
+rule: performance-database.non-blocking-migrations
+gate: sast

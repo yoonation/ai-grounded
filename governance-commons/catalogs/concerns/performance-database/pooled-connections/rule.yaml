@@ -1,0 +1,38 @@
+id: performance-database.pooled-connections
+name: Database connections are obtained from a configured connection pool rather than
+  constructed per request or per operation on the request path
+layer: semantic
+characteristic: performance-efficiency
+severity: high
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-31'
+  entered_stable: '2026-06-01'
+  authored_by: Myoung Hong
+sources:
+- title: SQLAlchemy connection pooling (QueuePool and the engine as the process-level
+    pooled resource)
+  url: https://docs.sqlalchemy.org/en/20/core/pooling.html
+- title: node-postgres pooling guide (Pool versus per-request Client)
+  url: https://node-postgres.com/features/pooling
+applies_to:
+  language: any
+  framework: any
+  environment: any
+references: []
+statement: Database connections used on the request path are drawn from a connection pool
+  established once at process or worker startup and returned to the pool when the unit
+  of work completes, not constructed and torn down per request or per operation. The rule
+  applies to the OLTP request path; it does not apply to one-shot scripts, migrations,
+  or administrative tasks that legitimately open a single connection, run, and exit. The
+  construction of a connection or engine on the request path is the finding.
+rationale: 'Connection establishment is one of the most expensive operations in the data
+  path, and it is also one of the scarcest: databases enforce a hard ceiling on concurrent
+  connections, and exceeding it does not degrade gracefully, it refuses new connections
+  and locks out the application. A pool amortizes establishment cost across many requests
+  and, critically, bounds the number of connections the application can hold, converting
+  an unbounded per-request connection storm into a bounded queue for a fixed set of connections.
+  The substrate makes pool use a mechanical floor because the per-request-connection antipattern
+  is statically visible and its consequence under load is a correlated outage. Pool sizing,
+  acquire timeout, and the serverless case are the contextual judgments handled in performance-database.pool-sizing.'

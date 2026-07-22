@@ -1,0 +1,39 @@
+id: performance-database.bulk-operations
+name: High-volume reads and writes use set-based bulk or batch operations rather than
+  row-at-a-time round trips
+layer: semantic
+characteristic: performance-efficiency
+severity: medium
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-31'
+  entered_stable: '2026-06-01'
+  authored_by: Myoung Hong
+sources:
+- title: Postgres multi-row INSERT and COPY (set-based and bulk-load write forms)
+  url: https://www.postgresql.org/docs/current/dml-insert.html
+- title: SQLAlchemy bulk INSERT and UPDATE (set-based ORM write operations)
+  url: https://docs.sqlalchemy.org/en/20/orm/queryguide/dml.html
+applies_to:
+  language: any
+  framework: any
+  environment: any
+references: []
+statement: 'Code paths that read or write many rows do so with set-based operations rather
+  than one statement per row: a single query with an IN clause or a join for reads, a
+  multi-row INSERT or a bulk-load form for inserts, a set-based UPDATE for updates, processed
+  in bounded batches where the total volume is large enough that a single statement would
+  hold locks too long or use too much memory. The batch size is chosen to balance round-trip
+  amortization against transaction duration and memory. The rule targets high-volume paths;
+  a handful of rows does not require batching.'
+rationale: Row-at-a-time processing pays the fixed per-statement and per-round-trip overhead
+  on every row, so a job that touches fifty thousand rows pays it fifty thousand times,
+  and that overhead usually dominates the actual data work. Set-based operations let the
+  database do the work in its own optimized path and cut the round trips to one or a few.
+  The reason batching, rather than a single giant statement, is the right shape for very
+  large volumes is that one enormous statement trades the round-trip problem for a long
+  transaction holding locks (performance-database.transaction-scope) and a large memory footprint; a moderate batch
+  size captures most of the throughput gain while keeping transactions short. The right
+  batch size is workload-specific, which is why this is a review rule rather than a fixed
+  threshold.

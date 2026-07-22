@@ -1,0 +1,3 @@
+binding_status: capability-bound
+rule: input-validation.path-traversal-prevention
+gate: sast

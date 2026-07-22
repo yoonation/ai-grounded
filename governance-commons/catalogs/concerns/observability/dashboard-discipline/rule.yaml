@@ -1,0 +1,40 @@
+id: observability.dashboard-discipline
+name: Dashboards are organized by an established methodology (RED, USE, or Four Golden
+  Signals) appropriate to the service type, with SLI panels distinguished from operational
+  panels
+layer: semantic
+characteristic: maintainability
+severity: medium
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-21'
+  entered_stable: '2026-05-22'
+  authored_by: Myoung Hong
+sources:
+- title: 'Brendan Gregg: The USE Method (utilization, saturation, errors)'
+  url: https://www.brendangregg.com/usemethod.html
+applies_to:
+  language: any
+  framework: any
+  environment: any-production
+references: []
+statement: 'Dashboards are authored using an established methodology appropriate to the
+  service type. For request-driven services (HTTP servers, gRPC servers, API gateways):
+  the RED methodology (rate, errors, duration) or Four Golden Signals (latency, traffic,
+  errors, saturation) is the substrate-default. For resource-constrained components (databases,
+  queues, caches, storage systems): the USE methodology (utilization, saturation, errors)
+  is the substrate-default. For services with both profiles: a composite dashboard with
+  sections for each methodology applies. SLI panels (answering "is the service meeting
+  its SLO?") are placed on a separate, pinned dashboard; operational panels live on subsidiary
+  dashboards organized by the methodology.'
+rationale: 'Established dashboard methodologies (RED, USE, Four Golden Signals) exist
+  because incident-response research has surfaced the consistent set of questions operators
+  ask first: how much traffic, how many errors, how slow. A dashboard organized by an
+  established methodology is immediately navigable to any operator who has learned the
+  methodology; a dashboard organized by ad-hoc authoring vocabulary forces each operator
+  to learn the local convention. SLI separation is operational hygiene at a different
+  layer. The SLI dashboard answers the question executives, on-call responders, and product
+  owners share: is the service still meeting its commitments? Mixing this question with
+  the engineering question (what is the service doing right now?) produces a dashboard
+  that is noisy for the executive audience and slow for the engineering audience.'

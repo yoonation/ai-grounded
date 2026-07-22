@@ -1,0 +1,36 @@
+id: input-validation.canonical-encoding-before-validation
+name: Input values are canonicalized to a single normal form before any comparison, validation,
+  or downstream use
+layer: semantic
+characteristic: security
+severity: high
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-23'
+  entered_stable: '2026-05-26'
+  authored_by: Myoung Hong
+sources:
+- title: OWASP ASVS v5.0.0 V5.1.4 (Canonicalize input before validation)
+  url: https://github.com/OWASP/ASVS/blob/v5.0.0/5.0/en/0x13-V5-Validation-Sanitization-Encoding.md
+- title: CWE-180 Incorrect Behavior Order Validate Before Canonicalize
+  url: https://cwe.mitre.org/data/definitions/180.html
+cwe:
+- CWE-180
+- CWE-176
+applies_to:
+  environment: any-with-text-input-boundary
+references: []
+statement: 'Input crossing the trust boundary is normalized to a single canonical form
+  before any validator accepts it. Specifically: text fields are Unicode-normalized (NFC
+  or NFKC; the choice is documented in the input-validation-strategy ADR per INPUT-L3-
+  001); URL-encoded fields are decoded exactly once at the boundary (the framework typically
+  does this; downstream code does not re-decode); path components are resolved to canonical
+  form (input-validation.path-traversal-prevention); case-folding is applied where comparisons are case-insensitive.
+  Validation operates on the canonical form; downstream code consumes the canonical form.'
+rationale: 'The "canonicalize before validate" ordering matters because validators that
+  operate on raw input can be tricked: an allowlist that rejects "/etc/passwd" may accept
+  "%2Fetc%2Fpasswd" if the underlying file-open call URL-decodes again. The same principle
+  applies to Unicode (visually identical characters with different code points), to case-insensitive
+  comparisons, and to whitespace normalization. The substrate''s L2 rule requires that
+  one canonical form be selected per field type and applied at the boundary.'

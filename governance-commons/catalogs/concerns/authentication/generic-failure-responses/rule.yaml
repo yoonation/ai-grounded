@@ -1,0 +1,40 @@
+id: authentication.generic-failure-responses
+name: Authentication failure responses are generic and time-equivalent across causes
+layer: semantic
+characteristic: security
+severity: medium
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-18'
+  entered_stable: '2026-05-18'
+  authored_by: Myoung Hong
+sources:
+- title: OWASP ASVS v5.0.0 V6 requirements on authentication response uniformity
+  url: https://github.com/OWASP/ASVS/blob/v5.0.0/5.0/en/0x15-V6-Authentication.md
+- title: CWE-203 Observable Discrepancy
+  url: https://cwe.mitre.org/data/definitions/203.html
+cwe:
+- CWE-203
+- CWE-204
+applies_to:
+  language: any
+  framework: any
+  environment: any-with-authentication
+references: []
+statement: 'Authentication endpoints return failure responses that do not distinguish
+  between cause categories. Cause categories include: account does not exist, password
+  incorrect for existing account, account locked, account disabled, account not yet verified,
+  MFA challenge required, MFA challenge failed. All cause categories return the same response
+  status, same response body, and the same response time. The application reveals cause
+  to the user only through the dedicated account-recovery flow that itself does not leak
+  existence.'
+rationale: 'Distinguishing cause categories enables user enumeration: an attacker submits
+  candidate usernames or email addresses to the login endpoint and observes which receive
+  ''user not found'' versus ''incorrect password''. The enumeration is the input to targeted
+  attacks like credential stuffing (testing breached passwords against confirmed accounts)
+  and targeted phishing. Time-equivalent responses prevent the same enumeration through
+  timing channels. A login flow that performs a database lookup but skips password verification
+  when the user does not exist runs substantially faster on missing accounts. The application
+  performs the verification path unconditionally so timing carries no signal.'
+guidance_ref: guidance.md

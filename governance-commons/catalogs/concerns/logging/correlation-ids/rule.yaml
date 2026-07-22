@@ -1,0 +1,49 @@
+id: logging.correlation-ids
+name: Log records include a correlation identifier (request, trace, or session ID) that
+  links the record to other records produced during the same logical operation
+layer: semantic
+characteristic: maintainability
+severity: high
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-20'
+  entered_stable: '2026-05-22'
+  authored_by: Myoung Hong
+sources:
+- title: W3C Trace Context (traceparent and tracestate header propagation)
+  url: https://www.w3.org/TR/trace-context/
+- title: OpenTelemetry Logs specification (correlation with trace context)
+  url: https://opentelemetry.io/docs/specs/otel/logs/
+- title: OWASP ASVS v5.0.0 V11 Logging (event identification and correlation)
+  url: https://github.com/OWASP/ASVS/blob/v5.0.0/5.0/en/0x20-V11-BusLogic.md
+- title: OWASP Logging Cheat Sheet (event source attribution)
+  url: https://cheatsheetseries.owasp.org/cheatsheets/Logging_Cheat_Sheet.html
+cwe:
+- CWE-778
+applies_to:
+  language: any
+  framework: any
+  environment: any-production
+references: []
+statement: 'Every log record emitted from a request-handling code path, a job-execution
+  code path, or a transaction-scoped code path includes a correlation identifier as a
+  structured field. Substrate-recognized correlation fields are: trace_id (W3C Trace Context
+  primary key, substrate-preferred), request_id (HTTP request scope, acceptable when trace
+  context is unavailable), session_id (for user-facing flows where session is the natural
+  correlation), job_id (for background and scheduled work), transaction_id (for business
+  transactions spanning multiple requests). Logger configurations bind at least one correlation
+  key as a default field so call sites do not omit it by accident.'
+rationale: 'Correlation is the substrate''s response to the fundamental incident-response
+  question: "what else happened around this event?" Without a correlation ID, the answer
+  requires reconstruction by timestamp proximity, which fails under concurrent load and
+  across service boundaries. With a correlation ID, the answer is a single indexed query.
+  The substrate prefers W3C Trace Context because it is the cross-vendor standard, propagates
+  across HTTP and messaging boundaries via documented headers, and integrates with OpenTelemetry
+  instrumentation. Where trace context is not available (legacy systems, edge devices),
+  the substrate accepts request_id as a fallback; the consumer''s logging architecture
+  ADR (logging.architecture) documents which correlation key the system uses. Logger configurations
+  bind correlation as a default field rather than relying on call sites to pass it explicitly
+  because call-site discipline is fragile: a single forgotten parameter produces an orphan
+  log record that breaks all downstream join workflows. Binding at the logger level moves
+  the discipline from every call site to the framework setup.'

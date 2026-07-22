@@ -1,0 +1,39 @@
+id: performance-caching.invalidation-strategy
+name: Each cached item has a correct invalidation model so that a write to the underlying
+  data does not leave a stale cached copy served beyond its staleness budget
+layer: semantic
+characteristic: performance-efficiency
+severity: high
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-31'
+  entered_stable: '2026-06-01'
+  authored_by: Myoung Hong
+sources:
+- title: AWS Builders' Library caching challenges and strategies (invalidation models
+    and their failure modes)
+  url: https://aws.amazon.com/builders-library/caching-challenges-and-strategies/
+- title: Redis caching patterns (cache-aside, write-through, and the invalidation each
+    implies)
+  url: https://redis.io/docs/latest/develop/use/patterns/
+applies_to:
+  language: any
+  framework: any
+  environment: any
+references: []
+statement: Each cached item has a recorded invalidation model. A write that changes the
+  underlying data either updates the cached copy, deletes it, or the item is deliberately
+  served stale within a staleness budget bounded by its time-to-live. The invalidation
+  covers every key the value is cached under, including derived keys and the list or aggregate
+  keys the write affects, not only the primary entity key. The model is reviewed when
+  a new write path can change a cached value.
+rationale: 'The cost of caching is the obligation to keep the copy correct, and that obligation
+  is discharged by an invalidation model, not by hope. The common failure is partial invalidation:
+  the code invalidates the entity it obviously changed and forgets the list, the count,
+  or the derived view that also contained the value. The substrate requires the model
+  to be explicit and to enumerate the keys a write affects, and it pairs the rule with
+  a time-to-live floor (performance-caching.ttl-on-write) so that even an imperfect model has a bounded worst
+  case. Where data can tolerate staleness, a deliberate time-to-live-only model is a valid
+  choice, but it is a choice recorded against a staleness budget (performance-caching.staleness-tolerance), not an
+  accident of having forgotten to invalidate.'

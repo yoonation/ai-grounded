@@ -1,0 +1,11 @@
+id: performance-database
+name: Performance Database
+characteristic: performance-efficiency
+status: stable
+summary: >
+  How database access is kept efficient: bounded result sets and keyset
+  pagination, explicit column projection, indexes aligned to query access
+  patterns, pooled connections sized for the workload, no queries issued
+  in loops, set-based bulk operations, short transaction scope,
+  non-blocking migrations, and replica routing, under a recorded
+  data-access strategy.

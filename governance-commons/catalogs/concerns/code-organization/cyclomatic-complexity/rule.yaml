@@ -1,0 +1,48 @@
+id: code-organization.cyclomatic-complexity
+name: Functions and methods do not exceed the substrate-default cyclomatic-complexity
+  and cognitive-complexity thresholds
+layer: mechanical
+characteristic: maintainability
+severity: high
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-31'
+  entered_stable: '2026-06-01'
+  authored_by: Myoung Hong
+sources:
+- title: McCabe and Watson, Structured Testing (NIST Special Publication 500-235), the
+    reference treatment of cyclomatic complexity and its recommended ceiling
+  url: https://www.mccabe.com/pdf/mccabe-nist235r.pdf
+- title: SonarSource Cognitive Complexity white paper (the nesting-weighted complexity
+    measure and its default threshold; concept referenced, text not reproduced)
+  url: https://www.sonarsource.com/resources/cognitive-complexity/
+- title: Ruff C901 complex-structure rule (Python cyclomatic complexity via mccabe; substrate-default
+    detector for the Python ecosystem)
+  url: https://docs.astral.sh/ruff/rules/complex-structure/
+- title: ESLint complexity rule (JavaScript and TypeScript cyclomatic complexity ceiling)
+  url: https://eslint.org/docs/latest/rules/complexity
+applies_to:
+  language: any
+  framework: any
+  environment: any
+references: []
+statement: 'Functions and methods in first-party production source do not exceed the substrate-default
+  cyclomatic-complexity threshold (default 10) or the substrate-default cognitive-complexity
+  threshold (default 15). Both are profile-tunable parameters; a function breaching either
+  is a finding. Cyclomatic complexity counts the linearly independent paths through the
+  function (one plus the number of decision points: if, for, while, case, boolean operators,
+  catch clauses). Cognitive complexity weights the same control flow by how hard it is
+  for a human to follow, charging more for nesting and for breaks in linear flow. The
+  substrate requires both because they catch different problems: a flat switch with many
+  cases scores high on cyclomatic but low on cognitive (often acceptable), while a triply-nested
+  loop-and-conditional scores moderate on cyclomatic but high on cognitive (usually not).'
+rationale: 'Of the cheaply measurable structural properties, control-flow complexity is
+  the one most consistently associated with defects and with the cost of safe change.
+  The substrate enforces it mechanically for the same reason it enforces length: a codebase
+  that never measures complexity drifts toward functions whose every path no human has
+  held in mind at once, and those are where the untested edge case lives. Pairing cyclomatic
+  with cognitive complexity is deliberate. Cyclomatic alone penalizes a clean exhaustive
+  switch as much as a tangled nest, which trains authors to avoid the wrong thing; cognitive
+  complexity corrects this by charging for nesting and flow-breaking rather than for branch
+  count, so the pair rewards flattening and named dispatch over clever density.'

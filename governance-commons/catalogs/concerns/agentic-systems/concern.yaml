@@ -1,0 +1,11 @@
+id: agentic-systems
+name: Agentic Systems
+characteristic: safety
+status: stable
+summary: >
+  How autonomous agents are kept safe and bounded: action bounds and
+  human-in-the-loop gating on consequential actions, recorded autonomy and
+  tool-trust policies, per-tool authorization scope enforced at call time,
+  delegation authority carrying caller identity, separation of untrusted
+  content from agent instructions, memory integrity, and a multi-agent
+  trust model.

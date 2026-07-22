@@ -1,0 +1,190 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Myoung Hong
+
+
+# STRIDE threat modeling methodology
+# Classic six-category framework for systematic threat analysis.
+# Originally developed at Microsoft; remains widely used in security
+# architecture and threat modeling.
+#
+# This catalog defines the categories and provides AI-specific
+# examples. STRIDE is methodology, not a fixed list of threats - 
+# practitioners apply it during threat modeling sessions.
+
+metadata:
+  catalog_id: stride
+  catalog_name: STRIDE Threat Modeling Methodology
+  schema_version: 1.0.0
+  last_reviewed: 2026-05-11
+  upstream_source: https://learn.microsoft.com/en-us/azure/security/develop/threat-modeling-tool-threats
+  upstream_version: "stable methodology, last updated by Microsoft 2024"
+  next_review_due: 2027-05-11 # annual review for stable methodologies
+  maintainer: <set-during-init>
+  review_protocol: governance-commons/MAINTENANCE.md
+  applies_to: [build_time, runtime]
+  usage_note: >
+    Unlike OWASP and ATLAS catalogs which enumerate specific threats,
+    STRIDE is a methodology. Use these categories during threat
+    modeling to systematically explore threats per system component.
+
+categories:
+
+  - id: STRIDE-S
+    name: Spoofing
+    short_description: >
+      Threats where attackers impersonate legitimate identities to
+      gain unauthorized access or trust.
+    threat_property_violated: authentication
+    questions_to_ask:
+      - Can an attacker claim to be another user, agent, or system?
+      - Can credentials be stolen, replayed, or forged?
+      - Can the system verify the source of inputs?
+    ai_specific_examples:
+      - Adversary impersonates user to manipulate AI agent
+      - Agent identity tokens stolen and replayed (ASI03)
+      - Malicious agent registered to look like trusted agent
+      - Compromised MCP server impersonating legitimate tool
+    mitigations:
+      - Strong authentication mechanisms
+      - Mutual TLS between services and agents
+      - Identity model enforcement (see identity-model.md)
+      - Audit log records full identity chain
+    related_threats: [ASI03, AML.T0055]
+
+  - id: STRIDE-T
+    name: Tampering
+    short_description: >
+      Threats where attackers modify data, code, or state
+      maliciously.
+    threat_property_violated: integrity
+    questions_to_ask:
+      - What data, code, or state can be modified by an attacker?
+      - How is integrity verified?
+      - What protections prevent unauthorized modification?
+    ai_specific_examples:
+      - Tampering with training or fine-tuning data (LLM04)
+      - Poisoning RAG corpus documents (LLM08)
+      - Modifying agent memory (ASI04)
+      - Tampering with model weights or checkpoints
+      - Modifying audit logs to hide actions
+    mitigations:
+      - Cryptographic integrity (signed weights, signed documents)
+      - Hash-chained audit logs (see audit-envelope.md)
+      - Access controls on data and configuration
+      - SLSA provenance verification (see attestation/)
+    related_threats: [LLM04, LLM08, ASI04, ASI08]
+
+  - id: STRIDE-R
+    name: Repudiation
+    short_description: >
+      Threats where actors can deny having performed actions,
+      preventing accountability.
+    threat_property_violated: non-repudiation
+    questions_to_ask:
+      - Can an actor deny taking an action?
+      - Are actions logged with sufficient detail for accountability?
+      - Are logs tamper-evident?
+    ai_specific_examples:
+      - Agent denies taking an action that caused harm
+      - Logs insufficient to prove who triggered an AI action
+      - Lack of human-AI boundary in audit logs (ASI08)
+      - Repudiation of AI-generated code authorship
+    mitigations:
+      - Comprehensive audit logging (audit-envelope.md)
+      - Cryptographic signing of critical actions
+      - AI authorship recording (Co-Authored-By, provenance)
+      - Per-actor identity in every log entry
+    related_threats: [ASI08]
+
+  - id: STRIDE-I
+    name: Information Disclosure
+    short_description: >
+      Threats where unauthorized parties gain access to information
+      they should not see.
+    threat_property_violated: confidentiality
+    questions_to_ask:
+      - What sensitive information exists in the system?
+      - How could it leak (storage, transit, logs, side channels)?
+      - Who should and should not have access?
+    ai_specific_examples:
+      - LLM responses leaking training data or PII (LLM02)
+      - System prompt extraction (LLM07)
+      - Cross-tenant data leakage in vector stores (LLM08)
+      - Sensitive data in audit logs (see audit-envelope redaction)
+      - Timing side channels revealing model internals
+    mitigations:
+      - Data classification (see data-classification.md)
+      - Encryption at rest and in transit
+      - Audit log redaction
+      - Output filtering for sensitive patterns
+      - Tenant isolation in shared resources
+    related_threats: [LLM02, LLM07, LLM08, AML.T0057]
+
+  - id: STRIDE-D
+    name: Denial of Service
+    short_description: >
+      Threats that prevent legitimate users from accessing the
+      system or consume resources to make the system unusable.
+    threat_property_violated: availability
+    questions_to_ask:
+      - What resources can an attacker exhaust?
+      - How does the system handle excessive load?
+      - Are there cost-amplification vectors?
+    ai_specific_examples:
+      - Unbounded token consumption (LLM10)
+      - Runaway agent loops consuming resources (ASI10)
+      - Cascading failures across multi-agent systems (ASI05)
+      - Cost-amplification attacks
+    mitigations:
+      - Rate limiting and quotas
+      - Token and cost budgets per session
+      - Timeout and iteration caps on agents
+      - Circuit breakers
+      - Multi-tenancy isolation
+    related_threats: [LLM10, ASI05, ASI10]
+
+  - id: STRIDE-E
+    name: Elevation of Privilege
+    short_description: >
+      Threats where attackers gain capabilities or access beyond
+      their authorized level.
+    threat_property_violated: authorization
+    questions_to_ask:
+      - What privileges does each actor have?
+      - Can lower-privileged actors gain higher privileges?
+      - Where are authorization decisions made?
+    ai_specific_examples:
+      - LLM granted excessive agency over systems (LLM06)
+      - Agent acquires capabilities through tool combinations (ASI02)
+      - Cross-agent privilege escalation (ASI07)
+      - Bypass of human approval gates via prompt injection (ASI09)
+    mitigations:
+      - Principle of least privilege (see principles.md P5)
+      - Cedar policies enforcing capability limits
+      - Authorization at every boundary
+      - Human approval for privilege escalation
+    related_threats: [LLM06, ASI02, ASI07, ASI09]
+
+methodology:
+
+  application_steps:
+    - Identify system components and trust boundaries
+    - For each component, walk through all six STRIDE categories
+    - Document specific threats discovered (not just category names)
+    - Rate each threat for severity and likelihood
+    - Define mitigations or accept the risk explicitly
+    - Re-walk during architecture changes
+
+  outputs:
+    - Threat model document (one per system or major feature)
+    - Updated risk register
+    - Mitigation backlog
+    - Cross-references to related catalogs (this commons)
+
+  pairing_with_other_catalogs:
+    - STRIDE provides structure; OWASP/ATLAS provide specifics
+    - Use STRIDE during architecture phase to find unknown threats
+    - Use OWASP/ATLAS to recognize known threats by name
+    - Both have a place in mature threat modeling
+
+# End of STRIDE catalog

@@ -1,0 +1,42 @@
+id: infrastructure-misconfiguration.deletion-protection-and-drift
+name: Stateful infrastructure resources have deletion protection and drift monitoring
+layer: semantic
+characteristic: security
+severity: medium
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-31'
+  entered_stable: '2026-06-01'
+  authored_by: Myoung Hong
+sources:
+- title: NIST SP 800-53 Rev. 5 CM-2 Baseline Configuration, CM-3 Configuration Change
+    Control
+  url: https://csrc.nist.gov/projects/cprt/catalog#/cprt/framework/version/SP_800_53_5_1_1/home
+cwe:
+- CWE-665
+applies_to:
+  language: any-iac
+  framework: terraform-cloudformation-pulumi-arm-bicep
+  environment: any-stateful-cloud-resource
+references: []
+statement: 'IaC declarations of stateful resources include the substrate-recommended deletion-protection
+  attributes: AWS aws_rds_cluster and aws_db_instance with deletion_protection = true;
+  aws_dynamodb_table with deletion_protection_enabled = true; aws_s3_bucket with versioning
+  and (for regulated data) object_lock_configuration; aws_kms_ key with deletion_window_in_days
+  configured to the substrate''s minimum (30 days for production, profile-tilt); azurerm_cosmosdb_account
+  with soft_delete and continuous_backup; azurerm_storage_ account with blob_properties
+  soft_delete; google_ sql_database_instance with deletion_protection = true; google_storage_bucket
+  with versioning; Kubernetes PersistentVolumeClaim with reclaim_ policy = "Retain" for
+  production-state PVs. Terraform lifecycle prevent_destroy = true on production stateful
+  resources. Drift between IaC source and live infrastructure is monitored: a scheduled
+  terraform plan / pulumi preview / CloudFormation drift detection runs at a substrate-recommended
+  cadence (substrate baseline: daily for production environments; profile-tilt for regulated
+  to hourly); drift findings are alerted to the substrate-author on-call channel via the
+  observability concern''s alerting surface.'
+rationale: Stateful infrastructure is irreversible on deletion. Even with backups, the
+  recovery time is long, the recovery procedure is error-prone, and the data between the
+  last backup and the deletion is irrecoverable. The substrate's L2 review confirms the
+  IaC declares the available deletion-protection attributes and that drift between IaC
+  source and live state is monitored so out-of-band modifications (manual console changes
+  that accidentally remove protection) surface deliberately.

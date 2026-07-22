@@ -1,0 +1,44 @@
+id: authentication.no-credential-files-in-repo
+name: Credential-bearing files are not committed to source repositories
+layer: mechanical
+characteristic: security
+severity: critical
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-18'
+  entered_stable: '2026-05-18'
+  authored_by: Myoung Hong
+sources:
+- title: OWASP ASVS v5.0.0 V14 (Configuration) credential file management requirements
+  url: https://github.com/OWASP/ASVS/blob/v5.0.0/5.0/en/0x22-V14-Config.md
+- title: CWE-540 Inclusion of Sensitive Information in Source Code
+  url: https://cwe.mitre.org/data/definitions/540.html
+cwe:
+- CWE-540
+- CWE-538
+- CWE-200
+applies_to:
+  language: any
+  framework: any
+  environment: any-with-credentials
+references: []
+statement: The source repository does not contain files whose content includes credential
+  values. Credential-bearing file types include environment files (.env with values),
+  private key files (.pem, .key, id_rsa, etc.), cloud credential files (aws-credentials,
+  gcp-service-account.json with private_key populated), certificate files containing private
+  keys (.pfx, .p12), database connection configs with embedded passwords, ansible-vault
+  files in cleartext form, and any other file format that carries secret material in plaintext.
+  The repository's .gitignore (or equivalent for non-git VCS) explicitly excludes the
+  file patterns that would carry credentials. Sample or template versions of credential
+  files (e.g., .env.example) are committed; they contain only variable names and placeholder
+  values, not real credentials.
+rationale: 'The same rationale as authentication.no-hardcoded-credentials applies: repositories travel widely, persist
+  indefinitely, and are scanned by automated tooling for credentials. The distinction
+  is that authentication.no-hardcoded-credentials catches credentials as code literals; authentication.no-credential-files-in-repo catches credentials
+  in non-source files (config, environment, key files) that are equally damaging. The
+  two rules also pair operationally: a strong authentication.no-hardcoded-credentials binding (Semgrep code scanning)
+  is weak for file content; a strong authentication.no-credential-files-in-repo binding (gitleaks, trufflehog, .gitignore
+  audit) covers what authentication.no-hardcoded-credentials misses. Together they form the substrate''s mechanical
+  defense against credential leakage through source control.'
+guidance_ref: guidance.md

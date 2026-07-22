@@ -1,0 +1,11 @@
+id: infrastructure-misconfiguration
+name: Infrastructure Misconfiguration
+characteristic: security
+status: stable
+summary: >
+  How infrastructure-as-code is hardened: encryption at rest on
+  data-bearing resources, no unrestricted ingress or unintended public
+  access, least-privilege cloud IAM, network segmentation and
+  defense-in-depth, audit and flow logging, governance tagging,
+  version-pinned IaC sources, hardened state backends, deliberate key
+  management, and deletion protection with drift monitoring.

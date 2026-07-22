@@ -1,0 +1,75 @@
+#!/bin/sh
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Myoung Hong
+#
+# gate-meta:
+#   order: 30
+#   name: sast
+#   posture: report-only
+#   skip: SKIP_SAST
+#   strict: SAST_STRICT
+#   summary: OpenGrep security rules over staged source; graceful no-op when tool or rules absent.
+# end-gate-meta
+#
+# Commit-time SAST gate. Chained by the .githooks/pre-commit dispatcher after the
+# loop-closure and consultation-audit gates. Runs OpenGrep against maintained
+# security rules over staged source files.
+#
+# Report-only by default: it surfaces findings and exits 0 so it does not block
+# commits while coverage is being tuned. SAST_STRICT=1 makes findings (or a scan
+# error) block. SKIP_SAST=1 bypasses entirely. Graceful no-op when opengrep or the
+# rules are absent, so an unconfigured clone never has commits broken by this gate.
+#
+# Rules: set SAST_RULES to an OpenGrep rules path. Default is a local clone of the
+# maintained security rules at $HOME/.opengrep-rules; see
+# governance-commons/spec/enforcement-tooling.md for the one-time clone and for
+# narrowing to the security subset (secrets, security-audit, provider secret rules).
+#
+# Why this runs the maintained upstream rules directly rather than enumerating
+# per-rule ids: the retired L1 registry-id binding model's upstream references
+# had drifted heavily (May 2026 audit; findings retained as historical record),
+# and the
+# capability-gate toolchain model that replaced it names gates, not upstream
+# rule ids. The per-rule binding.yaml files remain the traceability contract
+# (which capability gate each substrate rule satisfies).
+
+[ "$SKIP_SAST" = "1" ] && { echo "sast: skipped (SKIP_SAST=1)."; exit 0; }
+
+if ! command -v opengrep >/dev/null 2>&1; then
+  echo "sast: opengrep not installed; skipped. Install per governance-commons/spec/enforcement-tooling.md."
+  exit 0
+fi
+
+SAST_RULES="${SAST_RULES:-$HOME/.opengrep-rules}"
+if [ ! -e "$SAST_RULES" ]; then
+  echo "sast: rules not found at $SAST_RULES; skipped."
+  echo "      Clone the maintained rules (see enforcement-tooling.md) or set SAST_RULES to a rules path."
+  exit 0
+fi
+
+REPO_ROOT=$(git rev-parse --show-toplevel 2>/dev/null) || exit 0
+cd "$REPO_ROOT" || exit 0
+
+# Staged added/modified source files only.
+FILES=$(git diff --cached --name-only --diff-filter=AM \
+  | grep -Ei '\.(py|js|jsx|ts|tsx|mjs|cjs|go|java|rb|php|tf|yaml|yml|json)$')
+if [ -z "$FILES" ]; then
+  echo "sast: no staged source files; nothing to scan."
+  exit 0
+fi
+
+# shellcheck disable=SC2086
+OUT=$(opengrep scan -f "$SAST_RULES" $FILES 2>&1)
+RC=$?
+echo "$OUT"
+
+if [ "$SAST_STRICT" = "1" ] && [ "$RC" != "0" ]; then
+  echo "sast: STRICT - findings or scan error block the commit (SAST_STRICT=1)."
+  echo "      Fix the findings, or bypass with SKIP_SAST=1 git commit ..."
+  exit 1
+fi
+
+if [ "$RC" != "0" ]; then
+  echo "sast: report-only - findings above are not blocking (set SAST_STRICT=1 to enforce)."
+fi
+exit 0

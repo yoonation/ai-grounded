@@ -1,0 +1,40 @@
+id: performance-caching.namespaced-keys
+name: Cache keys are built from a stable namespace prefix and structured components, not
+  from a bare or raw-concatenated string
+layer: semantic
+characteristic: performance-efficiency
+severity: medium
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-31'
+  entered_stable: '2026-06-01'
+  authored_by: Myoung Hong
+sources:
+- title: Redis keyspace and key naming guidance (the convention of a colon-delimited namespaced
+    key such as object-type:id:field)
+  url: https://redis.io/docs/latest/develop/use/keyspace/
+- title: AWS Builders' Library caching challenges and strategies (key design, versioning,
+    and the failure modes of poor keys)
+  url: https://aws.amazon.com/builders-library/caching-challenges-and-strategies/
+applies_to:
+  language: any
+  framework: any
+  environment: any
+references: []
+statement: Cache keys are constructed from a stable namespace prefix (a data-type or domain
+  prefix) and structured components, and where the cached value's shape can change across
+  deploys the key carries a version component. Keys are not bare values or raw concatenations
+  with no namespace. The rule's mechanical slice flags the absence of a namespace prefix;
+  the completeness of the key (that it includes every input that varies the value) is
+  assessed in review and governed by the L3 key conventions. A key built through a namespacing
+  helper satisfies the rule.
+rationale: A cache key is the contract that decides which requests share a cached value.
+  A key with no namespace lets unrelated data collide; a key with no version lets a value
+  computed under an old shape survive a deploy that changed the shape; a key missing a
+  result-varying input lets one input's value be served for another. The first two failures
+  have a statically visible shape (a missing prefix, a missing version), so the substrate
+  makes them a mechanical floor, while the third (a missing result-varying input) is a
+  semantic judgment left to review and the strategy. The rule is deliberately modest about
+  what it catches and honest that it is heuristic; it is the caching counterpart to the
+  explicit-projection rule, a fast first flag rather than a complete guarantee.

@@ -1,0 +1,36 @@
+id: agentic-systems.delegation-authority
+name: Delegated actions carry constrained authority and caller identity
+layer: semantic
+characteristic: safety
+severity: high
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-06-03'
+  entered_stable: '2026-06-04'
+  authored_by: Myoung Hong
+sources:
+- title: OWASP Agentic Security Initiative, agentic threats and mitigations (privilege
+    compromise and identity across multi-agent delegation, referenced as a concept)
+  url: https://genai.owasp.org/resource/agentic-ai-threats-and-mitigations/
+- title: Cloud Security Alliance MAESTRO threat-modeling for agentic systems (multi-agent
+    and delegation layer, referenced as a concept)
+  url: https://cloudsecurityalliance.org/research/topics/maestro
+applies_to:
+  language: any
+  framework: any
+  environment: any
+references: []
+statement: When an agent delegates to a sub-agent or an agent-backed tool, the delegated
+  authority is a subset of the caller's authority and never an expansion, the caller's
+  identity and delegation context propagate so the action stays attributable, and the
+  tool-use, bounds, and gating controls that applied to the caller are preserved across
+  the boundary. The trust model framing who may delegate to whom is agentic-systems.multi-agent-trust and the
+  authority being constrained is agentic-systems.tool-use-authorization, cross-referenced here.
+rationale: 'Delegation is where multi-agent systems leak authority: a sub-agent spun up
+  with its own broad credentials, or a chain of hand-offs that ends with more authority
+  than it began, routes around the controls the originating request was subject to. Constraining
+  delegated authority to a subset and carrying caller identity is what keeps the controls
+  and the accountability intact across the boundary. The substrate makes this an L2 review
+  because the topology and authority model are contextual, and it cross-references the
+  trust-model decision and the tool-use authority rather than restating them.'

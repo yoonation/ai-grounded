@@ -1,0 +1,266 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Myoung Hong
+
+
+# AI model pricing data for cost reporting.
+#
+# This file is provider-agnostic. The framework supports cost
+# reporting for any provider; agents read this file at invocation
+# time to compute estimated cost from token counts.
+#
+# Pricing accuracy:
+# - Approximate, based on published list rates as of last_reviewed
+# - Does not include enterprise volume discounts, batching discounts,
+#   or cached input discounts
+# - Use for relative cost awareness, not for billing reconciliation
+#
+# Maintenance cadence: quarterly (per MAINTENANCE.md)
+# Update procedure: check provider pricing pages, update entries,
+#   bump last_reviewed date, commit.
+
+last_reviewed: "2026-07-04"
+review_cadence: quarterly
+unit: USD per million tokens
+
+# ===========================================================
+# Anthropic
+# ===========================================================
+
+providers:
+  anthropic:
+    docs_url: https://docs.claude.com/en/docs/about-claude/pricing
+    models:
+      claude-opus-4-8:
+        input_per_million_tokens: 5.00
+        output_per_million_tokens: 25.00
+        cached_input_per_million_tokens: 0.50
+        context_window: 1000000
+        notes: "Most capable Opus; verified 2026-07-04. Reserve for complex reasoning, security analysis, threat modeling, and correctness-critical implementation. 1M context standard. Fast mode is 2x (10.00/50.00); not for batch or background work. New tokenizer (Opus 4.7+): roughly 30 percent more tokens for the same text. On the first-party Anthropic API the 'opus' alias resolves here (needs Claude Code v2.1.154+)."
+
+      claude-sonnet-5:
+        input_per_million_tokens: 3.00
+        output_per_million_tokens: 15.00
+        cached_input_per_million_tokens: 0.30
+        context_window: 1000000
+        notes: "Balanced default; near-Opus on coding at lower cost. Introductory pricing 2.00 in / 10.00 out through 2026-08-31, then 3.00 / 15.00. New tokenizer emits roughly 30 percent more tokens than Sonnet 4.6 for the same text, so recount before budgeting. Deliberately low cyber capability with cybersecurity safeguards (refusals arrive as HTTP 200, stop_reason refusal): do NOT route security review, threat modeling, or red-team work here, keep those on Opus. On the first-party Anthropic API the 'sonnet' alias resolves here (needs Claude Code v2.1.197+)."
+
+      claude-fable-5:
+        input_per_million_tokens: 10.00
+        output_per_million_tokens: 50.00
+        cached_input_per_million_tokens: 1.00
+        context_window: 1000000
+        notes: "Verified 2026-07-04 at the pricing docs: 10.00/50.00, exactly 2x Opus 4.8; 1M context at standard rates, 128K max output; batch 5.00/25.00. Top tier above Opus 4.8, for rare Opus-insufficient long-horizon work only; no standing agent assignment in this framework. Safety classifiers auto-reroute flagged cyber/bio/chem/distillation queries to Opus 4.8 (billed at Opus rates, under 5% of sessions; the 2026-07-01 retrained classifier flags benign coding requests more often), so security agents gain nothing routing here over Opus 4.8 directly. Compliance: Mythos-class traffic carries 30-day retention and is not available under zero-data-retention agreements. Mythos 5 shares this pricing but is trusted-access only (Project Glasswing); not routable from this framework."
+
+      claude-opus-4-7:
+        input_per_million_tokens: 5.00
+        output_per_million_tokens: 25.00
+        cached_input_per_million_tokens: 0.50
+        context_window: 1000000
+        notes: "Prior Opus generation; corrected 2026-07-04, the 15.00/75.00 previously listed belongs to the Opus 4.0/4.1 era. Same sticker as 4.8; fast mode 6x (30.00/150.00), scheduled for removal 2026-07-24."
+
+      claude-opus-4-6:
+        input_per_million_tokens: 5.00
+        output_per_million_tokens: 25.00
+        cached_input_per_million_tokens: 0.50
+        context_window: 1000000
+        notes: "Prior Opus generation; corrected 2026-07-04 (see 4-7 note). Fast mode discontinued 2026-06-29."
+
+      claude-sonnet-4-6:
+        input_per_million_tokens: 3.00
+        output_per_million_tokens: 15.00
+        cached_input_per_million_tokens: 0.30
+        context_window: 1000000
+        notes: "Prior Sonnet generation; previous tokenizer, so token counts are not comparable to Sonnet 5."
+
+      claude-haiku-4-5:
+        input_per_million_tokens: 1.00
+        output_per_million_tokens: 5.00
+        cached_input_per_million_tokens: 0.10
+        context_window: 200000
+        notes: "Fast and cheap; corrected 2026-07-04 (the 0.80/4.00 previously listed was stale). Good for high-volume mechanical tasks; lowest-cost current-generation model. 200K context, previous tokenizer. Does not support effort levels."
+
+  # ===========================================================
+  # OpenAI
+  # ===========================================================
+
+  openai:
+    docs_url: https://openai.com/pricing
+    models:
+      gpt-5:
+        input_per_million_tokens: 15.00
+        output_per_million_tokens: 75.00
+        context_window: 256000
+        notes: "Approximate; verify current rates"
+
+      gpt-5-mini:
+        input_per_million_tokens: 3.00
+        output_per_million_tokens: 12.00
+        context_window: 128000
+        notes: "Approximate; verify current rates"
+
+      gpt-5-nano:
+        input_per_million_tokens: 0.40
+        output_per_million_tokens: 1.60
+        context_window: 128000
+        notes: "Approximate; verify current rates"
+
+  # ===========================================================
+  # Google
+  # ===========================================================
+
+  google:
+    docs_url: https://ai.google.dev/pricing
+    models:
+      gemini-2.5-pro:
+        input_per_million_tokens: 3.50
+        output_per_million_tokens: 10.50
+        context_window: 2000000
+        notes: "Approximate; verify current rates; 2M context window"
+
+      gemini-2.5-flash:
+        input_per_million_tokens: 0.30
+        output_per_million_tokens: 1.50
+        context_window: 1000000
+        notes: "Approximate; verify current rates"
+
+  # ===========================================================
+  # Meta (self-hosted or Together AI / Bedrock / Groq pricing varies)
+  # ===========================================================
+
+  meta:
+    docs_url: https://www.llama.com/docs/overview
+    notes: |
+      Llama models are open-weight. Pricing depends on hosting
+      provider (Together, Bedrock, Groq, Fireworks, etc.) or
+      self-hosting compute cost. Below are approximate per-token
+      costs at typical hosted providers; for self-hosting, compute
+      cost varies.
+    models:
+      llama-3.3-70b-instruct:
+        input_per_million_tokens: 0.60
+        output_per_million_tokens: 0.60
+        context_window: 128000
+        notes: "Approximate at Together AI; varies by provider"
+
+      llama-3.3-405b-instruct:
+        input_per_million_tokens: 3.00
+        output_per_million_tokens: 5.00
+        context_window: 128000
+        notes: "Approximate at Together AI; varies by provider"
+
+  # ===========================================================
+  # Mistral (cloud API rates)
+  # ===========================================================
+
+  mistral:
+    docs_url: https://docs.mistral.ai/getting-started/models/
+    models:
+      mistral-large:
+        input_per_million_tokens: 2.00
+        output_per_million_tokens: 6.00
+        context_window: 128000
+
+      mistral-small:
+        input_per_million_tokens: 0.20
+        output_per_million_tokens: 0.60
+        context_window: 32000
+
+# ===========================================================
+# Cost computation reference
+# ===========================================================
+
+cost_computation:
+  formula: |
+    estimated_usd = (input_tokens / 1_000_000) * input_per_million_tokens
+                  + (output_tokens / 1_000_000) * output_per_million_tokens
+
+  example: |
+    Claude Opus 4.8 with 12,500 input tokens and 3,200 output tokens:
+    estimated_usd = (12500 / 1_000_000) * 5.00
+                  + (3200 / 1_000_000) * 25.00
+                  = 0.0625 + 0.08
+                  = 0.1425 USD
+
+  cached_input_note: |
+    When the same content is sent repeatedly (e.g., system prompts,
+    long context), providers offer cached input pricing. If your
+    framework integration supports cache awareness, use the
+    cached_input_per_million_tokens rate for tokens served from cache.
+
+# ===========================================================
+# Defaults for unknown models
+# ===========================================================
+
+defaults:
+  unknown_model:
+    input_per_million_tokens: 5.00
+    output_per_million_tokens: 25.00
+    notes: |
+      When an agent reports usage of a model not in this file, fall
+      back to these conservative defaults. Update this file to add
+      the missing model so future reports are accurate.
+
+# ===========================================================
+# Model selection guidance
+# ===========================================================
+
+selection_guidance:
+  framework_routing: |
+    The authoritative per-agent routing for this framework is the model:
+    field in each .claude/agents/*.md frontmatter (single source; this
+    file provides prices and tier guidance, never assignments). Current
+    tiers: opus for judgment-dense and security-sensitive agents
+    (staff-engineer, threat-modeler, security-reviewer, closure-auditor,
+    operational-architect, production-readiness, test-architect), sonnet
+    for scaffolded reviewers and drafting (code-reviewer,
+    performance-reviewer, concern-selector, adr-architect), haiku for
+    mechanical survey work (discovery-agent). Fable 5 has no standing
+    assignment: its value case (long-horizon autonomous multi-step work)
+    matches interactive implementation sessions, not bounded read-only
+    review agents, and its classifier reroutes flagged security queries
+    to Opus 4.8 anyway. Operators may hand-route a rare
+    Opus-insufficient invocation to it deliberately.
+
+  security_caveat: |
+    Claude Sonnet 5 has deliberately low cybersecurity capability and
+    real-time cyber safeguards. Keep security review, threat modeling,
+    and any red-team or exploit-analysis work on an Opus-tier model
+    (Opus 4.8) even though Sonnet is cheaper. Fable 5 carries its own
+    cyber safety measures and is not preferred over Opus 4.8 for these
+    tasks either.
+
+  reasoning_intensive_tasks:
+    recommendation: opus-tier or gpt-5
+    use_cases:
+      - Complex multi-step reasoning
+      - Architecture review
+      - Threat modeling
+      - Code review with novel codebases
+      - Security analysis
+
+  balanced_tasks:
+    recommendation: sonnet-tier or gpt-5-mini or gemini-2.5-pro
+    use_cases:
+      - Most code generation
+      - Standard reviews
+      - Documentation writing
+      - Spec drafting
+
+  high_volume_simple_tasks:
+    recommendation: haiku-tier or gpt-5-nano or gemini-2.5-flash
+    use_cases:
+      - Linting tasks
+      - Format conversions
+      - Simple classifications
+      - Repetitive structured generation
+
+# ===========================================================
+# References
+# ===========================================================
+
+references:
+  - https://docs.claude.com/en/docs/about-claude/pricing
+  - https://openai.com/pricing
+  - https://ai.google.dev/pricing
+  - https://www.together.ai/pricing
+  - https://docs.mistral.ai/getting-started/models/

@@ -1,0 +1,34 @@
+id: agentic-systems.tool-and-skill-trust-policy
+name: The agent has a recorded tool and skill trust policy
+layer: judgmental
+characteristic: safety
+severity: high
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-06-03'
+  entered_stable: '2026-06-04'
+  authored_by: Myoung Hong
+sources:
+- title: OWASP Agentic Security Initiative, agentic threats and mitigations (tool and
+    skill trust, supply chain of agent capabilities, referenced as a concept)
+  url: https://genai.owasp.org/resource/agentic-ai-threats-and-mitigations/
+applies_to:
+  language: any
+  framework: any
+  environment: any
+references: []
+statement: The agent has a recorded tool and skill trust policy ADR, current relative
+  to the last significant change, setting which tools and skills it may load and invoke,
+  how a tool or skill is vetted before admission (source and provenance, declared scope,
+  behavior), the stance on third-party and dynamically-discovered skills and the vetting
+  gate for them, and how trust is revoked. It cross-references supply-chain for skill-artifact
+  provenance, agentic-systems.tool-authorization-scope for the admitted tool's scope, and agentic-systems.tool-use-authorization for its call-time
+  authorization. The OWASP Agentic Skills Top 10 threats map here.
+rationale: A skill admitted to an agent runs with the agent's authority, so the decision
+  to trust a tool or skill is a decision to extend the agent's reach and its attack surface
+  together; an unvetted or dynamically-loaded third-party skill is where a supply-chain
+  compromise becomes an agent compromise from the inside. The policy is the deliberate
+  admission and vetting decision that keeps the tool set trustworthy. The substrate makes
+  this an L3 ADR because admission is a trust judgment, cross-references supply-chain
+  for artifact provenance, and is the binding point for the OWASP Agentic Skills Top 10.

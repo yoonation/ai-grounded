@@ -1,0 +1,3 @@
+binding_status: capability-bound
+rule: error-handling.no-bare-except
+gate: lint

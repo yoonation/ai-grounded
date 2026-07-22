@@ -1,0 +1,50 @@
+id: infrastructure-misconfiguration.least-privilege-iac-iam
+name: 'Cloud-IAM declarations in IaC enforce least-privilege: no unjustified wildcards,
+  scoped roles, no broad PassRole, no default admin policies'
+layer: semantic
+characteristic: security
+severity: high
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-31'
+  entered_stable: '2026-06-01'
+  authored_by: Myoung Hong
+sources:
+- title: NIST SP 800-53 Rev. 5 AC-6 Least Privilege
+  url: https://csrc.nist.gov/projects/cprt/catalog#/cprt/framework/version/SP_800_53_5_1_1/home
+- title: CIS AWS Foundations Benchmark v3.0.0 (Section 1 Identity and Access Management,
+    least-privilege review)
+  url: https://www.cisecurity.org/benchmark/amazon_web_services
+- title: CSA Cloud Controls Matrix v4 IAM-04 Least Privilege
+  url: https://cloudsecurityalliance.org/research/cloud-controls-matrix/
+cwe:
+- CWE-269
+- CWE-732
+applies_to:
+  language: any-iac
+  framework: terraform-cloudformation-pulumi-arm-bicep
+  environment: any-cloud-iam-declaration
+references: []
+statement: IaC declarations of cloud-IAM constructs (AWS IAM policies, roles, users, groups;
+  Azure RBAC role definitions and assignments; GCP IAM bindings and custom roles; Kubernetes
+  ClusterRole / Role / ClusterRoleBinding / RoleBinding) follow least-privilege. Wildcards
+  in Action / Resource (AWS), Actions / NotActions (Azure custom roles), permissions (GCP
+  custom roles), or verbs / resources (Kubernetes RBAC) are reviewed and either justified
+  by a documented service-pattern or replaced with explicit enumeration. Account-default
+  admin-equivalent managed policies (AWS Administrator Access, Azure Owner / Contributor
+  at subscription, GCP Owner / Editor at project) are not attached to workload roles.
+  Broad iam:PassRole permitting a principal to pass any role to any service is replaced
+  with scoped PassRole expressions naming specific role ARNs and service principals. Service
+  accounts (Kubernetes service accounts, GCP service accounts, Azure managed identities)
+  carry only the roles their workload requires.
+rationale: 'Least-privilege cloud-IAM is the substrate''s defense against the post-compromise
+  lateral-movement pattern that dominates published cloud-breach post-mortems. A workload
+  with a tightly-scoped role contains a credential compromise to the workload''s scope;
+  a workload with a broad role converts the same compromise into account-level access
+  via role-chaining and PassRole. The review is contextual: some wildcards are part of
+  legitimate platform patterns (a read-only audit role with Get*, List*, Describe* on
+  a service; a CI deployer with broad cloudformation:* on an isolated CI account). The
+  L2 review distinguishes justified wildcards from accidental ones; the test template
+  provides policy-simulation patterns that consumers run in CI to detect privilege-creep
+  over time.'

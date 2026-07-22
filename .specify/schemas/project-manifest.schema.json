@@ -1,0 +1,124 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "project-manifest.schema.json",
+  "title": "Project Manifest - Consumer Sections Schema",
+  "description": "Validates the consumer-owned sections of project-manifest.yaml (context, stack, concerns). The manifest: block is the substrate's contract and is validated separately against governance-commons/schemas/manifest.schema.json; this schema only constrains the consumer-added sections and otherwise allows the substrate-owned content through (additionalProperties true).",
+  "type": "object",
+  "required": ["manifest"],
+  "additionalProperties": true,
+  "properties": {
+    "manifest": {
+      "type": "object",
+      "description": "Substrate-owned block. Detailed shape validated by the substrate Consumer Manifest Schema, not here."
+    },
+    "context": {
+      "type": "object",
+      "description": "The profile dial's context facts. The operator declares what the project is; tooling/dial/resolve.py derives the rigor band from these via high-water-mark per axis. Optional: a missing block or fact defaults to its lowest level (the lean cell) and is reported under defaulted_facts. Each fact is a small fixed enum anchored on a named scheme (see the Stage 0 decision log).",
+      "additionalProperties": false,
+      "properties": {
+        "data-sensitivity": {
+          "type": "string",
+          "enum": ["personal-or-none", "confidential", "regulated"],
+          "description": "Risk axis. FIPS 199 confidentiality; FedRAMP Low/Moderate/High."
+        },
+        "network-exposure": {
+          "type": "string",
+          "enum": ["none-local", "internal", "public-internet"],
+          "description": "Risk axis. Threat-model trust boundary and attack surface."
+        },
+        "criticality": {
+          "type": "string",
+          "enum": ["low", "moderate", "high"],
+          "description": "Risk axis. Blast-radius and reversibility; FIPS 199 integrity and availability."
+        },
+        "deployment-target": {
+          "type": "string",
+          "enum": ["local-only", "single-tenant-service", "multi-tenant-production"],
+          "description": "Process-weight axis. Production tier."
+        },
+        "operator-count": {
+          "type": "string",
+          "enum": ["solo", "team", "org"],
+          "description": "Process-weight axis. Coordination scaling."
+        },
+        "agentic-surface": {
+          "type": "string",
+          "enum": ["none", "llm-assisted", "autonomous"],
+          "description": "Overlay (not an axis input). Keys the agentic catalog and threat packs; refines stack.uses-llm for rigor purposes. EU AI Act, NIST AI RMF, OWASP LLM and Agentic."
+        }
+      }
+    },
+    "stack": {
+      "type": "object",
+      "description": "Governance-relevant facts about the project's technology, not version pins. Pins live in the tool files named by pins-source.",
+      "additionalProperties": false,
+      "required": ["languages", "datastore", "surfaces", "uses-llm", "pins-source"],
+      "properties": {
+        "languages": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Programming languages in use, e.g. [typescript, python]."
+        },
+        "datastore": {
+          "type": "string",
+          "description": "Primary datastore: none | sqlite | postgres | mysql | other."
+        },
+        "surfaces": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Exposed surfaces: cli | http-api | web-frontend | library | none."
+        },
+        "uses-llm": {
+          "type": "boolean",
+          "description": "Whether the project calls models or runs agents at runtime. The dial's context.agentic-surface is the authoritative rigor fact and refines this."
+        },
+        "pins-source": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Tool files holding exact version pins, e.g. [\".mise.toml\", \"package.json\"]."
+        }
+      }
+    },
+    "concerns": {
+      "type": "object",
+      "description": "Project-level concern posture established once by the concern-selector. Per-feature narrowing lives in specs/NNN-feature/feature-concerns.yaml.",
+      "additionalProperties": false,
+      "required": ["always", "never"],
+      "properties": {
+        "always": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Concern catalogs always in scope for this project."
+        },
+        "never": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Concern catalogs never applicable to this project."
+        }
+      }
+    },
+    "build": {
+      "type": "object",
+      "description": "How to produce and smoke-test the shipped artifact, consumed by the real-artifact verification tool (tooling/artifact/check.py). All fields optional; an absent build section means the tool has nothing to verify. Top-level section (the top level allows additional properties); it does not touch the stack block.",
+      "additionalProperties": false,
+      "properties": {
+        "command": {
+          "type": "string",
+          "description": "Shell command that builds the shipped artifact from source, e.g. 'pnpm build' or 'make build'."
+        },
+        "artifact": {
+          "type": "string",
+          "description": "Path the build produces and that is run/shipped, e.g. 'dist/' or 'dist/cli.js'. Informational; the tool rebuilds from source rather than trusting a stored copy."
+        },
+        "smoke": {
+          "type": "string",
+          "description": "A trivial invocation of the built artifact that must exit 0, e.g. 'node dist/cli.js --help'. Confirms the freshly built artifact actually runs."
+        },
+        "test": {
+          "type": "string",
+          "description": "Optional: the test command, recorded for traceability. Whether tests target source or the built artifact is a testing-strategy choice, not enforced by this tool."
+        }
+      }
+    }
+  }
+}

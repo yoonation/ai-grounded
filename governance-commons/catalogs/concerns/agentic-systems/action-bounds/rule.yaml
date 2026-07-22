@@ -1,0 +1,37 @@
+id: agentic-systems.action-bounds
+name: Consequential agent actions are bounded
+layer: semantic
+characteristic: safety
+severity: high
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-06-03'
+  entered_stable: '2026-06-04'
+  authored_by: Myoung Hong
+sources:
+- title: OWASP Agentic Security Initiative, agentic threats and mitigations (excessive
+    agency and unbounded action, referenced as a concept)
+  url: https://genai.owasp.org/resource/agentic-ai-threats-and-mitigations/
+- title: Cloud Security Alliance MAESTRO threat-modeling for agentic systems (action and
+    environment layer, referenced as a concept)
+  url: https://cloudsecurityalliance.org/research/topics/maestro
+applies_to:
+  language: any
+  framework: any
+  environment: any
+references: []
+statement: 'Consequential agent actions are bounded in proportion to their consequence:
+  irreversible or destructive actions require confirmation or a dry-run-then-apply step,
+  quantitative actions carry rate or magnitude limits, and execution is sandboxed or scoped
+  so the blast radius is contained. Routine reversible actions are not over-burdened.
+  The human gate on the most consequential class is agentic-systems.human-action-gating and the definition of
+  consequential is the agentic-systems.human-action-gating-policy policy, cross-referenced here.'
+rationale: 'An agent operates in a fast loop with real tools, so a single wrong or subverted
+  decision can cascade into many actions before anyone notices; bounds are the containment
+  that caps the damage. They are the action-side companion to goal integrity: they assume
+  the goal can be wrong and limit what a wrong goal can do irreversibly or at scale. The
+  substrate makes this an L2 review because consequence is contextual and bounds must
+  be proportionate, over-bounding makes the agent useless and under-bounding leaves it
+  dangerous. It cross-references the human gate and the consequential-action policy rather
+  than restating them.'

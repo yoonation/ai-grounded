@@ -1,0 +1,41 @@
+id: input-validation.path-traversal-prevention
+name: File system paths constructed from user input are constrained to a designated base
+  directory
+layer: mechanical
+characteristic: security
+severity: high
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-23'
+  entered_stable: '2026-05-26'
+  authored_by: Myoung Hong
+sources:
+- title: OWASP ASVS v5.0.0 V5.3.10 (Path traversal prevented by canonicalization and containment
+    check)
+  url: https://github.com/OWASP/ASVS/blob/v5.0.0/5.0/en/0x13-V5-Validation-Sanitization-Encoding.md
+- title: CWE-22 Improper Limitation of a Pathname to a Restricted Directory
+  url: https://cwe.mitre.org/data/definitions/22.html
+cwe:
+- CWE-22
+- CWE-23
+- CWE-36
+applies_to:
+  language: any
+  framework: any
+  environment: any-with-file-io
+references: []
+statement: Every file system access (open, read, write, stat, delete, mkdir) whose path
+  is constructed from a value crossing the trust boundary resolves the path to its canonical
+  form and confirms that the resolved path is inside a designated base directory. The
+  resolution uses the platform's canonical-path function (Python os.path.realpath, Node.js
+  fs.realpathSync, Java File.getCanonicalPath, Go filepath.Clean plus filepath.Abs, Ruby
+  File.expand_path). The containment check compares the canonical path's prefix against
+  the canonical base directory.
+rationale: 'Path traversal exploits combine the path-separator characters (../ and \..\)
+  with the platform''s path-joining function: a user-supplied component like "../../etc/passwd"
+  joined onto "/var/app/uploads/" produces a path outside the upload directory. The substrate''s
+  L1 defense is structural: canonicalize first (which resolves the .. components), then
+  confirm containment in the allowed scope. Both steps are required; canonicalization
+  without containment check accepts paths anywhere on the file system, and containment
+  check without canonicalization can be bypassed by encoded traversal sequences.'

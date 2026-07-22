@@ -1,0 +1,51 @@
+id: logging.retention-policy
+name: Log retention follows a documented policy with bands tuned to operational, compliance,
+  and forensic needs
+layer: semantic
+characteristic: maintainability
+severity: high
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-20'
+  entered_stable: '2026-05-22'
+  authored_by: Myoung Hong
+sources:
+- title: PCI DSS v4.0.1 Requirement 10.5.1 (audit log retention 12 months minimum, 3 months
+    immediately available)
+  url: https://docs-prv.pcisecuritystandards.org/PCI%20DSS/Standard/PCI-DSS-v4_0_1.pdf
+- title: NIST SP 800-92 Section 4.2 (log management policy, retention guidance)
+  url: https://csrc.nist.gov/publications/detail/sp/800-92/final
+- title: NIST SP 800-53 Rev 5 AU-11 Audit Record Retention
+  url: https://csrc.nist.gov/publications/detail/sp/800-53/rev-5/final
+- title: OWASP ASVS v5.0.0 V11 (retention duration matched to threat model)
+  url: https://github.com/OWASP/ASVS/blob/v5.0.0/5.0/en/0x20-V11-BusLogic.md
+applies_to:
+  language: any
+  framework: any
+  environment: any-production
+references: []
+statement: 'Log retention follows a documented policy that specifies per-stream retention
+  duration, hot or warm or cold storage tier, and disposition (deletion, archival, hand-off).
+  The policy distinguishes retention bands aligned to operational and compliance requirements:
+  short-term (operational, days to weeks) for high-volume debug and trace logs; medium-term
+  (incident response, weeks to months) for application logs; long-term (compliance and
+  forensic, months to years) for audit and security event logs. The policy is implemented
+  in retention configuration on the log store and verifiable by querying the configured
+  retention against the documented policy.'
+rationale: 'Retention is the operational lever that determines what evidence is available
+  when it matters: during an incident response, during a compliance audit, during a customer
+  dispute. Setting retention too short erodes forensic capability and produces regulatory
+  findings; setting it too long multiplies storage cost and disclosure exposure (every
+  additional day of retention is an additional day during which a stolen log dump remains
+  compromising user data). The substrate''s stance is band-based: not all log streams
+  need the same retention. Application debug logs (volume-driven, marginal forensic value
+  beyond the immediate operational window) warrant short retention. Authentication, authorization,
+  and administrative-action logs (high forensic value, regulatory targets) warrant long
+  retention with tamper-evidence (logging.integrity). Mixing the two streams produces either
+  over-retention of debug (cost, disclosure) or under-retention of audit (compliance,
+  forensics); the substrate''s recommendation is to separate streams at ingestion or shortly
+  after. The policy is a written artifact because retention determinations require regulator-visible
+  reasoning: why this band, what regulation drives the bound, what the disposition is
+  at the end of the window. Implicit retention (whatever the cloud aggregator defaults
+  to) repeatedly produces audit findings because the defaults are tuned to cost, not compliance.'

@@ -1,0 +1,214 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://governance-commons/schemas/manifest.schema.json",
+  "title": "Consumer Manifest Schema",
+  "description": "Validates consumer manifest files against the format defined in spec/manifest-format.md. Manifests are consumer-side artifacts; this schema is published by the substrate for consumer use. Schema is in draft lifecycle status.",
+  "x-governance-commons": {
+    "schema-kind": "manifest",
+    "lifecycle-status": "draft",
+    "commons-version": "0.1.0",
+    "schema-version": "0.1.0",
+    "authored": "2026-05-17",
+    "author": "myoung",
+    "ai-assistance": "AI drafted based on spec/manifest-format.md; human review pending real-manifest validation",
+    "validation-notes": "This schema will be exercised when the first consumer (this framework) authors a real manifest after the concern catalogs are populated. Until then, the schema reflects the format spec only."
+  },
+  "type": "object",
+  "required": ["manifest"],
+  "additionalProperties": true,
+  "properties": {
+    "manifest": {
+      "type": "object",
+      "required": ["schema-version", "consumer", "substrate", "workflow", "evidence"],
+      "additionalProperties": true,
+      "patternProperties": {
+        "^x-": {
+          "description": "Consumer extensions per spec/manifest-format.md. Substrate tooling ignores x- keys."
+        }
+      },
+      "properties": {
+        "schema-version": {
+          "type": "string",
+          "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+(-[0-9A-Za-z.-]+)?(\\+[0-9A-Za-z.-]+)?$",
+          "description": "The manifest format version this manifest conforms to"
+        },
+        "consumer": {
+          "type": "object",
+          "required": ["identifier", "type"],
+          "additionalProperties": true,
+          "properties": {
+            "identifier": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Consumer-defined stable identifier"
+            },
+            "type": {
+              "type": "string",
+              "enum": ["build-time-framework", "runtime-enforcement", "standalone-catalog-consumer", "hybrid"]
+            },
+            "contact": {
+              "type": "string"
+            }
+          }
+        },
+        "substrate": {
+          "type": "object",
+          "required": ["commons-version", "profile"],
+          "additionalProperties": true,
+          "properties": {
+            "commons-version": {
+              "type": "string",
+              "description": "Pinned commons version or version constraint. Per consumption-contract.md, implicit dependencies are not permitted."
+            },
+            "profile": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Profile identifier"
+            },
+            "profile-version": {
+              "type": "string",
+              "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+(-[0-9A-Za-z.-]+)?(\\+[0-9A-Za-z.-]+)?$"
+            }
+          }
+        },
+        "workflow": {
+          "type": "object",
+          "required": ["checkpoints"],
+          "additionalProperties": true,
+          "properties": {
+            "checkpoints": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "$ref": "#/$defs/checkpoint"
+              }
+            }
+          }
+        },
+        "evidence": {
+          "type": "object",
+          "required": ["medium", "location", "integrity"],
+          "additionalProperties": true,
+          "properties": {
+            "medium": {
+              "type": "string",
+              "enum": [
+                "jsonl-append-only",
+                "opentelemetry-spans",
+                "immutable-database",
+                "cloud-audit-log",
+                "signed-git-history",
+                "custom"
+              ]
+            },
+            "location": {
+              "type": "string",
+              "minLength": 1
+            },
+            "integrity": {
+              "type": "string",
+              "enum": [
+                "append-only-filesystem",
+                "write-once-storage",
+                "cryptographic-signatures",
+                "hash-chain",
+                "signed-commits",
+                "trusted-timestamping",
+                "third-party-audit-service",
+                "custom"
+              ]
+            }
+          }
+        },
+        "provenance": {
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "author": {
+              "type": "string"
+            },
+            "authored": {
+              "type": "string",
+              "format": "date"
+            },
+            "last-modified": {
+              "type": "string",
+              "format": "date"
+            },
+            "ai-assistance": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "checkpoint": {
+      "type": "object",
+      "required": ["name", "trigger", "consulter", "consults"],
+      "additionalProperties": true,
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Consumer-defined checkpoint identifier"
+        },
+        "trigger": {
+          "type": "string",
+          "minLength": 1,
+          "description": "When this checkpoint fires; consumer-defined label"
+        },
+        "consulter": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Consumer principal performing consultation"
+        },
+        "consults": {
+          "type": "object",
+          "additionalProperties": false,
+          "anyOf": [
+            {"required": ["catalogs"]},
+            {"required": ["rules"]},
+            {"required": ["mappings"]},
+            {"required": ["decision-frameworks"]}
+          ],
+          "properties": {
+            "catalogs": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "rules": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "mappings": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "decision-frameworks": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "required-findings": {
+          "type": "string",
+          "enum": ["report-only", "record-only", "report-and-block", "record-and-block"],
+          "default": "report-and-block"
+        },
+        "blocking": {
+          "type": "boolean"
+        }
+      }
+    }
+  }
+}

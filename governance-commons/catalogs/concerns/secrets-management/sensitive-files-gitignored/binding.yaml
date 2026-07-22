@@ -1,0 +1,3 @@
+binding_status: capability-bound
+rule: secrets-management.sensitive-files-gitignored
+gate: secrets

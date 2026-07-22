@@ -1,0 +1,41 @@
+id: performance-database.non-blocking-migrations
+name: Schema migrations create indexes and alter columns using the engine's non-blocking
+  form where one exists, so a migration does not take a long exclusive lock on a hot table
+layer: mechanical
+characteristic: performance-efficiency
+severity: medium
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-31'
+  entered_stable: '2026-06-01'
+  authored_by: Myoung Hong
+sources:
+- title: Postgres CREATE INDEX CONCURRENTLY (building an index without taking a lock that
+    blocks writes)
+  url: https://www.postgresql.org/docs/current/sql-createindex.html#SQL-CREATEINDEX-CONCURRENTLY
+- title: squawk, a linter for Postgres migrations that flags blocking DDL including non-concurrent
+    index creation
+  url: https://github.com/sbdchd/squawk
+applies_to:
+  language: any
+  framework: any
+  environment: any
+references: []
+statement: 'Schema migrations use the engine''s non-blocking form for operations that
+  would otherwise take a long exclusive lock on a populated table: CREATE INDEX CONCURRENTLY
+  rather than CREATE INDEX on Postgres, and the safe-migration pattern for column additions,
+  type changes, and constraint additions that the migration linter flags as locking. The
+  rule applies to migrations against tables expected to hold production data; it does
+  not apply to the initial creation of an empty table or to development-only fixtures.
+  The blocking DDL form in a production-bound migration is the finding.'
+rationale: Migrations run at deploy time against live data, and the lock a blocking DDL
+  statement takes does not distinguish deploy time from peak traffic. A non-concurrent
+  index build on a large table holds a lock that blocks writes for as long as the build
+  takes, which on a hot table is a partial outage triggered by a routine deploy. The non-blocking
+  forms exist precisely to avoid this, and the cost of using them is a single keyword
+  plus, for some migration tools, running the statement outside a transaction. The substrate
+  makes this a mechanical floor because the blocking form is statically detectable, a
+  mature linter already detects it, and the consequence is an avoidable deploy-time stall.
+  It is the clearest case in the concern of a rule whose enforcement should lean on an
+  existing tool rather than substrate-authored patterns.

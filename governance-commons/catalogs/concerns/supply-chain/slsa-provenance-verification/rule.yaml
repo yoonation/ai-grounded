@@ -1,0 +1,66 @@
+id: supply-chain.slsa-provenance-verification
+name: SLSA provenance attestation present and verifiable for every production artifact
+  at deployment time
+layer: mechanical
+characteristic: security
+severity: critical
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-23'
+  entered_stable: '2026-05-26'
+  authored_by: Myoung Hong
+sources:
+- title: SLSA v1.1 Provenance specification (attestation format and predicate structure)
+  url: https://slsa.dev/spec/v1.1/provenance
+- title: SLSA v1.1 Verifying Artifacts (consumer-side verification discipline)
+  url: https://slsa.dev/spec/v1.1/verifying-artifacts
+- title: in-toto Attestation Framework v1.0 (envelope and statement format consumed by
+    SLSA provenance and related predicates)
+  url: https://github.com/in-toto/attestation/blob/main/spec/v1/README.md
+- title: NIST SP 800-218 SSDF v1.1 PS.3 (Archive and Protect Each Software Release) and
+    PW.4 (verifiable integrity via provenance)
+  url: https://csrc.nist.gov/pubs/sp/800/218/final
+- title: Executive Order 14028 of May 12, 2021 (US foundational policy generating the
+    SSDF; federal collection mandate rescinded operationally by OMB M-26-05 in February
+    2026; EO itself remains in force)
+  url: https://www.federalregister.gov/documents/2021/05/17/2021-10460/improving-the-nations-cybersecurity
+- title: EU Regulation 2024/2847 (Cyber Resilience Act) Annex I Part I 3(c) and Part II
+    (vulnerability handling and provenance discipline; reporting obligations activate
+    2026-09-11; full enforcement 2027-12-11)
+  url: https://eur-lex.europa.eu/eli/reg/2024/2847/oj
+- title: CWE-1357 Reliance on Insufficiently Trustworthy Component
+  url: https://cwe.mitre.org/data/definitions/1357.html
+cwe:
+- CWE-1357
+- CWE-829
+applies_to:
+  language: any
+  framework: any
+  environment: production
+references: []
+statement: 'Every artifact deployed to production carries a SLSA provenance attestation
+  that is verified at deployment time. The verification step is gated in the CI/CD pipeline:
+  a deployment cannot proceed without a successful attestation verification result. The
+  attestation must satisfy the consumer''s profile-selected SLSA Build Level threshold
+  (substrate-default Build L2 for production-grade-baseline profile; L3 for stricter profiles:
+  financial-services, healthcare, government). The verification consults a transparency
+  log (Sigstore Rekor by substrate default) and verifies the signing identity against
+  the consumer''s allowed-signers policy. Artifacts lacking an attestation during the
+  substrate-recommended transition window (consumer-defined deadline; substrate-recommended
+  six months for new dependency adoption) are tracked via the substrate''s exemption-handling
+  discipline.'
+rationale: Build provenance is the substrate's answer to the question "where did this
+  artifact come from, who built it, from what source, in what environment, and how do
+  I know the answer is trustworthy?" The SLSA framework operationalizes this question
+  with a layered requirements model (Build L1 generates provenance; Build L2 signs it;
+  Build L3 hardens the build platform against insider tampering). The substrate elects
+  Build L2 as the production-grade-baseline threshold because Build L2 requires the build
+  platform to generate the attestation (not the producer claiming the build platform did),
+  with a verifiable signing identity. Build L3 raises the bar to attacker-resistant build
+  platforms (hosted services with hermeticity and isolation guarantees); the substrate
+  recommends L3 for profiles with elevated regulatory or risk posture. The substrate's
+  verification gate is consumer-side because attestation generation is upstream (the build
+  platform's responsibility) but attestation enforcement is consumer's responsibility
+  (the deployment surface). The substrate publishes the verification discipline; the consumer
+  implements the gate in their CI/CD.

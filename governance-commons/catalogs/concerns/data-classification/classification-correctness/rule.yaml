@@ -1,0 +1,39 @@
+id: data-classification.classification-correctness
+name: Each data element is assigned the correct and complete classification, including
+  derived, aggregated, and in-transit data
+layer: semantic
+characteristic: security
+severity: high
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-31'
+  entered_stable: '2026-06-01'
+  authored_by: Myoung Hong
+sources:
+- title: NIST SP 800-60 (determining the security category of an information type, including
+    aggregation effects)
+  url: https://csrc.nist.gov/pubs/sp/800/60/v1/r1/final
+- title: ISO/IEC 27001 information classification (assigning the correct classification
+    level, referenced as a concept)
+  url: https://www.iso.org/standard/27001
+applies_to:
+  language: any
+  framework: any
+  environment: any
+references: []
+statement: Each data element is assigned the class the scheme's determination rule specifies
+  for what the data is. Derived and aggregated data carry at least the class of their
+  most sensitive input, and a combination of lower-class fields that together reveal a
+  higher-class fact is classified at the higher class. Free-text fields that may contain
+  higher-class data, and exports or reports that re-expose classified source data, are
+  classified for what they can contain. The class is reviewed when a new data element,
+  derivation, or export is introduced.
+rationale: Every per-class control is a function of the class, so the class is the single
+  input whose error propagates into all of them. Under-classification under-protects;
+  incomplete classification protects the source field while a derived view, an aggregate,
+  or an export leaks it. The aggregation effect (low-class fields that combine into a
+  high-class fact) is the subtlest and most commonly missed case. The substrate makes
+  correctness an explicit review keyed to the scheme's determination rule, resting on
+  the L1 floor that a label exists and is in vocabulary, because the judgment of what
+  data means and how it combines is exactly what a tool cannot make.

@@ -1,0 +1,11 @@
+id: supply-chain
+name: Supply Chain
+characteristic: security
+status: stable
+summary: >
+  How the build and release pipeline is secured: SBOM presence and
+  validity, SLSA provenance and signature verification, digest-pinned
+  artifacts, isolated reproducible build environments, no remote execution
+  in builds, signed commits and protected branches, critical-dependency
+  audit and vetting, attestation retention, a vulnerability-disclosure
+  runbook, and a recorded supply-chain integrity strategy.

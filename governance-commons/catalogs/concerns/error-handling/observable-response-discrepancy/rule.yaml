@@ -1,0 +1,40 @@
+id: error-handling.observable-response-discrepancy
+name: Error responses do not leak resource or user existence via timing or response-shape
+  discrepancies
+layer: semantic
+characteristic: reliability
+severity: critical
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-24'
+  entered_stable: '2026-05-26'
+  authored_by: Myoung Hong
+sources:
+- title: OWASP ASVS v5.0.0 V7.4.1 (Error responses do not expose enumeration-facilitating
+    information)
+  url: https://github.com/OWASP/ASVS/blob/v5.0.0/5.0/en/0x15-V7-Error-Logging.md
+- title: CWE-204 Observable Response Discrepancy
+  url: https://cwe.mitre.org/data/definitions/204.html
+- title: CWE-203 Observable Discrepancy
+  url: https://cwe.mitre.org/data/definitions/203.html
+cwe:
+- CWE-204
+- CWE-203
+applies_to:
+  environment: any-with-network-response-surface
+references: []
+statement: 'Error responses for resource-access endpoints do not differentiate between
+  "resource does not exist" and "resource exists but principal is not authorized to see
+  it." Both cases produce the same HTTP status code (substrate-recommended: 404 Not Found
+  for both, treating the response from the unauthorized principal''s perspective as "the
+  resource is not visible"), the same response body shape, and similar timing characteristics
+  (no fast-path for the nonexistent case, no slow-path for the authorization check). Authentication
+  endpoints follow the same discipline per authentication.generic-failure-responses: the response does not differentiate
+  "user does not exist" from "user exists but credentials wrong."'
+rationale: Observable response discrepancy is a direct enumeration vector. The substrate's
+  L2 rule covers the broader resource-existence case beyond authentication (which is covered
+  at L1 in the authentication catalog). The rule is L2 because the response and timing
+  characteristics depend on the application's response pipeline and database query characteristics;
+  the substrate cannot detect discrepancies via static analysis but reviewers can verify
+  the pipeline shape.

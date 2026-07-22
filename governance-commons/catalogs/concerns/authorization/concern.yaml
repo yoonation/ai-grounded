@@ -1,0 +1,9 @@
+id: authorization
+name: Authorization
+characteristic: security
+status: stable
+summary: 'How the system decides what an authenticated principal may do: route and object
+  level access checks, least privilege, tenant isolation, policy centralization, and the
+  model-selection decision.'
+threat_refs:
+- stride.elevation-of-privilege

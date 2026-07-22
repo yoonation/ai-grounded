@@ -1,0 +1,44 @@
+id: testing-strategy.no-test-framework-in-production
+name: Production source paths do not import test framework packages
+layer: mechanical
+characteristic: functional-suitability
+severity: high
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-25'
+  entered_stable: '2026-05-26'
+  authored_by: Myoung Hong
+sources:
+- title: OWASP ASVS v5.0.0 V14.2 (no debug, development, or test code in production builds)
+  url: https://github.com/OWASP/ASVS/blob/v5.0.0/5.0/en/0x22-V14-Config.md
+- title: CWE-489 Active Debug Code (broader category covering test/debug code in production
+    paths)
+  url: https://cwe.mitre.org/data/definitions/489.html
+- title: CWE-1006 Bad Coding Practices
+  url: https://cwe.mitre.org/data/definitions/1006.html
+cwe:
+- CWE-489
+applies_to:
+  language: any
+  framework: any-testing-framework
+  environment: any
+references: []
+statement: Production source paths (canonically src/, app/, lib/ without test/ subpath)
+  do not import test framework packages (Python pytest, unittest, mock, freezegun; JavaScript
+  jest, vitest, jasmine, chai, sinon; Java junit, mockito, hamcrest; Go testing package
+  outside _test.go files, testify outside _test.go; Ruby rspec, minitest outside spec/test
+  paths; C# xunit, nunit outside test projects). Application code that needs test-doubles
+  uses production-grade dependency injection and abstractions; mocks belong in test code
+  only. Test utility code that production code must reference (such as a fake clock implementation
+  used in both test and production through dependency injection) lives in a non-test production
+  module with no test framework dependency.
+rationale: The separation of test code from production code is foundational to substrate
+  discipline. Test frameworks are dependencies that should not ship to production (they
+  bloat the bundle, increase supply-chain surface, sometimes expose debug surfaces). When
+  production code imports a test framework, the build output either includes that framework
+  (shipping risk) or fails to import it (runtime crash). Either case breaks the production
+  deployment story. The rule operates at L1 because import statements are syntactically
+  detectable, and the scope (which paths count as production) is configurable per project.
+  Whether the project's test/production directory split is well-organized is L2 review
+  territory.

@@ -1,0 +1,39 @@
+id: data-classification.model-classification-label
+name: Every persisted data model or entity carries a classification label so that its
+  sensitivity class is recorded rather than assumed
+layer: semantic
+characteristic: security
+severity: medium
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-31'
+  entered_stable: '2026-06-01'
+  authored_by: Myoung Hong
+sources:
+- title: NIST SP 800-60 (mapping information types to security categories, the concept
+    basis for assigning a class)
+  url: https://csrc.nist.gov/pubs/sp/800/60/v1/r1/final
+- title: ISO/IEC 27001 information classification control (the requirement that information
+    be classified, referenced as a concept)
+  url: https://www.iso.org/standard/27001
+applies_to:
+  language: any
+  framework: any
+  environment: any
+references: []
+statement: Every persisted data model or entity carries a class-level classification label
+  naming its data-sensitivity class from the scheme vocabulary. The rule applies to models
+  persisted to a datastore; it does not apply to transient data-transfer objects, view
+  models, or request and response shapes that are never persisted, which are exempted
+  by marker or directory. The presence of a label is the finding; whether the labeled
+  class is correct is assessed in review (data-classification.classification-correctness).
+rationale: 'Per-class handling is a function whose input is the class, so an unclassified
+  model is a model the handling rules cannot be applied to. The dominant classification
+  failure is not a wrong label but a missing one: data that accreted without anyone deciding
+  how sensitive it is, so it inherits whatever protection its storage happens to provide.
+  The substrate makes the presence of a label a mechanical floor because the absence is
+  statically visible and almost always an oversight, while the correctness of the label
+  is a judgment. The rule is deliberately modest about what it proves (a decision was
+  recorded, not that it was right) and honest that the persisted-versus-transient distinction
+  makes it heuristic.'

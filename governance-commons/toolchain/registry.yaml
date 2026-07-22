@@ -1,0 +1,219 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Myoung Hong
+#
+# L1 tool registry: the single source of tool definitions. Validated by
+# schemas/registry.schema.json. Tools are referenced by id from
+# toolchain/selection.yaml and from capability-bound bindings. Each source was
+# verified live (git ls-remote) at authoring time; the toolchain audit re-checks.
+# Seeded demand-driven for the in-use ecosystems (python, typescript, terraform)
+# plus the cross-language "any" tools. Grow via tooling/toolchain/manage.py add.
+#
+# Note: manage.py add/update rewrite this file via the YAML emitter and do not
+# preserve these comments; that is acceptable for a machine-managed registry.
+
+ruff:
+  description: Fast Python linter and formatter (replaces flake8, black, isort)
+  source: https://github.com/astral-sh/ruff
+  pinned-version: 0.15.17
+  ecosystems: [python]
+  gate-types: [lint, format]
+  license: MIT
+  status: active
+  package-manager: uv
+  recommended-stage: pre-commit
+
+mypy:
+  description: Static type checker for Python
+  source: https://github.com/python/mypy
+  pinned-version: 2.1.0
+  ecosystems: [python]
+  gate-types: [type-check]
+  license: MIT
+  status: active
+  recommended-stage: pre-commit
+
+pytest:
+  description: Python test runner; gate enforces execution and coverage floor
+  source: https://github.com/pytest-dev/pytest
+  pinned-version: 9.1.0
+  ecosystems: [python]
+  gate-types: [test]
+  license: MIT
+  status: active
+  recommended-stage: ci
+
+bandit:
+  description: Security-oriented static analysis for Python
+  source: https://github.com/PyCQA/bandit
+  pinned-version: 1.9.4
+  ecosystems: [python]
+  gate-types: [sast]
+  license: Apache-2.0
+  status: active
+  recommended-stage: pre-commit
+
+eslint:
+  description: Pluggable linter for JavaScript and TypeScript
+  source: https://github.com/eslint/eslint
+  pinned-version: 10.5.0
+  ecosystems: [typescript]
+  gate-types: [lint]
+  license: MIT
+  status: active
+  package-manager: npm
+  recommended-stage: pre-commit
+
+prettier:
+  description: Opinionated code formatter for JS, TS, and more
+  source: https://github.com/prettier/prettier
+  pinned-version: 3.8.4
+  ecosystems: [typescript]
+  gate-types: [format]
+  license: MIT
+  status: active
+  package-manager: npm
+  recommended-stage: pre-commit
+
+typescript:
+  description: TypeScript compiler (tsc) for static type checking
+  source: https://github.com/microsoft/TypeScript
+  pinned-version: 6.0.3
+  ecosystems: [typescript]
+  gate-types: [type-check]
+  license: Apache-2.0
+  status: active
+  package-manager: npm
+  recommended-stage: ci
+
+vitest:
+  description: Test runner for the Vite and TypeScript ecosystem
+  source: https://github.com/vitest-dev/vitest
+  pinned-version: 4.1.8
+  ecosystems: [typescript]
+  gate-types: [test]
+  license: MIT
+  status: active
+  package-manager: npm
+  recommended-stage: ci
+
+opentofu:
+  description: Open-source Terraform-compatible CLI; provides fmt and validate (OSS fork; Terraform is BUSL)
+  source: https://github.com/opentofu/opentofu
+  pinned-version: 1.12.2   # best-effort seed; Renovate reconciles
+  ecosystems: [terraform]
+  gate-types: [format, schema-validate]
+  license: MPL-2.0
+  status: active
+  recommended-stage: pre-commit
+
+tflint:
+  description: Pluggable linter for Terraform and OpenTofu HCL; also checks provider and module version pinning
+  source: https://github.com/terraform-linters/tflint
+  pinned-version: 0.63.1   # best-effort seed; Renovate reconciles
+  ecosystems: [terraform]
+  gate-types: [lint, dep-pinning]
+  license: MPL-2.0
+  status: active
+  recommended-stage: pre-commit
+
+trivy:
+  description: Unified scanner; here for IaC misconfiguration (absorbed tfsec)
+  source: https://github.com/aquasecurity/trivy
+  pinned-version: 0.71.1   # best-effort seed; Renovate reconciles
+  ecosystems: [terraform]
+  gate-types: [iac-scan]
+  license: Apache-2.0
+  status: active
+  recommended-stage: ci
+
+terraform:
+  description: HashiCorp Terraform CLI; fmt and validate. Override-only; not open-source (BUSL); the OSS default is opentofu
+  source: https://github.com/hashicorp/terraform
+  pinned-version: 1.15.6   # best-effort seed; Renovate reconciles
+  ecosystems: [terraform]
+  gate-types: [format, schema-validate]
+  license: BUSL-1.1
+  status: candidate
+  oss-alternative: opentofu
+  justification: Some projects standardize on the Terraform CLI rather than OpenTofu; deliberate author override only, never a base default.
+  recommended-stage: pre-commit
+
+gitleaks:
+  description: Secret and credential detection across any source tree
+  source: https://github.com/gitleaks/gitleaks
+  pinned-version: 8.30.1   # best-effort seed; Renovate reconciles
+  ecosystems: [any]
+  gate-types: [secrets]
+  license: MIT
+  status: active
+  recommended-stage: pre-commit
+
+opengrep:
+  description: Open-source static analysis engine (community Semgrep fork)
+  source: https://github.com/opengrep/opengrep
+  pinned-version: 1.22.0   # best-effort seed; Renovate reconciles
+  ecosystems: [any]
+  gate-types: [sast]
+  license: LGPL-2.1
+  status: active
+  recommended-stage: ci
+
+osv-scanner:
+  description: Dependency vulnerability scanner against the OSV database
+  source: https://github.com/google/osv-scanner
+  pinned-version: 2.3.8   # best-effort seed; Renovate reconciles
+  ecosystems: [any]
+  gate-types: [dep-vuln]
+  license: Apache-2.0
+  status: active
+  recommended-stage: ci
+
+uv:
+  description: Python package and project manager; enforces lockfile pinning via uv lock --check
+  source: https://github.com/astral-sh/uv
+  pinned-version: 0.11.21
+  ecosystems: [python]
+  gate-types: [dep-pinning]
+  license: Apache-2.0
+  status: active
+  recommended-stage: ci
+
+npm:
+  description: Node package manager; npm ci enforces install from a committed, in-sync lockfile
+  source: https://github.com/npm/cli
+  pinned-version: 11.17.0
+  ecosystems: [typescript]
+  gate-types: [dep-pinning]
+  license: Artistic-2.0
+  status: active
+  recommended-stage: ci
+
+cosign:
+  description: Sigstore signing and verification; verifies artifact signatures against an allowed-signers policy
+  source: https://github.com/sigstore/cosign
+  pinned-version: 3.1.1   # best-effort seed; Renovate reconciles
+  ecosystems: [any]
+  gate-types: [provenance-verify]
+  license: Apache-2.0
+  status: active
+  recommended-stage: ci
+
+slsa-verifier:
+  description: Verifies SLSA provenance attestations on artifacts at deployment time
+  source: https://github.com/slsa-framework/slsa-verifier
+  pinned-version: 2.7.1   # best-effort seed; Renovate reconciles
+  ecosystems: [any]
+  gate-types: [provenance-verify]
+  license: Apache-2.0
+  status: active
+  recommended-stage: ci
+
+amtool:
+  description: Alertmanager CLI; validates alerting routing config and that routes resolve to defined receivers, and checks silence definitions
+  source: https://github.com/prometheus/alertmanager
+  pinned-version: 0.33.0   # best-effort seed; Renovate reconciles
+  ecosystems: [alerting]
+  gate-types: [schema-validate]
+  license: Apache-2.0
+  status: active
+  recommended-stage: ci

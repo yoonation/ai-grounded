@@ -1,0 +1,39 @@
+id: input-validation.file-upload-validation
+name: File uploads are validated by content type, magic bytes, size, and storage location
+  before persistence
+layer: semantic
+characteristic: security
+severity: high
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-23'
+  entered_stable: '2026-05-26'
+  authored_by: Myoung Hong
+sources:
+- title: OWASP ASVS v5.0.0 V12.1 through V12.5 (File upload size limits, type validation,
+    storage isolation)
+  url: https://github.com/OWASP/ASVS/blob/v5.0.0/5.0/en/0x20-V12-Files-Resources.md
+- title: CWE-434 Unrestricted Upload of File with Dangerous Type
+  url: https://cwe.mitre.org/data/definitions/434.html
+cwe:
+- CWE-434
+- CWE-616
+applies_to:
+  environment: any-accepting-file-uploads
+references: []
+statement: 'File uploads cross the trust boundary with five validations performed before
+  persistence: declared Content-Type is in the application''s permitted set; actual content
+  magic bytes match the declared type (the substrate-recommended tool is libmagic via
+  python-magic, file-type for Node.js, Apache Tika for Java); file size is within an explicit
+  upper bound enforced at the multipart parser level (not at the application level, where
+  the entire payload has already been buffered); the storage path is outside any web-executable
+  directory; if the application processes the file content (image resize, document parsing),
+  the processor is hardened against the file format''s known parser attacks.'
+rationale: 'File upload validation has multiple failure modes that each defeat a single-layer
+  defense. The Content-Type header is client-controlled; the file extension is client-controlled;
+  the magic bytes are a structural property of the content itself. Substrate-required
+  validation combines all three: the client must declare the type, the declaration must
+  be in the allowlist, and the content must match the declaration. Size enforcement at
+  the parser level prevents memory exhaustion. Storage location separation prevents uploaded
+  files from becoming executable scripts.'

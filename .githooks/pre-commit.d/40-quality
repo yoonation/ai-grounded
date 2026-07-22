@@ -1,0 +1,61 @@
+#!/bin/sh
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Myoung Hong
+#
+# gate-meta:
+#   order: 40
+#   name: quality
+#   posture: report-only
+#   skip: SKIP_QUALITY
+#   strict: QUALITY_STRICT
+#   summary: Project-wide type-check and lint of staged files for declared stack languages.
+# end-gate-meta
+#
+# Commit-time quality gate. Chained by the .githooks/pre-commit dispatcher after
+# the SAST gate. Runs the project-wide type-check (tsc --noEmit, mypy) and lints
+# the staged files (eslint, ruff check) for the languages the project declares in
+# project-manifest.yaml stack.languages.
+#
+# Why this exists alongside lint-on-edit.sh: that PostToolUse hook formats and
+# lints files Claude edits, but it deliberately skips project-wide type-checking
+# and only fires on Claude Code Edit/Write. Files changed in another editor, and
+# type errors generally, are never caught until here.
+#
+# Report-only by default: surfaces findings and exits 0 so it does not block while
+# coverage is tuned. QUALITY_STRICT=1 makes findings block. SKIP_QUALITY=1 bypasses
+# entirely. Graceful no-op when a tool or the manifest is absent (an unconfigured
+# clone is never broken by this gate). Same posture as 30-sast; deliberately NOT
+# fail-closed like 10-gitleaks, because a lint finding is advisory, a leaked
+# secret is not.
+
+[ "$SKIP_QUALITY" = "1" ] && { echo "quality: skipped (SKIP_QUALITY=1)."; exit 0; }
+
+REPO_ROOT=$(git rev-parse --show-toplevel 2>/dev/null) || exit 0
+cd "$REPO_ROOT" || exit 0
+
+[ -f tooling/quality/check.py ] || { echo "quality: tooling/quality/check.py absent; skipped."; exit 0; }
+
+# Staged added/modified source files only (same filter shape as 30-sast).
+FILES=$(git diff --cached --name-only --diff-filter=AM \
+  | grep -Ei '\.(py|ts|tsx|js|jsx|mjs|cjs)$')
+if [ -z "$FILES" ]; then
+  echo "quality: no staged lintable source files; nothing to check."
+  exit 0
+fi
+
+# check.py is advisory by itself (exit 0) unless --strict; the gate owns strictness.
+if [ "$QUALITY_STRICT" = "1" ]; then
+  # shellcheck disable=SC2086
+  python3 tooling/quality/check.py $FILES --repo-root . --strict --text
+  RC=$?
+  if [ "$RC" != "0" ]; then
+    echo "quality: STRICT - findings block the commit (QUALITY_STRICT=1)."
+    echo "         Fix the findings, or bypass with SKIP_QUALITY=1 git commit ..."
+    exit 1
+  fi
+else
+  # shellcheck disable=SC2086
+  python3 tooling/quality/check.py $FILES --repo-root . --text
+  echo "quality: report-only - findings above (if any) are not blocking (set QUALITY_STRICT=1 to enforce)."
+fi
+exit 0

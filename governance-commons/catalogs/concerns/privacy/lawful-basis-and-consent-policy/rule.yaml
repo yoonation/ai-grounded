@@ -1,0 +1,44 @@
+id: privacy.lawful-basis-and-consent-policy
+name: 'The privacy policy is explicit: the lawful basis per purpose, the consent model,
+  the records of processing, and the DPIA trigger are decided and recorded in an ADR'
+layer: judgmental
+characteristic: security
+severity: high
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-06-03'
+  entered_stable: '2026-06-04'
+  authored_by: Myoung Hong
+sources:
+- title: EU GDPR Regulation 2016/679 (Article 5(2) accountability, Article 30 records
+    of processing, and Article 35 data protection impact assessment, referenced as a concept)
+  url: https://eur-lex.europa.eu/eli/reg/2016/679/oj
+- title: NIST Privacy Framework (the Govern-P function, organizational privacy governance
+    and risk management, referenced as a concept)
+  url: https://www.nist.gov/privacy-framework
+applies_to:
+  language: any
+  framework: any
+  environment: any
+references: []
+statement: 'The system records an Architecture Decision Record establishing its privacy
+  policy: the processing purposes and the lawful basis each relies on, the legitimate-interests
+  balancing where that basis is used, the consent model (granularity, capture, and withdrawal),
+  the handling of special-category and child data, the contents and owner of the records
+  of processing, the transparency and notice approach, and the criteria that trigger a
+  data protection impact assessment. The ADR is the target the privacy.lawful-basis-and-consent and privacy.purpose-limitation-and-minimization
+  conformance rules check against; the rights-and-retention architecture is the separate
+  privacy.data-subject-rights-and-retention ADR and the automated-decision governance is owned by responsible-ai, both
+  cross-referenced. The ADR is reviewed when a new processing purpose, basis, or regime
+  is introduced.'
+rationale: 'Privacy compliance is not the sum of individually careful operations; it is
+  whether a coherent set of decisions about purpose, basis, consent, and accountability
+  has been made and can be defended. The failure this prevents is the scatter: a basis
+  chosen ad hoc per feature, a consent flow that means different things in different places,
+  records of processing that exist nowhere, a high-risk processing that triggered no assessment
+  because no one owned the trigger. The substrate makes the policy an explicit ADR because
+  the decisions are legal and organizational judgments, and provides the MADR structure
+  and a review checklist that confirms the ADR exists and coheres. It scopes itself to
+  basis, consent, records, and the DPIA trigger, leaving the rights-and-retention architecture
+  to privacy.data-subject-rights-and-retention and the AI-system governance to responsible-ai.'

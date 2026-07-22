@@ -1,0 +1,46 @@
+id: authorization.object-level-authorization
+name: For every endpoint accepting a client-supplied object identifier, the handler verifies
+  the calling principal is authorized to access THAT specific object
+layer: semantic
+characteristic: security
+severity: critical
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-22'
+  entered_stable: '2026-05-26'
+  authored_by: Myoung Hong
+sources:
+- title: OWASP ASVS v5.0.0 V8.2.1 (Object-level access control)
+  url: https://github.com/OWASP/ASVS/blob/v5.0.0/5.0/en/0x17-V8-Authorization.md
+- title: OWASP API Security Top 10 2023 API1:2023 Broken Object Level Authorization
+  url: https://owasp.org/API-Security/editions/2023/en/0xa1-broken-object-level-authorization/
+- title: CWE-639 Authorization Bypass Through User-Controlled Key
+  url: https://cwe.mitre.org/data/definitions/639.html
+cwe:
+- CWE-639
+- CWE-284
+applies_to:
+  language: any
+  framework: any
+  environment: any-with-client-supplied-identifiers
+references: []
+statement: For every API endpoint that accepts an object identifier from the client (URL
+  path parameter, query string field, request body field, GraphQL argument), the handler
+  verifies that the calling principal is authorized to access THAT SPECIFIC OBJECT. Class-level
+  authorization (the principal can access objects of type Document) is necessary but not
+  sufficient; object-level authorization (the principal can access this Document with
+  ID 12345) is required. The check evaluates the subject-resource pair against the application's
+  authorization policy and returns a boolean or raises a denial error before the resource
+  is returned, modified, or otherwise acted upon.
+rationale: 'BOLA (Broken Object Level Authorization) is the most common API-level failure.
+  The pattern is consistent: the endpoint is authenticated and checks the principal has
+  the role required to use the endpoint (class-level authz), but the endpoint returns
+  whichever object the URL identifier names, regardless of whether the principal owns
+  or otherwise should have access to that specific object. The attacker enumerates object
+  identifiers (often sequential integers or guessable UUIDs) and reads or modifies objects
+  belonging to other principals. The mechanical pairing (authorization.authz-before-resource-access) catches the worst
+  case (no authz call at all between resource identifier read and resource access). The
+  semantic pairing (this rule) confirms that when there is an authz call, it evaluates
+  the right pair: the calling principal and the specific resource named by the client-supplied
+  identifier.'

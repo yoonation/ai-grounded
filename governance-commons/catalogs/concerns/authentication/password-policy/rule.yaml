@@ -1,0 +1,42 @@
+id: authentication.password-policy
+name: Password policy enforces minimum length and screens against breached-password corpus
+layer: semantic
+characteristic: security
+severity: high
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-18'
+  entered_stable: '2026-05-18'
+  authored_by: Myoung Hong
+sources:
+- title: OWASP ASVS v5.0.0 V6.1 (Password Security) requirements
+  url: https://github.com/OWASP/ASVS/blob/v5.0.0/5.0/en/0x15-V6-Authentication.md
+- title: NIST SP 800-63B-4 Section 5.1.1 (Memorized Secret) length and screening requirements
+  url: https://pages.nist.gov/800-63-4/sp800-63b.html
+- title: CWE-521 Weak Password Requirements
+  url: https://cwe.mitre.org/data/definitions/521.html
+cwe:
+- CWE-521
+- CWE-262
+applies_to:
+  language: any
+  framework: any
+  environment: any-with-passwords
+references: []
+statement: 'Passwords accepted by the application satisfy a minimum-length requirement
+  (substrate-recommended: 12 characters, with absolute floor 8) and are screened against
+  a current breach corpus (substrate-recommended: HaveIBeenPwned Pwned Passwords API or
+  equivalent local k-anonymity lookup). The policy does not impose composition requirements
+  (mandatory uppercase, number, symbol), does not impose periodic mandatory expiration,
+  and does not restrict maximum length below 64 characters.'
+rationale: Modern password guidance (NIST SP 800-63B-4) replaces composition rules with
+  length and breach screening. Composition rules produce predictable substitutions (Pa$$w0rd1)
+  that attacker rules handle; length defeats brute-force more effectively than character
+  mixing; breach screening catches the credentials that attackers already know. Mandatory
+  periodic expiration (every 90 days, etc.) reliably produces weaker passwords because
+  users make minimal changes to their existing memorable passwords (winter2025 to spring2026).
+  Expiration should be triggered only on credible compromise signal, not on a calendar.
+  Maximum length restrictions below 64 characters discriminate against passphrases. The
+  substrate permits arbitrary length up to bcrypt's 72-byte limit (and Argon2id has no
+  practical limit).

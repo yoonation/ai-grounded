@@ -1,0 +1,59 @@
+id: cost-model-selection.cost-model-selection-policy
+name: 'The service has an explicitly documented cost model: cost SLI selection, cost SLO
+  target, over-budget response policy, and cost-vs-reliability trade-off rationale'
+layer: judgmental
+characteristic: performance-efficiency
+severity: high
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-21'
+  entered_stable: '2026-05-22'
+  authored_by: Myoung Hong
+sources:
+- title: 'FinOps Foundation Framework: Principles (the substrate-author-references decision
+    drivers for cost-model selection)'
+  url: https://www.finops.org/framework/principles/
+- title: AWS Well-Architected Framework Cost Optimization Pillar
+  url: https://docs.aws.amazon.com/wellarchitected/latest/cost-optimization-pillar/welcome.html
+- title: Azure Well-Architected Framework Cost Optimization pillar
+  url: https://learn.microsoft.com/en-us/azure/well-architected/cost-optimization/
+- title: Google Cloud Architecture Framework Cost Optimization pillar
+  url: https://cloud.google.com/architecture/framework/cost-optimization
+applies_to:
+  language: any
+  framework: any
+  environment: any-production
+references: []
+statement: 'The service has an explicitly documented decision on its cost model. The decision
+  is recorded in a MADR document following the substrate''s decision-framework template
+  (see decision-framework link). The MADR is stored in the application''s decision-record
+  location (substrate-recommended path: /docs/decisions/ADR-XXX-cost-model-selection-policy.md)
+  and is referenced from the application''s architectural documentation. The MADR addresses
+  every section the substrate''s template requires: cost SLI selection (which cost dimensions
+  reflect the consumer''s economic interest in the service); cost SLO target (the numeric
+  cost commitment at each relevant horizon; monthly absolute budget, per-unit-economics
+  target, year-over-year growth target); budget computation method (how the consumer''s
+  pipeline computes the SLO target''s denominator and numerator); over-budget response
+  policy (what the team does when the budget burndown crosses policy thresholds); and
+  cost-vs-reliability trade-off rationale (the consumer''s substrate-acknowledged position
+  on the trade-off where reliability investments cost more than the budget allows).'
+rationale: 'The cost model is the cost concern''s anchoring decision. Every COST-L1 and
+  COST-L2 rule below it serves the cost model: attribution tags (cost-model-selection.cost-attribution-tags) feed the
+  pipeline that computes the SLO; workload limits (cost-model-selection.workload-resource-limits) bound the runtime cost
+  per the SLO''s per-workload allocation; pipeline discipline (cost-model-selection.cost-emission-pipeline) produces the
+  SLO computation; anomaly alerting (cost-model-selection.cost-anomaly-alerting) fires against the SLO''s per-service
+  budget. Without an explicit cost model, the L1 tags accumulate data that has no decision
+  anchoring; the L2 reviews check pipelines and alerts whose targets are improvised. The
+  cost-vs-reliability trade-off is the load-bearing rationale that distinguishes the cost-model
+  ADR from a budget spreadsheet. Cost budgets often compete directly with reliability
+  investments: an additional 9 of availability requires multi-region active-active topology
+  that costs an order of magnitude more than the single-region baseline; a fault-injection
+  program requires recurring compute spend that erodes the cost margin; a regulated-region
+  deployment duplicates infrastructure at full cost for a fraction of the traffic. The
+  cost-model ADR forces the consumer to make these trade-offs explicit so the team operates
+  from a documented position rather than improvising at incident time. The ADR also surfaces
+  the consumer''s business-model assumptions in a form the substrate''s concern reviews
+  can verify. A multi-tenant SaaS provider whose ADR commits to a per-tenant cost target
+  operationalizes that target through cost-model-selection.cost-emission-pipeline per-tenant attribution; the substrate''s
+  L2 review confirms the operationalization.'

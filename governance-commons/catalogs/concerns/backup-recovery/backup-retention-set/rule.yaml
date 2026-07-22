@@ -1,0 +1,35 @@
+id: backup-recovery.backup-retention-set
+name: Every declared backup or snapshot resource sets an explicit, non-zero retention
+  so the recoverable copy is kept long enough to use
+layer: mechanical
+characteristic: reliability
+severity: high
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-06-05'
+  entered_stable: '2026-06-06'
+  authored_by: Myoung Hong
+sources:
+- title: NIST SP 800-53 Rev. 5, control CP-9 (system backup), including the retention
+    of backup copies adequate to recovery objectives.
+  url: https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final
+- title: NIST SP 800-34 Rev. 1, on backup-storage strategy and the retention of recoverable
+    copies as part of contingency planning.
+  url: https://csrc.nist.gov/pubs/sp/800/34/r1/upd1/final
+applies_to:
+  language: any
+  framework: any
+  environment: any
+references: []
+statement: Every backup, snapshot, or backup-policy resource declared in infrastructure-as-code
+  MUST set an explicit retention or expiration that is greater than zero and is not disabled.
+  A declared backup resource that omits a retention setting, sets it to zero, or explicitly
+  disables expiration in a way that prevents a recoverable copy from being kept is a violation.
+rationale: 'The most common way a backup regime fails is not a missing backup but a backup
+  that is not kept. A snapshot schedule with no retention, a lifecycle rule that expires
+  the only copy immediately, or a backup plan whose retention field was dropped when the
+  block was copied from another resource all produce the same outcome: at the moment of
+  need there is no copy old enough to restore. Requiring a positive, non-disabled retention
+  at declaration time makes the keep-the-copy decision explicit and reviewable, and gives
+  the higher-layer rules a copy to verify and to measure against the recovery objectives.'

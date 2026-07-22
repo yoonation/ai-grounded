@@ -1,0 +1,4 @@
+binding_status: capability-bound
+rule: monitoring-alerting.alert-route-resolves-to-receiver
+gate: schema-validate
+tool: amtool

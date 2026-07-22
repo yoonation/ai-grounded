@@ -1,0 +1,38 @@
+id: responsible-ai.ai-disclosure-marker
+name: User-facing AI output carries a disclosure that the interaction or content is AI-generated
+layer: semantic
+characteristic: safety
+severity: medium
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-06-02'
+  entered_stable: '2026-06-04'
+  authored_by: Myoung Hong
+sources:
+- title: 'EU AI Act Regulation 2024/1689 (Article 50 transparency obligations: disclosure
+    of AI interaction and marking of AI-generated content, referenced as a concept)'
+  url: https://eur-lex.europa.eu/eli/reg/2024/1689/oj
+- title: NIST AI Risk Management Framework (the GOVERN and MAP functions, transparency
+    about AI system use, referenced as a concept)
+  url: https://www.nist.gov/itl/ai-risk-management-framework
+applies_to:
+  language: any
+  framework: any
+  environment: any
+references: []
+statement: 'A user-facing output path that returns model-generated content to a person
+  attaches a disclosure that the interaction or content is AI-generated: a disclosure
+  flag in the response, a labeled UI element, or a content-provenance marker on generated
+  media. The rule applies to output paths with a human recipient; internal, non-user-facing
+  inference is exempted by marker or directory. The presence of the disclosure marker
+  is the finding; whether the disclosure is clear, prominent, and complete is assessed
+  in review (responsible-ai.explanation-and-recourse and responsible-ai.responsible-ai-policy).'
+rationale: A person who does not know they are interacting with or consuming AI cannot
+  calibrate how much to trust the output or decide to seek a human alternative, so disclosure
+  is the precondition for every other transparency and contestability protection. The
+  substrate makes the presence of a disclosure marker a mechanical floor because an AI-output
+  path that attaches none is statically visible and the fix is local, while whether the
+  disclosure is adequate (clear, prominent, not buried) is a review judgment. The rule
+  nudges toward attaching the disclosure on a shared output wrapper so it cannot be forgotten
+  per endpoint.

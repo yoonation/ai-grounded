@@ -1,0 +1,47 @@
+id: reliability.idempotency
+name: Operations that may be retried or redelivered are idempotent or guarded by an idempotency
+  key, so a repeat does not double-apply effects
+layer: semantic
+characteristic: reliability
+severity: high
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-31'
+  entered_stable: '2026-06-01'
+  authored_by: Myoung Hong
+sources:
+- title: Idempotence (an operation that has the same effect whether applied once or many
+    times; concept reference)
+  url: https://en.wikipedia.org/wiki/Idempotence
+- title: RFC 9110 idempotent HTTP methods (the semantics clients and intermediaries rely
+    on when retrying requests)
+  url: https://datatracker.ietf.org/doc/html/rfc9110#name-idempotent-methods
+applies_to:
+  language: any
+  framework: any
+  environment: any
+references: []
+statement: 'Any operation that may be applied more than once for a single logical intent
+  is idempotent in effect: applying it again with the same inputs produces the same end
+  state and does not duplicate side effects. The operations in scope are those reachable
+  by a retry (the bounded retries error-handling.retry-and-circuit-breaker mandates), by an at-least-once message consumer,
+  by a webhook or callback receiver that the sender redelivers, or by a client that may
+  resubmit a request whose response it did not receive. Idempotency is achieved by design
+  (the operation is naturally idempotent, such as a set-to-value write) or by guard (an
+  idempotency key or deduplication token recorded so a repeat is recognized and the original
+  outcome returned). Read-only operations and operations provably unreachable by any redelivery
+  path are out of scope; the rule does not require every function to be idempotent, only
+  those a retry can reach.'
+rationale: 'Retries and at-least-once delivery exist because the alternative (giving up
+  on the first transient failure, or at-most-once delivery that loses messages) is worse.
+  Their price is duplicate application, and that price is only acceptable if the operations
+  they target are idempotent. The substrate places this rule at L2 rather than L1 because
+  idempotency cannot be detected statically: whether an operation is safe to repeat depends
+  on what it does to external state, which a tool cannot read. A reviewer must trace each
+  mutating operation to the redelivery paths that can reach it and confirm that either
+  the operation is naturally idempotent or a key-based guard makes it so. The rule is
+  the necessary complement to error-handling.retry-and-circuit-breaker: that rule ensures cross-process calls retry
+  safely from the caller''s side; this rule ensures the callee survives the retry. Without
+  it, the substrate would be mandating a mechanism (retry) whose precondition (idempotency)
+  it never checked.'

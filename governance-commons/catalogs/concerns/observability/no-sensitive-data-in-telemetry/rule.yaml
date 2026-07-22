@@ -1,0 +1,58 @@
+id: observability.no-sensitive-data-in-telemetry
+name: Sensitive data classes (credentials, PII, PHI, payment card data, session identifiers,
+  full bearer tokens) do not appear as values in span attributes, metric labels, or trace
+  baggage
+layer: semantic
+characteristic: maintainability
+severity: critical
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-21'
+  entered_stable: '2026-05-22'
+  authored_by: Myoung Hong
+sources:
+- title: 'OpenTelemetry Semantic Conventions: General Attribute Naming (attribute hygiene
+    guidance)'
+  url: https://opentelemetry.io/docs/specs/semconv/general/attribute-naming/
+- title: OWASP ASVS v5.0.0 V11 Logging and Error Handling (sensitive data exclusion, applies
+    to all telemetry channels)
+  url: https://github.com/OWASP/ASVS/blob/v5.0.0/5.0/en/0x20-V11-BusLogic.md
+- title: OWASP Logging Cheat Sheet (data-to-exclude section, applied to span attributes
+    and metric labels by analogy)
+  url: https://cheatsheetseries.owasp.org/cheatsheets/Logging_Cheat_Sheet.html
+- title: CWE-532 Insertion of Sensitive Information into Log File (applied to telemetry
+    by analogy)
+  url: https://cwe.mitre.org/data/definitions/532.html
+- title: CWE-200 Exposure of Sensitive Information to an Unauthorized Actor
+  url: https://cwe.mitre.org/data/definitions/200.html
+cwe:
+- CWE-532
+- CWE-200
+applies_to:
+  language: any
+  framework: any
+  environment: any
+references: []
+statement: 'Span attributes, metric labels, and trace baggage emitted from production
+  code do not contain credentials, PII (including names, emails, addresses, government
+  identifiers), PHI, payment card data, full session identifiers, or full bearer tokens.
+  The rule applies across all telemetry channels: OpenTelemetry span attributes, OpenTelemetry
+  metric attributes, Prometheus label values, Datadog tag values, vendor custom attribute
+  setters, and trace baggage propagation. Redaction occurs at the telemetry emission boundary,
+  not in downstream pipeline stages, because intermediate retention (collector buffers,
+  vendor backend ingest queues) can compromise the pipeline before redaction stages execute.'
+rationale: 'Telemetry data is treated by most operational teams as lower-sensitivity than
+  logs because metric aggregation appears to anonymize and traces appear limited in time.
+  Both assumptions fail at the attribute level: a metric labeled with user_email is a
+  per-user lookup table; a span attribute carrying a session token is a credential that
+  propagates downstream via baggage. Telemetry backends typically retain raw spans for
+  7 to 30 days at full fidelity, derived aggregates for longer; the disclosure surface
+  is the full retention window. Trace baggage propagation amplifies the exposure: any
+  downstream service inheriting baggage receives the sensitive values without explicitly
+  requesting them. The substrate-recommended emission pattern: pass bounded identifiers
+  (tenant_id, account_id, request_id, customer_id where customer_id is an internal opaque
+  identifier rather than an email or phone number) as attributes; pass aggregated outcomes
+  (response status, latency bucket, error class) as metric labels with bounded cardinality;
+  never pass request bodies, response bodies, full headers, or framework session objects
+  as attributes.'

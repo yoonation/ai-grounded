@@ -1,0 +1,67 @@
+#!/bin/sh
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Myoung Hong
+#
+# gate-meta:
+#   order: 10
+#   name: gitleaks
+#   posture: fail-closed
+#   skip: SKIP_GITLEAKS
+#   strict: none
+#   summary: Secret scan over staged files; a missing binary blocks (a leaked credential must never pass).
+# end-gate-meta
+#
+# Commit-time secret-scan gate. Chained by the .githooks/pre-commit dispatcher,
+# ahead of the advisory gates. This is the LIVE home for secret scanning under
+# core.hooksPath=.githooks; it replaces any hook installed to .git/hooks/, which
+# the dispatcher makes inert. (This is the H9 fix: the secret scanner now sits on
+# the path the real commit flow runs, not the dead .git/hooks/ path.)
+#
+# FAIL-CLOSED: a missing gitleaks binary BLOCKS the commit. Secret scanning is a
+# load-bearing defense; an accidental binary loss must not silently let secrets
+# through. This is the opposite posture from 30-sast (report-only) on purpose -
+# SAST findings are advisory, a leaked credential is not.
+#
+# Bypass: SKIP_GITLEAKS=1 git commit ...  (document the reason in the commit body).
+# Config:  uses ./.gitleaks.toml if present, else gitleaks built-in rules.
+set -u
+
+[ "${SKIP_GITLEAKS:-}" = "1" ] && {
+  echo "gitleaks: skipped (SKIP_GITLEAKS=1). Document the reason in the commit body."
+  exit 0
+}
+
+REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null)" || exit 1
+cd "$REPO_ROOT" || exit 1
+
+# Resolve the binary: explicit override, then PATH, then mise-managed.
+GITLEAKS_BIN=""
+if [ -n "${GITLEAKS_BIN_OVERRIDE:-}" ] && [ -x "${GITLEAKS_BIN_OVERRIDE}" ]; then
+  GITLEAKS_BIN="$GITLEAKS_BIN_OVERRIDE"
+elif command -v gitleaks >/dev/null 2>&1; then
+  GITLEAKS_BIN="gitleaks"
+elif command -v mise >/dev/null 2>&1 && mise which gitleaks >/dev/null 2>&1; then
+  GITLEAKS_BIN="$(mise which gitleaks)"
+else
+  echo "gitleaks: binary not available; commit BLOCKED." >&2
+  echo "  Install it (e.g. 'mise install' after pinning gitleaks in .mise.toml)," >&2
+  echo "  or bypass with SKIP_GITLEAKS=1 and a documented reason in the commit body." >&2
+  exit 1
+fi
+
+# Choose the staged-scan subcommand. Modern gitleaks (8.18+) uses 'git --staged';
+# older releases used the now-deprecated 'protect --staged'. Probe, do not assume,
+# so the gate stays correct across versions.
+if "$GITLEAKS_BIN" git --help >/dev/null 2>&1; then
+  set -- git --staged
+else
+  set -- protect --staged
+fi
+
+# Use the repo config if present; otherwise gitleaks defaults.
+[ -f .gitleaks.toml ] && set -- "$@" --config .gitleaks.toml
+
+# --redact keeps secret values out of the output; --no-banner quiets the banner.
+set -- "$@" --redact --no-banner
+
+"$GITLEAKS_BIN" "$@"

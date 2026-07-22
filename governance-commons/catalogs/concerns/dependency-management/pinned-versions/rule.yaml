@@ -1,0 +1,53 @@
+id: dependency-management.pinned-versions
+name: Production dependency versions are pinned via a committed lockfile; the install
+  step is reproducible from the lockfile alone
+layer: mechanical
+characteristic: compatibility
+severity: high
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-20'
+  entered_stable: '2026-05-22'
+  authored_by: Myoung Hong
+sources:
+- title: OWASP Software Component Verification Standard (SCVS), version 2 family of inventory
+    and pinning controls
+  url: https://owasp.org/www-project-software-component-verification-standard/
+- title: NIST SP 800-218 Secure Software Development Framework v1.1 (PW.4 reuse existing
+    well-secured software; PO.3.2 verify components)
+  url: https://csrc.nist.gov/publications/detail/sp/800-218/final
+- title: OpenSSF Scorecard Pinned-Dependencies check specification
+  url: https://github.com/ossf/scorecard/blob/main/docs/checks.md#pinned-dependencies
+cwe:
+- CWE-1357
+- CWE-829
+applies_to:
+  language: any
+  framework: any-with-package-manager
+  environment: production-build-pipeline
+references: []
+statement: The application's production dependency manifest is paired with a committed
+  lockfile that captures the exact resolved version, source URL, and integrity hash of
+  every direct and transitive dependency. The continuous-integration install step uses
+  a strict-lockfile mode (npm ci, pip-sync, poetry install --no-update, uv sync --frozen,
+  cargo build --locked, bundle install --frozen, go install with go.sum verification,
+  equivalents). The strict mode fails the build if the lockfile and manifest disagree,
+  or if any dependency cannot be resolved at the exact hash recorded in the lockfile.
+  Where an ecosystem does not have a native lockfile (legacy Maven without dependencyManagement,
+  ad-hoc Python requirements.txt), the substrate-recommended substitute is a hash-pinned
+  manifest (Maven enforcer-plugin requireExplicitDependencies, pip-tools generating hash-pinned
+  requirements.txt with -- generate-hashes).
+rationale: 'A non-reproducible build is a non-auditable build. If today''s npm install
+  resolves react@^18.2.0 to 18.2.45 and tomorrow''s resolves it to 18.2.46, the two artifacts
+  differ in ways the audit cannot account for. The differing transitive closure may include
+  packages that were not present during security review. A published vulnerability advisory
+  issued against 18.2.45 cannot be reasoned about for the artifact shipped before pinning
+  was introduced. Lockfiles solve this by serializing the entire resolution graph. Two
+  checkouts of the same commit produce identical install outputs given the same lockfile.
+  Security review of one artifact applies to every reproduction of that artifact. CVE
+  response is bounded: each artifact''s exposure is enumerable from its lockfile. Production
+  builds are the binding scope. Development tooling pinning is desirable but does not
+  present the same risk; the substrate does not require pinning across all development
+  manifests by default. Consumers may extend the rule to all manifests in their consumer-side
+  profile.'

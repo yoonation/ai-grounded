@@ -1,0 +1,55 @@
+id: secrets-management.runtime-retrieval
+name: Application secrets are retrieved at runtime from a dedicated secrets management
+  platform; secrets are not persisted to disk in plaintext, not embedded in container
+  images, and not passed via untyped environment variables that leak through process introspection
+layer: semantic
+characteristic: security
+severity: high
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-20'
+  entered_stable: '2026-05-22'
+  authored_by: Myoung Hong
+sources:
+- title: OWASP Secrets Management Cheat Sheet (sections on secrets retrieval, dynamic
+    secrets, broker patterns)
+  url: https://cheatsheetseries.owasp.org/cheatsheets/Secrets_Management_Cheat_Sheet.html
+- title: 'OWASP ASVS v5.0.0 V13 Configuration (secrets management solution requirement:
+    key vault used to store, control access, and destroy secrets)'
+  url: https://github.com/OWASP/ASVS/blob/v5.0.0/5.0/en/0x22-V13-Configuration.md
+- title: CWE-922 Insecure Storage of Sensitive Information
+  url: https://cwe.mitre.org/data/definitions/922.html
+cwe:
+- CWE-922
+- CWE-256
+applies_to:
+  language: any
+  framework: any
+  environment: any-handling-secrets
+references: []
+statement: 'Application code retrieves secret values at runtime from a secrets management
+  platform (cloud-native: AWS Secrets Manager, AWS KMS, Google Secret Manager, Azure Key
+  Vault, GCP KMS; dedicated: HashiCorp Vault, Conjur, Doppler) or from a tightly-scoped
+  file-system mount populated by a credential broker (Vault Agent sidecar, CSI Secrets
+  Store driver). Plaintext secret values are not persisted to writable disk, not baked
+  into container image layers, and not passed via environment variables in deployment
+  manifests except where the environment variable references a secret value the orchestration
+  platform resolves from the secrets platform at container start.'
+rationale: 'Runtime retrieval centralizes credential lifecycle under the secrets platform.
+  The platform owns: access control (per-identity policy on which secrets can be retrieved
+  by which principal); rotation (issuing new credential material on schedule); audit (logging
+  every retrieval with identity, timestamp, secret reference); revocation (immediate invalidation
+  on compromise indicator). These properties cannot be replicated by static files, environment
+  variables baked into manifests, or in-source configuration. Container image embedding
+  is particularly hazardous because image layers are immutable and distributed broadly.
+  A secret baked into a layer is published to the registry; pull access to the registry
+  equals access to the secret. Even when the registry is private, the secret outlives
+  the registry''s access policy lifetime. Untyped environment variables (set by shell
+  scripts that read files, by docker run --env-file pointing at production-config files,
+  by CI variable injection without source-tracking) leak through process introspection
+  (/proc/PID/environ on Linux, ps -e visibility on some configurations) and through accidental
+  dumps in error pipelines. Orchestrator-resolved env vars (Kubernetes Secret-backed env,
+  ECS task secrets, Cloud Run secret references) are acceptable because the orchestrator
+  integrates with the secrets platform and the secret value is not present in the manifest
+  itself.'

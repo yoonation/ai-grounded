@@ -1,0 +1,3 @@
+binding_status: capability-bound
+rule: supply-chain.no-remote-execution-in-build
+gate: sast

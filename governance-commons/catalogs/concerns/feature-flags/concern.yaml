@@ -1,0 +1,9 @@
+id: feature-flags
+name: Feature Flags
+characteristic: maintainability
+status: stable
+summary: >
+  How runtime toggles are managed: fail-static defaults on every
+  evaluation, a flag lifecycle with owners and kill switches, no hardcoded
+  or short-circuited flags, staged rollout through a deterministic
+  targeting mechanism, and a recorded feature-flags strategy.

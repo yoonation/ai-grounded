@@ -1,0 +1,38 @@
+id: responsible-ai.model-provenance
+name: A deployed model is traceable to its version, its training-data snapshot, and its
+  evaluation results
+layer: semantic
+characteristic: safety
+severity: medium
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-06-02'
+  entered_stable: '2026-06-04'
+  authored_by: Myoung Hong
+sources:
+- title: NIST AI Risk Management Framework (the MAP and MEASURE functions, recording the
+    provenance and evaluation of a deployed system, referenced as a concept)
+  url: https://www.nist.gov/itl/ai-risk-management-framework
+- title: EU AI Act Regulation 2024/1689 (Articles 11 and 12, technical documentation and
+    record-keeping, referenced as a concept)
+  url: https://eur-lex.europa.eu/eli/reg/2024/1689/oj
+applies_to:
+  language: any
+  framework: any
+  environment: any
+references: []
+statement: 'A deployed model records its lineage and exposes it: the model version or
+  identifier, a reference to the training-data snapshot it was trained on, and a reference
+  to the evaluation run and its results, bound to the artifact actually serving and queryable
+  at incident time. A rollback can target a specific prior version. The cryptographic
+  attestation and signing of the model artifact is owned by supply-chain. The lineage
+  is reviewed when a new model version is deployed.'
+rationale: 'A deployed model with no lineage is a model that cannot be investigated: when
+  it regresses or draws a fairness complaint, nobody can say which version it was, what
+  data shaped it, or whether it passed evaluation, and so nobody can confidently roll
+  back or hold it accountable. Recording the version, the training-data snapshot, and
+  the evaluation reference, bound to the serving artifact, is what makes the model an
+  investigable object rather than an opaque endpoint. The substrate keeps the rule at
+  medium because the cost lands at incident time, at L2 because completeness and correct
+  binding are a pipeline review, and defers the artifact attestation to supply-chain.'

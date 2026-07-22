@@ -1,0 +1,255 @@
+{
+  "catalog": {
+    "uuid": "992c0c6b-bbd7-4aad-bb62-b3d9488b3a39",
+    "metadata": {
+      "title": "GDPR - Regulation (EU) 2016/679 (Security and Data Protection Engineering Articles)",
+      "last-modified": "2026-06-28T00:00:00Z",
+      "version": "1.0",
+      "oscal-version": "1.2.1",
+      "remarks": "Hand-authored OSCAL representation of selected articles from Regulation (EU) 2016/679 of the European Parliament and of the Council of 27 April 2016 on the protection of natural persons with regard to the processing of personal data (General Data Protection Regulation). Scope: the security, accountability, and data-subject-rights articles that carry engineering and configuration implications for build-time governance, drawn from Chapter II (Principles), Chapter III (Rights of the Data Subject), and Chapter IV (Controller and Processor). Articles outside this engineering scope, such as supervisory-authority governance, transfers, and remedies, are not included. The statements are faithful authored representations of each article's obligation in substrate-original prose, normalised and not verbatim; consult EUR-Lex for the authoritative wording. EU regulations are reusable under the EU public reuse policy. Citation: Official Journal of the European Union L 119, 4 May 2016.",
+      "parties": [
+        {
+          "uuid": "3db96e7f-5ea9-4a45-b782-55bb9fb802c6",
+          "type": "person",
+          "name": "Catalog Maintainer",
+          "remarks": "Set to actual maintainer name during project init."
+        }
+      ],
+      "links": [
+        {
+          "href": "https://eur-lex.europa.eu/eli/reg/2016/679/oj",
+          "rel": "canonical",
+          "text": "Regulation (EU) 2016/679 - official consolidated text"
+        },
+        {
+          "href": "https://gdpr-info.eu/",
+          "rel": "reference",
+          "text": "Independent GDPR reference (unofficial navigation aid)"
+        }
+      ]
+    },
+    "groups": [
+      {
+        "id": "chapter-2-principles",
+        "class": "chapter",
+        "title": "Chapter II - Principles",
+        "controls": [
+          {
+            "id": "art-5",
+            "class": "article",
+            "title": "Article 5 - Principles relating to processing of personal data",
+            "parts": [
+              {
+                "name": "statement",
+                "prose": "Personal data shall be processed lawfully, fairly, and in a transparent manner (lawfulness, fairness, and transparency); collected for specified, explicit, and legitimate purposes and not further processed in a manner incompatible with those purposes (purpose limitation); adequate, relevant, and limited to what is necessary (data minimisation); accurate and kept up to date (accuracy); kept in a form permitting identification of data subjects no longer than necessary (storage limitation); and processed with appropriate security, including protection against unauthorised or unlawful processing and against accidental loss, destruction, or damage (integrity and confidentiality). The controller is responsible for, and must be able to demonstrate, compliance with these principles (accountability)."
+              }
+            ]
+          },
+          {
+            "id": "art-6",
+            "class": "article",
+            "title": "Article 6 - Lawfulness of processing",
+            "parts": [
+              {
+                "name": "statement",
+                "prose": "Processing is lawful only if and to the extent that at least one legal basis applies: the data subject has given consent; processing is necessary for performance of a contract; for compliance with a legal obligation; to protect vital interests; for the performance of a task carried out in the public interest or in the exercise of official authority; or for the purposes of legitimate interests pursued by the controller or a third party, except where overridden by the interests or fundamental rights and freedoms of the data subject. The legal basis relied upon must be determined before processing and recorded."
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "chapter-3-rights-of-the-data-subject",
+        "class": "chapter",
+        "title": "Chapter III - Rights of the Data Subject",
+        "controls": [
+          {
+            "id": "art-12",
+            "class": "article",
+            "title": "Article 12 - Transparent information, communication, and modalities for exercising rights",
+            "parts": [
+              {
+                "name": "statement",
+                "prose": "The controller must provide information relating to processing, and communications concerning the exercise of data-subject rights, in a concise, transparent, intelligible, and easily accessible form using clear and plain language. The controller must facilitate the exercise of data-subject rights and respond without undue delay and within one month of a request, free of charge in ordinary cases, and must give reasons where it does not act on a request."
+              }
+            ]
+          },
+          {
+            "id": "art-15",
+            "class": "article",
+            "title": "Article 15 - Right of access by the data subject",
+            "parts": [
+              {
+                "name": "statement",
+                "prose": "The data subject has the right to obtain confirmation of whether personal data concerning them is being processed and, where it is, access to that data together with information on the purposes, the categories of data, the recipients, the envisaged retention period, the rights available, and the source of the data, along with a copy of the personal data undergoing processing."
+              }
+            ]
+          },
+          {
+            "id": "art-16",
+            "class": "article",
+            "title": "Article 16 - Right to rectification",
+            "parts": [
+              {
+                "name": "statement",
+                "prose": "The data subject has the right to obtain from the controller, without undue delay, the rectification of inaccurate personal data concerning them and, taking into account the purposes of processing, the completion of incomplete personal data, including by means of providing a supplementary statement."
+              }
+            ]
+          },
+          {
+            "id": "art-17",
+            "class": "article",
+            "title": "Article 17 - Right to erasure (right to be forgotten)",
+            "parts": [
+              {
+                "name": "statement",
+                "prose": "The data subject has the right to obtain erasure of personal data concerning them without undue delay where one of the grounds in the article applies, such as the data no longer being necessary for the purposes, withdrawal of the consent on which processing was based, a successful objection, or unlawful processing. Erasure must remove the underlying data rather than only marking it as deleted, subject to the exemptions set out in the article."
+              }
+            ]
+          },
+          {
+            "id": "art-20",
+            "class": "article",
+            "title": "Article 20 - Right to data portability",
+            "parts": [
+              {
+                "name": "statement",
+                "prose": "Where processing is based on consent or on a contract and is carried out by automated means, the data subject has the right to receive the personal data they provided to a controller in a structured, commonly used, and machine-readable format, and to transmit that data to another controller without hindrance from the controller to which it was provided."
+              }
+            ]
+          },
+          {
+            "id": "art-22",
+            "class": "article",
+            "title": "Article 22 - Automated individual decision-making, including profiling",
+            "parts": [
+              {
+                "name": "statement",
+                "prose": "The data subject has the right not to be subject to a decision based solely on automated processing, including profiling, that produces legal effects concerning them or similarly significantly affects them, except where the decision is necessary for a contract, authorised by law, or based on explicit consent. Where such processing is permitted, the controller must implement suitable safeguards, including at least the right to obtain human intervention, to express a point of view, and to contest the decision."
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "chapter-4-controller-and-processor",
+        "class": "chapter",
+        "title": "Chapter IV - Controller and Processor",
+        "controls": [
+          {
+            "id": "art-24",
+            "class": "article",
+            "title": "Article 24 - Responsibility of the controller",
+            "parts": [
+              {
+                "name": "statement",
+                "prose": "The controller must implement appropriate technical and organisational measures to ensure, and to be able to demonstrate, that processing is performed in accordance with the Regulation. Those measures must be reviewed and updated where necessary and must be proportionate to the risks to the rights and freedoms of natural persons, taking into account the nature, scope, context, and purposes of processing."
+              }
+            ]
+          },
+          {
+            "id": "art-25",
+            "class": "article",
+            "title": "Article 25 - Data protection by design and by default",
+            "parts": [
+              {
+                "name": "statement",
+                "prose": "The controller must implement appropriate technical and organisational measures, both at the time of determining the means of processing and during the processing itself, to integrate data-protection principles such as data minimisation into the processing. By default, only personal data necessary for each specific purpose may be processed, which applies to the amount of data collected, the extent of processing, the period of storage, and accessibility."
+              }
+            ]
+          },
+          {
+            "id": "art-28",
+            "class": "article",
+            "title": "Article 28 - Processor",
+            "parts": [
+              {
+                "name": "statement",
+                "prose": "Where processing is carried out by a processor on behalf of a controller, it must be governed by a contract or other legal act that binds the processor to the controller and sets out the subject matter, duration, nature, and purpose of processing. The processor must act only on documented instructions and the contract must impose obligations including confidentiality, security measures consistent with Article 32, conditions for engaging sub-processors, assistance to the controller with data-subject rights and security obligations, and return or deletion of personal data at the end of processing."
+              }
+            ]
+          },
+          {
+            "id": "art-30",
+            "class": "article",
+            "title": "Article 30 - Records of processing activities",
+            "parts": [
+              {
+                "name": "statement",
+                "prose": "The controller, and where applicable the processor, must maintain a record of processing activities under their responsibility. The record must include the purposes of processing, the categories of data subjects and of personal data, the categories of recipients, any transfers to third countries, the envisaged retention periods where possible, and a general description of the technical and organisational security measures."
+              }
+            ]
+          },
+          {
+            "id": "art-32",
+            "class": "article",
+            "title": "Article 32 - Security of processing",
+            "parts": [
+              {
+                "name": "statement",
+                "prose": "The controller and processor must implement appropriate technical and organisational measures to ensure a level of security appropriate to the risk, taking into account the state of the art, the costs of implementation, and the nature, scope, context, and purposes of processing. Such measures may include the pseudonymisation and encryption of personal data; the ability to ensure the ongoing confidentiality, integrity, availability, and resilience of processing systems and services; the ability to restore availability and access to personal data in a timely manner after a physical or technical incident; and a process for regularly testing, assessing, and evaluating the effectiveness of the measures."
+              }
+            ]
+          },
+          {
+            "id": "art-33",
+            "class": "article",
+            "title": "Article 33 - Notification of a personal data breach to the supervisory authority",
+            "parts": [
+              {
+                "name": "statement",
+                "prose": "In the case of a personal data breach, the controller must notify the competent supervisory authority without undue delay and, where feasible, not later than 72 hours after becoming aware of it, unless the breach is unlikely to result in a risk to the rights and freedoms of natural persons. The notification must describe the nature of the breach, its likely consequences, and the measures taken or proposed. Where notification is not made within 72 hours, it must be accompanied by reasons for the delay, and all breaches must be documented."
+              }
+            ]
+          },
+          {
+            "id": "art-34",
+            "class": "article",
+            "title": "Article 34 - Communication of a personal data breach to the data subject",
+            "parts": [
+              {
+                "name": "statement",
+                "prose": "When a personal data breach is likely to result in a high risk to the rights and freedoms of natural persons, the controller must communicate the breach to the affected data subjects without undue delay, describing in clear and plain language the nature of the breach and the measures taken or recommended, unless one of the exemptions in the article applies, such as the data having been rendered unintelligible through encryption."
+              }
+            ]
+          },
+          {
+            "id": "art-35",
+            "class": "article",
+            "title": "Article 35 - Data protection impact assessment",
+            "parts": [
+              {
+                "name": "statement",
+                "prose": "Where a type of processing, in particular one using new technologies and taking into account its nature, scope, context, and purposes, is likely to result in a high risk to the rights and freedoms of natural persons, the controller must, prior to the processing, carry out an assessment of the impact of the envisaged processing operations on the protection of personal data, seeking the advice of the data protection officer where one has been designated."
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "back-matter": {
+      "resources": [
+        {
+          "uuid": "4bc66308-b51e-4410-9124-9b704b93d5f7",
+          "title": "Regulation (EU) 2016/679 - official consolidated text",
+          "description": "Official Journal of the European Union version. Authoritative source.",
+          "rlinks": [
+            {
+              "href": "https://eur-lex.europa.eu/eli/reg/2016/679/oj"
+            }
+          ]
+        },
+        {
+          "uuid": "1d171cc9-eed4-4859-9f70-0baeaad4b40d",
+          "title": "GDPR - independent reference",
+          "description": "Independent reference site reproducing the regulation. Useful for navigation but not authoritative.",
+          "rlinks": [
+            {
+              "href": "https://gdpr-info.eu/"
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

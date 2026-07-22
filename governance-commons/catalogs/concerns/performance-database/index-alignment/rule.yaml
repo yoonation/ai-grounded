@@ -1,0 +1,43 @@
+id: performance-database.index-alignment
+name: Indexes are aligned to the application's actual query access patterns, with composite
+  and covering indexes for hot queries and no unused or redundant indexes that only tax
+  writes
+layer: semantic
+characteristic: performance-efficiency
+severity: high
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-31'
+  entered_stable: '2026-06-01'
+  authored_by: Myoung Hong
+sources:
+- title: Postgres multicolumn indexes (composite-index column order and how it matches
+    query predicates and sort order)
+  url: https://www.postgresql.org/docs/current/indexes-multicolumn.html
+- title: Use The Index, Luke (a public guide to indexing for application developers, referenced
+    as a concept source)
+  url: https://use-the-index-luke.com/
+applies_to:
+  language: any
+  framework: any
+  environment: any
+references: []
+statement: The indexes on each table are justified by, and aligned to, the application's
+  actual queries against that table. Hot queries that filter, join, or sort are backed
+  by an index whose column order matches the equality predicates, then the range predicate,
+  then the sort, and queries that return a narrow projection are candidates for a covering
+  index that answers them without a heap fetch. Conversely, every index is traceable to
+  a query that uses it; indexes the planner never chooses are removed, because each one
+  taxes every write and consumes cache. The review uses the database's EXPLAIN output
+  and index-usage statistics as evidence, not assumption.
+rationale: 'An index is a precomputed access path; it is valuable exactly when it matches
+  a query the application runs often and worthless or harmful otherwise. The classic failures
+  are symmetric: the missing index that turns a frequent lookup into a full scan, and
+  the speculative index that no query uses but every write must maintain. Both are invisible
+  without looking at the real workload, which is why this is a review rule grounded in
+  the database''s own statistics rather than a mechanical check. Composite-index column
+  order is the subtle part: an index on the wrong column order serves a different query
+  than intended and can look present while the planner ignores it. Covering indexes are
+  the high-leverage case, turning a hot narrow query into an index-only scan, which is
+  why this rule pairs with the projection discipline of performance-database.explicit-column-projection.'

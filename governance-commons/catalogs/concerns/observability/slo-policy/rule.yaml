@@ -1,0 +1,35 @@
+id: observability.slo-policy
+name: The service has an explicitly documented SLO selection and error budget policy covering
+  SLI choice, SLO targets, error budget computation, and burndown response
+layer: judgmental
+characteristic: maintainability
+severity: high
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-21'
+  entered_stable: '2026-05-22'
+  authored_by: Myoung Hong
+applies_to:
+  language: any
+  framework: any
+  environment: any-production
+references: []
+statement: 'The service has an explicitly documented decision on its SLO selection and
+  error budget policy. The decision is recorded in a MADR document following the substrate''s
+  decision-framework template (see decision-framework link). The MADR is stored in the
+  application''s decision-record location (substrate-recommended path: /docs/decisions/ADR-
+  XXX-observability-slo-policy.md) and is referenced from the application''s architectural
+  documentation. The MADR addresses every section the substrate''s template requires:
+  SLI selection (which signals reflect customer experience), SLO targets (the numeric
+  reliability commitment), measurement window (the rolling period over which SLO is computed),
+  error budget computation (how budget consumption is calculated), and budget burndown
+  response (what the team does when budget consumption crosses policy thresholds).'
+rationale: SLO selection cascades through every other observability rule. Without an explicit
+  SLO, the dashboard SLI panels (observability.dashboard-discipline) have nothing to anchor to; the alerting discipline
+  (observability.alerting-discipline) cannot use burn-rate alerts (the substrate-recommended pattern); the cardinality
+  discipline (observability.cardinality-discipline) cannot prioritize which metrics are load-bearing for SLO computation
+  versus discretionary. The error budget policy operationalizes the SLO. Without an explicit
+  error budget policy, the SLO becomes a number on a dashboard rather than a decision-making
+  input. Teams without an error budget policy oscillate between feature work and reliability
+  work based on whoever shouts loudest in the latest incident review.

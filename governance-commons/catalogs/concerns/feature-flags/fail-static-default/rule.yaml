@@ -1,0 +1,46 @@
+id: feature-flags.fail-static-default
+name: Every feature-flag evaluation supplies an explicit fail-static default so an unavailable
+  provider or unknown flag falls to a safe value
+layer: mechanical
+characteristic: maintainability
+severity: high
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-06-04'
+  entered_stable: '2026-06-06'
+  authored_by: Myoung Hong
+sources:
+- title: 'The OpenFeature specification: flag evaluation takes a default value that is
+    returned when the provider cannot resolve the flag, the vendor-neutral basis for fail-static
+    evaluation'
+  url: https://openfeature.dev/specification/
+- title: 'OWASP Top 10 A05:2021 Security Misconfiguration: a control that fails open under
+    a dependency outage is a misconfiguration of fail-safe behavior'
+  url: https://owasp.org/Top10/A05_2021-Security_Misconfiguration/
+cwe:
+- CWE-636
+applies_to:
+  language: any
+  framework: any
+  environment: any
+references: []
+statement: 'Every feature-flag evaluation in production code supplies an explicit default
+  value that is returned when the flag provider cannot resolve the flag (the provider
+  is unreachable or degraded, the flag is unknown, or the evaluation times out), and that
+  default is the safe value for the toggle: for a release toggle, the old or off path;
+  for a control whose safe state is enabled, the on path, declared as such. Evaluations
+  route through the flag SDK''s evaluation API or the consumer''s designated flag accessor,
+  not through a bespoke call that can throw or block on provider failure. The flag system
+  is a degradation mechanism, so its own unavailability resolves to last-known-safe behavior
+  rather than to an exception on the gated path.'
+rationale: 'Feature flags exist in large part to make change safe: ship dark, roll out
+  gradually, and roll back instantly. A flag evaluation that has no fail-static default
+  inverts that purpose, because the moment the flag provider has a problem the gated path
+  fails with it. The fail-static default makes the worst case a known one: the provider
+  is down, so every flag resolves to its declared safe value and the system behaves as
+  it did before the flag existed. The rule is mechanical because the question is positional
+  and syntactic: does this evaluation call pass the default argument the API defines,
+  and is that default the declared safe value? Whether the rollout above the default is
+  correct is the higher-layer concern; whether the evaluation is safe under provider failure
+  at all is L1.'

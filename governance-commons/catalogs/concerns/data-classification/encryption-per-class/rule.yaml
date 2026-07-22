@@ -1,0 +1,37 @@
+id: data-classification.encryption-per-class
+name: Classified data is encrypted at rest and in transit to the standard its class requires
+layer: semantic
+characteristic: security
+severity: high
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-31'
+  entered_stable: '2026-06-01'
+  authored_by: Myoung Hong
+sources:
+- title: NIST SP 800-53 (the SC system-and-communications-protection family, encryption
+    of data at rest and in transit)
+  url: https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final
+- title: RFC 8446 TLS 1.3 (the transport encryption standard for data in transit, referenced
+    as a concept)
+  url: https://www.rfc-editor.org/rfc/rfc8446.html
+applies_to:
+  language: any
+  framework: any
+  environment: any
+references: []
+statement: Classified data is encrypted at rest and in transit to the standard its class
+  requires. Stores holding confidential or restricted data have at-rest encryption enabled
+  with keys managed per policy, and classified data crosses only encrypted transport.
+  The per-class encryption standard is recorded in the classification policy. The control
+  is reviewed when a new classified store or transport path is introduced; the provision-time
+  enforcement of at-rest encryption is owned by infrastructure-misconfiguration.
+rationale: 'Encryption is the control that decouples the confidentiality of classified
+  data from the security of the medium that holds or carries it: with it, a leaked backup
+  or a sniffed connection yields ciphertext; without it, the data is read in the clear.
+  The requirement scales with the class, which is why this concern owns the per-class
+  standard while the security concerns own the cryptographic mechanism and infrastructure-misconfiguration
+  owns enforcing the at-rest setting at provision time. The substrate keeps this as an
+  L2 review because the in-force state lives in datastore and transport configuration
+  that the application source does not express.'

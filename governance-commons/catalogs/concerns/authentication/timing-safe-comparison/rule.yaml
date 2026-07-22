@@ -1,0 +1,37 @@
+id: authentication.timing-safe-comparison
+name: Credential comparison uses a timing-safe equality function
+layer: mechanical
+characteristic: security
+severity: high
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-18'
+  entered_stable: '2026-05-18'
+  authored_by: Myoung Hong
+sources:
+- title: OWASP ASVS v5.0.0 V6 timing-attack resistance requirements
+  url: https://github.com/OWASP/ASVS/blob/v5.0.0/5.0/en/0x15-V6-Authentication.md
+- title: CWE-208 Observable Timing Discrepancy
+  url: https://cwe.mitre.org/data/definitions/208.html
+cwe:
+- CWE-208
+- CWE-203
+applies_to:
+  language: any
+  framework: any
+  environment: any-with-credentials
+references: []
+statement: Comparison of credential material uses a constant-time (timing-safe) equality
+  function provided by the language standard library or a well-audited cryptographic library.
+  Credential material includes API key comparisons, token comparisons, MAC and HMAC signature
+  comparisons, password hash comparisons, and any other security-sensitive equality check
+  whose timing leaks information about the secret value.
+rationale: 'Language string equality short-circuits at the first differing byte. An attacker
+  who can submit candidate credentials and measure response time can deduce the correct
+  credential one byte at a time: the request whose first byte matches takes slightly longer
+  than requests whose first byte mismatches. Across many samples (and network noise can
+  be filtered with statistical techniques), the attacker recovers the credential. Constant-time
+  comparison functions perform the same amount of work regardless of where the inputs
+  differ. Timing carries no information about the secret value.'
+guidance_ref: guidance.md

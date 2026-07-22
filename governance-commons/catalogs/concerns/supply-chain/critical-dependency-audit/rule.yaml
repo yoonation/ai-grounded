@@ -1,0 +1,41 @@
+id: supply-chain.critical-dependency-audit
+name: Critical dependencies identified, classified, and audited on a substrate-documented
+  cadence
+layer: semantic
+characteristic: security
+severity: medium
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-23'
+  entered_stable: '2026-05-26'
+  authored_by: Myoung Hong
+sources:
+- title: NIST SP 800-161r1 Cybersecurity Supply Chain Risk Management Practices for Systems
+    and Organizations
+  url: https://csrc.nist.gov/pubs/sp/800/161/r1/final
+- title: OpenSSF Criticality Score (substrate-recommended automated signal for upstream-project
+    criticality tier)
+  url: https://github.com/ossf/criticality_score
+- title: NIST SP 800-218 SSDF v1.1 PW.4.5 (Maintain Inventory of Components and Identify
+    Component Risk)
+  url: https://csrc.nist.gov/pubs/sp/800/218/final
+references: []
+statement: 'The consumer maintains a tiered inventory of production dependencies classified
+  by criticality (substrate-recommended tiers: tier-1 critical, tier-2 important, tier-3
+  commodity). Each tier carries a substrate-documented audit cadence (substrate-recommended:
+  tier-1 quarterly, tier-2 semi-annually, tier-3 annually). The audit reviews each tiered
+  dependency against the supply-chain.dependency-vetting vetting signals to detect drift: maintainer activity
+  changes, Scorecard score regression, release-recency degradation, signing-posture changes.
+  Findings drive either continued adoption with documented reaffirmation, migration to
+  an alternative, or planned in-tree replacement.'
+rationale: 'Critical-dependency identification surfaces the substrate-recognized truth
+  that not all dependencies are equal. A web framework on the request-processing hot path
+  is structurally more critical than a logging library; a cryptography library is structurally
+  more critical than a string-formatting library. The substrate-recommended criticality
+  tiers reflect blast-radius dimensions: tier-1 (compromise affects application-wide security
+  or correctness invariants), tier-2 (compromise affects a specific application surface),
+  tier-3 (compromise affects developer ergonomics or non-critical paths). The audit cadence
+  operationalizes the substrate''s "dependencies are not free" stance. Substrate-recommended
+  quarterly cadence for tier-1 is calibrated against typical advisory release rhythms
+  and the EU CRA reporting timeline.'

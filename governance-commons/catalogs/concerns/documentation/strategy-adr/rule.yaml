@@ -1,0 +1,34 @@
+id: documentation.strategy-adr
+name: The documentation strategy is decided and recorded in an Architecture Decision Record
+layer: judgmental
+characteristic: interaction-capability
+severity: medium
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-06-05'
+  entered_stable: '2026-06-06'
+  authored_by: Myoung Hong
+sources:
+- title: Diataxis documentation framework, on a deliberate structure for the kinds of
+    documentation a system needs.
+  url: https://diataxis.fr/
+applies_to:
+  language: any
+  framework: any
+  environment: any
+references: []
+statement: 'The consumer MUST decide and record, in an Architecture Decision Record, its
+  documentation strategy. The ADR MUST address, at minimum: what must be documented and
+  to what standard per surface (public API, internal modules, decisions, operations);
+  where documentation lives and how it is discovered; how documentation is kept accurate
+  and on what review cadence; the decision-record convention and what counts as an architecturally
+  significant decision; the changelog convention; the placeholder and known-gap convention;
+  and ownership.'
+rationale: 'The documentation decisions are cross-cutting and easy to leave implicit,
+  which is how a codebase ends up with inconsistent documentation: some areas exhaustively
+  documented, public contracts bare, and decisions unrecorded. The strategy is where the
+  consumer decides the surface the lower-layer rules then enforce: what must be documented
+  and how well, where it lives, how it stays accurate, and the conventions for decisions
+  and changes. Recording it once lets every contributor document to one standard and lets
+  reviewers check documentation against a written expectation.'

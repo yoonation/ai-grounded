@@ -1,0 +1,42 @@
+id: privacy.purpose-limitation-and-minimization
+name: Personal data is collected only for declared purposes and limited to what those
+  purposes need, with secondary use requiring a new compatible basis
+layer: semantic
+characteristic: security
+severity: high
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-06-03'
+  entered_stable: '2026-06-04'
+  authored_by: Myoung Hong
+sources:
+- title: EU GDPR Regulation 2016/679 (Article 5(1)(b) purpose limitation and Article 5(1)(c)
+    data minimisation, referenced as a concept)
+  url: https://eur-lex.europa.eu/eli/reg/2016/679/oj
+- title: NIST Privacy Framework (the Control-P data-minimization and purpose-management
+    outcomes, referenced as a concept)
+  url: https://www.nist.gov/privacy-framework
+applies_to:
+  language: any
+  framework: any
+  environment: any
+references: []
+statement: Personal data is collected only for the purposes declared for it and is limited
+  to the fields those purposes actually require; data is not collected on the chance it
+  may prove useful. A use of personal data for a purpose other than the one it was collected
+  for requires a new basis compatible with the original purpose, recorded before the secondary
+  use begins. The declared purposes come from privacy.personal-data-purpose-annotation and the privacy.lawful-basis-and-consent-policy policy,
+  and the fitness of data used to train or evaluate a model is owned by responsible-ai;
+  this rule cross-references both. The review is triggered when a collection surface is
+  added or changed, or a new use of existing personal data is proposed.
+rationale: Every personal field a system stores is a field it must protect, justify, expose
+  to access and erasure requests, and account for in a breach; minimization is therefore
+  not austerity but the direct reduction of obligation and risk. The two failures are
+  over-collection (grabbing whatever the client sends because the schema is permissive)
+  and function-creep (using data gathered for one purpose for a new one because the data
+  is already there). The substrate keeps this an L2 review because necessity and compatibility
+  are judgments, and pairs it with a test template because the narrower mechanical question,
+  whether the accepted field set matches the declared-purpose schema, is concrete. It
+  defers the purpose declarations to privacy.personal-data-purpose-annotation and the L3 policy and the data-fitness
+  judgment to responsible-ai.

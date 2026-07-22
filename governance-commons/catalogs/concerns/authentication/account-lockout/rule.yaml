@@ -1,0 +1,39 @@
+id: authentication.account-lockout
+name: Account lockout is bounded in duration and supports self-service recovery
+layer: semantic
+characteristic: security
+severity: medium
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-18'
+  entered_stable: '2026-05-18'
+  authored_by: Myoung Hong
+sources:
+- title: OWASP ASVS v5.0.0 V6 account lockout requirements
+  url: https://github.com/OWASP/ASVS/blob/v5.0.0/5.0/en/0x15-V6-Authentication.md
+- title: CWE-307 Improper Restriction of Excessive Authentication Attempts
+  url: https://cwe.mitre.org/data/definitions/307.html
+- title: CWE-400 Uncontrolled Resource Consumption
+  url: https://cwe.mitre.org/data/definitions/400.html
+cwe:
+- CWE-307
+- CWE-400
+applies_to:
+  language: any
+  framework: any
+  environment: any-with-authentication
+references: []
+statement: Account lockout (triggered when authentication.rate-limiting per-account thresholds are exceeded)
+  is bounded in duration and supports self-service recovery. Lockout duration is at most
+  30 minutes for standard accounts. Self-service recovery is available through the password
+  reset flow, which itself is rate-limited per authentication.rate-limiting. Lockout does not signal its
+  state in authentication responses (preserving authentication.generic-failure-responses).
+rationale: 'Permanent lockout requiring administrative intervention has two failure modes:
+  it enables denial-of-service attacks (attacker triggers lockout for legitimate users
+  by submitting failed logins targeting them) and it creates support burden that scales
+  poorly. Time-bounded lockout solves both problems. The lockout window is long enough
+  to defeat the attack (15-30 minutes prevents the attacker from trying many candidates)
+  but short enough that legitimate users self-recover. Self-service recovery through password
+  reset handles the case where the user has forgotten their password and the lockout window
+  is irrelevant. Password reset is itself rate-limited so it cannot become a lockout bypass.'

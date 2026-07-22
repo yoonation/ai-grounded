@@ -1,0 +1,315 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Myoung Hong
+
+
+# OWASP Top 10 for Large Language Model Applications
+# Authoritative threat taxonomy for LLM-based applications.
+#
+# This catalog is referenced by:
+# - Skills that load OWASP context (security/SKILL.md)
+# - Spec template's threat-modeling sections
+# - /audit-export compliance evidence collection
+# - Cedar policies that gate AI-related actions
+
+metadata:
+  catalog_id: owasp-llm-top10
+  catalog_name: OWASP Top 10 for LLM Applications
+  schema_version: 1.0.0
+  last_reviewed: 2026-05-11
+  upstream_source: https://owasp.org/www-project-top-10-for-large-language-model-applications/
+  upstream_version: "2025"
+  next_review_due: 2026-08-09
+  maintainer: <set-during-init>
+  review_protocol: governance-commons/MAINTENANCE.md
+  applies_to:
+    - build_time   # threats relevant during AI-assisted development
+    - runtime      # threats relevant when LLM applications run in production
+
+threats:
+
+  - id: LLM01
+    name: Prompt Injection
+    short_description: >
+      Manipulation of LLM behavior by crafting inputs that cause the
+      model to ignore its instructions or take unintended actions.
+    categories: [injection, instruction-override]
+    severity: critical
+    applies_to: [build_time, runtime]
+    common_vectors:
+      - Direct user input containing instruction-override phrases
+      - Indirect injection via external data the LLM reads
+        (documents, websites, tool responses)
+      - Multi-turn manipulation accumulating context that overrides
+        system instructions
+      - Encoded payloads (base64, unicode tricks, hidden characters)
+    mitigations:
+      - Treat all external content as untrusted data, never instructions
+      - Validate and sanitize inputs at system boundaries
+      - Use input/output filters with known injection patterns
+      - Implement guardrails (NeMo Guardrails, Guardrails AI, etc.)
+      - Privilege separation - LLM has minimum permissions for its task
+      - Human-in-the-loop for high-stakes actions
+      - Monitor for injection attempt patterns in audit logs
+    references:
+      - https://owasp.org/www-project-top-10-for-large-language-model-applications/
+    related_threats: [LLM02, LLM07, ASI01]
+    related_compliance:
+      - EU-AI-ACT-Art-15  # accuracy, robustness, cybersecurity
+      - NIST-AI-RMF-MEASURE-2.7  # AI system security and resilience
+
+  - id: LLM02
+    name: Sensitive Information Disclosure
+    short_description: >
+      Inadvertent revelation of sensitive data through LLM responses,
+      including PII, proprietary information, or system internals.
+    categories: [data-leakage, privacy]
+    severity: high
+    applies_to: [build_time, runtime]
+    common_vectors:
+      - LLM trained or fine-tuned on sensitive data without redaction
+      - System prompts leaked via prompt injection
+      - PII included in prompts and reflected in responses
+      - Training data extraction via clever prompting
+      - Error messages exposing internal state
+    mitigations:
+      - Data sanitization in training and fine-tuning pipelines
+      - PII detection and redaction at input and output
+      - Strict data classification (see data-classification.md)
+      - Output filtering for sensitive patterns (PII, secrets, internals)
+      - Audit logs record what data the LLM accessed (subject hashing)
+      - Zero-retention agreements with LLM providers for sensitive use
+    references:
+      - https://owasp.org/www-project-top-10-for-large-language-model-applications/
+    related_threats: [LLM06, LLM08]
+    related_compliance:
+      - GDPR-Art-32  # security of processing
+      - HIPAA-164.312  # technical safeguards
+      - SOC2-CC6.7  # data classification and handling
+
+  - id: LLM03
+    name: Supply Chain Vulnerabilities
+    short_description: >
+      Compromise of LLM applications through vulnerabilities in
+      models, training data, dependencies, or third-party services.
+    categories: [supply-chain, dependency-risk]
+    severity: high
+    applies_to: [build_time, runtime]
+    common_vectors:
+      - Compromised model weights from untrusted sources
+      - Poisoned training datasets
+      - Vulnerable dependencies in LLM applications
+      - Compromised MCP servers or tool providers
+      - Backdoored fine-tuned models
+    mitigations:
+      - SLSA Level 2+ provenance for all build artifacts
+      - Model provenance verification (signed weights, attestation)
+      - Dependency scanning and SBOM generation
+      - Pin model versions; don't auto-update production models
+      - Verify MCP servers' authenticity before connecting
+      - Cosign/Sigstore for signature verification
+    references:
+      - https://owasp.org/www-project-top-10-for-large-language-model-applications/
+      - https://slsa.dev
+    related_threats: [LLM05, LLM10]
+    related_compliance:
+      - NIST-AI-RMF-MEASURE-2.10  # third-party risk
+      - SOC2-CC9.2  # vendor risk management
+      - EU-AI-ACT-Art-15
+
+  - id: LLM04
+    name: Data and Model Poisoning
+    short_description: >
+      Intentional manipulation of training data, fine-tuning data,
+      or embeddings to introduce vulnerabilities, biases, or backdoors.
+    categories: [adversarial, data-integrity]
+    severity: high
+    applies_to: [runtime]  # primarily a model-training concern
+    common_vectors:
+      - Poisoned RAG corpus (malicious documents that affect retrieval)
+      - Compromised fine-tuning datasets
+      - Adversarial training data designed to insert backdoors
+      - Memory poisoning in stateful agents (see ASI taxonomy)
+    mitigations:
+      - Verify integrity of training and fine-tuning data
+      - Use datasets from trusted sources with provenance
+      - Implement anomaly detection on model outputs
+      - Red-team trained models for backdoor behavior
+      - For RAG - validate retrieval corpus, sign documents
+      - Monitor model performance drift indicating poisoning
+    references:
+      - https://owasp.org/www-project-top-10-for-large-language-model-applications/
+    related_threats: [LLM03, LLM05, ASI04]
+    related_compliance:
+      - NIST-AI-RMF-MEASURE-2.7
+      - EU-AI-ACT-Art-15
+
+  - id: LLM05
+    name: Improper Output Handling
+    short_description: >
+      Insufficient validation or sanitization of LLM-generated output
+      before it is used in downstream systems, leading to XSS, SSRF,
+      SQLi, RCE, or privilege escalation in connected components.
+    categories: [output-validation, injection-downstream]
+    severity: high
+    applies_to: [runtime]
+    common_vectors:
+      - LLM output rendered as HTML without escaping (XSS)
+      - LLM output executed as code (RCE via eval/exec)
+      - LLM output used in SQL queries without parameterization
+      - LLM-generated URLs followed without validation (SSRF)
+      - LLM-generated commands executed in shell
+    mitigations:
+      - Treat LLM output as untrusted input to downstream systems
+      - Output schema validation with strict allowlists
+      - Sandbox code execution from LLM outputs
+      - Never directly execute LLM-generated shell commands
+      - Use structured outputs (JSON Schema) rather than freeform text
+      - Output filtering for dangerous patterns
+    references:
+      - https://owasp.org/www-project-top-10-for-large-language-model-applications/
+    related_threats: [LLM01, LLM07]
+    related_compliance:
+      - SOC2-CC6.6  # logical access controls
+      - NIST-AI-RMF-MEASURE-2.7
+
+  - id: LLM06
+    name: Excessive Agency
+    short_description: >
+      Granting LLM-based systems too much functionality, permissions,
+      or autonomy, enabling harmful actions when the LLM behaves
+      unexpectedly or is manipulated.
+    categories: [authorization, agent-autonomy]
+    severity: critical
+    applies_to: [build_time, runtime]
+    common_vectors:
+      - LLM agents with write access to production systems
+      - Tools exposing more capability than the task requires
+      - Lack of human-in-the-loop for irreversible actions
+      - Auto-approval policies that bypass review
+      - Broad credential scope (full-account API keys vs scoped tokens)
+    mitigations:
+      - Apply principle of least privilege to agent capabilities
+      - Tool allowlisting per agent role
+      - Human approval gates for irreversible actions
+      - Circuit breakers for cascading failures
+      - Time-limited credentials with minimum scope
+      - Default-deny policies in Cedar (see policies/)
+    references:
+      - https://owasp.org/www-project-top-10-for-large-language-model-applications/
+    related_threats: [ASI06, ASI09]
+    related_compliance:
+      - SOC2-CC6.3  # role-based access
+      - EU-AI-ACT-Art-14  # human oversight
+      - NIST-AI-RMF-GOVERN-1.4
+
+  - id: LLM07
+    name: System Prompt Leakage
+    short_description: >
+      Exposure of system prompts containing sensitive instructions,
+      credentials, or business logic that should remain confidential.
+    categories: [information-disclosure, prompt-security]
+    severity: medium
+    applies_to: [runtime]
+    common_vectors:
+      - Direct request for the system prompt that the LLM complies with
+      - Indirect extraction through clever phrasing
+      - Error messages echoing system prompt content
+      - System prompt logged to insufficiently-protected audit logs
+    mitigations:
+      - Never include credentials in system prompts
+      - Treat system prompts as confidential but assume eventual leak
+      - Defense-in-depth - don't rely on prompt confidentiality
+        for security
+      - Output filters for system prompt fragments
+      - Audit log redaction of prompt content (see audit-envelope.md)
+    references:
+      - https://owasp.org/www-project-top-10-for-large-language-model-applications/
+    related_threats: [LLM01, LLM02]
+    related_compliance:
+      - SOC2-CC6.7
+
+  - id: LLM08
+    name: Vector and Embedding Weaknesses
+    short_description: >
+      Exploitation of vulnerabilities in vector stores, embedding
+      models, or retrieval mechanisms used by RAG systems and
+      semantic search.
+    categories: [retrieval, embedding-security]
+    severity: medium
+    applies_to: [runtime]
+    common_vectors:
+      - Adversarial documents in RAG corpus designed to be retrieved
+        for unrelated queries
+      - Embedding inversion attacks recovering source text
+      - Cross-tenant data leakage in shared vector stores
+      - Cache poisoning of embedding lookups
+    mitigations:
+      - Access control on vector store entries (tenant isolation)
+      - Document provenance tracking in RAG corpora
+      - Embedding model versioning and rotation
+      - Retrieval result validation (top-K filtering by source trust)
+      - Monitor for retrieval anomalies
+    references:
+      - https://owasp.org/www-project-top-10-for-large-language-model-applications/
+    related_threats: [LLM04]
+    related_compliance:
+      - SOC2-CC6.1
+      - GDPR-Art-32
+
+  - id: LLM09
+    name: Misinformation
+    short_description: >
+      LLM-generated false or misleading information presented as
+      authoritative, including hallucinated facts, fabricated citations,
+      or confidently-wrong reasoning.
+    categories: [reliability, content-integrity]
+    severity: medium
+    applies_to: [runtime]
+    common_vectors:
+      - Hallucinated API references in generated code
+      - Fabricated legal or medical advice
+      - Made-up citations or URLs
+      - Confident-but-wrong reasoning in chains-of-thought
+    mitigations:
+      - Allow LLM to express uncertainty ("I don't know")
+      - Retrieval-augmented generation grounded in verified sources
+      - Citation verification (check that cited sources exist and
+        support the claim)
+      - Output disclaimers for non-deterministic outputs
+      - Library context (see lib-context/) to reduce API hallucination
+    references:
+      - https://owasp.org/www-project-top-10-for-large-language-model-applications/
+    related_threats: [LLM02]
+    related_compliance:
+      - EU-AI-ACT-Art-13  # transparency
+      - NIST-AI-RMF-MEASURE-2.5  # validity and reliability
+
+  - id: LLM10
+    name: Unbounded Consumption
+    short_description: >
+      Resource exhaustion through unlimited token consumption, runaway
+      autonomous loops, or denial-of-service via expensive LLM
+      operations.
+    categories: [availability, cost-control]
+    severity: medium
+    applies_to: [build_time, runtime]
+    common_vectors:
+      - Recursive agent loops without termination conditions
+      - Unbounded context growth in long sessions
+      - Expensive operations triggered by untrusted input
+      - Cost-amplification attacks (large outputs from small inputs)
+    mitigations:
+      - Token budget limits per session and per request
+      - Rate limiting on inference endpoints
+      - Timeout and iteration caps on agent loops
+      - Cost telemetry (see audit-envelope.md tokens field)
+      - Circuit breakers for runaway costs
+      - Monitoring and alerting on anomalous spend
+    references:
+      - https://owasp.org/www-project-top-10-for-large-language-model-applications/
+    related_threats: [ASI10]
+    related_compliance:
+      - SOC2-A1.1  # availability
+      - NIST-AI-RMF-MANAGE-2.4
+
+# End of OWASP LLM Top 10 catalog

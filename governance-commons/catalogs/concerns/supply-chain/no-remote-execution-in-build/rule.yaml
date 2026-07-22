@@ -1,0 +1,56 @@
+id: supply-chain.no-remote-execution-in-build
+name: Build scripts and CI workflows contain no remote-execution patterns (curl-pipe-shell,
+  wget-pipe-bash, eval of remote payloads, unauthenticated network downloads in privileged
+  build steps)
+layer: mechanical
+characteristic: security
+severity: critical
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-23'
+  entered_stable: '2026-05-26'
+  authored_by: Myoung Hong
+sources:
+- title: OWASP Top 10 CI/CD Security Risks CICD-SEC-4 (Poisoned Pipeline Execution) and
+    CICD-SEC-7 (Insecure System Configuration)
+  url: https://owasp.org/www-project-top-10-ci-cd-security-risks/
+- title: SLSA v1.1 Build Platform requirements (hermeticity and isolated execution)
+  url: https://slsa.dev/spec/v1.1/requirements#build-platform
+- title: NIST SP 800-218 SSDF v1.1 PO.5 (Implement and Maintain Secure Environments for
+    Software Development)
+  url: https://csrc.nist.gov/pubs/sp/800/218/final
+- title: OWASP ASVS v5.0.0 V14.4 (Build pipeline hardening against remote execution)
+  url: https://github.com/OWASP/ASVS/blob/v5.0.0/5.0/en/0x22-V14-Configuration.md
+- title: CWE-494 Download of Code Without Integrity Check
+  url: https://cwe.mitre.org/data/definitions/494.html
+cwe:
+- CWE-494
+- CWE-829
+- CWE-78
+applies_to:
+  language: shell
+  framework: any-ci-platform
+  environment: build
+references: []
+statement: 'Build scripts and CI workflow files contain no substrate-rejected remote-execution
+  patterns. The substrate-rejected patterns include: piping a network fetch directly to
+  a shell or interpreter (`curl URL | sh`, `curl URL | bash`, `wget URL -O- | sh`, `wget
+  URL -O- | bash`, `irm URL | iex`, `Invoke-WebRequest URL | Invoke-Expression`); evaluating
+  a fetched payload as code (`eval $(curl ...)`, `bash -c "$(curl ...)"`, `python -c "$(curl
+  ...)"`); downloading and immediately executing without integrity check (`curl URL -o
+  foo; ./foo`, `wget URL && chmod +x ... && ./...`); installing via shell-script installers
+  from upstream that follow the same pattern internally (`curl -fsSL <installer> | sh`).
+  The rule applies to substrate-recognized build-script locations (Dockerfile RUN, GitHub
+  Actions run steps, GitLab CI script blocks, Jenkins Pipeline sh blocks, Makefile recipes,
+  shell scripts in build directories).'
+rationale: 'The substrate elects this as a hard L1 prohibition because the pattern is
+  unambiguous and its presence indicates either an unhardened build pipeline or a hardened
+  pipeline with an unhardened bypass. The pattern has zero substrate-accepted use cases
+  in production builds: every legitimate need (installing a tool, fetching a dependency,
+  downloading test data) has a substrate-accepted alternative (use the ecosystem package
+  manager with lockfile pinning, use a pre-built and digest-pinned container base, use
+  a CI-native action with provenance, use the consumer''s authenticated artifact store).
+  The substrate accepts that the pattern remains common in upstream installer documentation
+  and in legacy pipelines. The migration path is per-violation: each instance is replaced
+  by the substrate-accepted alternative for that specific dependency.'

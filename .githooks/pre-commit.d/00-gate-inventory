@@ -1,0 +1,47 @@
+#!/bin/sh
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Myoung Hong
+#
+# gate-meta:
+#   order: 0
+#   name: gate-inventory
+#   posture: report-only
+#   skip: SKIP_GATES
+#   strict: GATES_STRICT
+#   summary: Every gate carries a valid gate-meta header and docs/GATES.md matches the gates on disk.
+# end-gate-meta
+#
+# Meta-gate: the durable anti-drift mechanism for the gate chain. It runs the
+# inventory checker (tooling/gates/describe.py --check), which fails when a gate in
+# pre-commit.d/ lacks a valid gate-meta header (a new gate cannot ship undescribed)
+# or when the committed docs/GATES.md no longer matches the gates on disk (the
+# generated inventory drifted from source). Because the inventory is generated from
+# the gate headers rather than hand-maintained, the guidance that points at it
+# cannot silently fall behind the gate chain.
+#
+# Runs first (order 0) so the chain is validated before it executes; it describes
+# itself, so it is held to the same header rule. Report-only by default (surfaces
+# drift on every commit); GATES_STRICT=1 blocks; SKIP_GATES=1 bypasses. Stdlib
+# python3 only, no extra dependency.
+set -u
+
+[ "${SKIP_GATES:-}" = "1" ] && { echo "gates: skipped (SKIP_GATES=1)."; exit 0; }
+
+REPO_ROOT=$(git rev-parse --show-toplevel 2>/dev/null) || exit 0
+cd "$REPO_ROOT" || exit 0
+
+[ -f tooling/gates/describe.py ] || { echo "gates: tooling/gates/describe.py absent; skipped."; exit 0; }
+
+if [ "${GATES_STRICT:-}" = "1" ]; then
+  python3 tooling/gates/describe.py --check --strict --repo-root .
+  RC=$?
+  if [ "$RC" != "0" ]; then
+    echo "gates: STRICT - a gate lacks a gate-meta header or docs/GATES.md is stale (GATES_STRICT=1)."
+    echo "       Regenerate with: python3 tooling/gates/describe.py > docs/GATES.md"
+    exit 1
+  fi
+else
+  python3 tooling/gates/describe.py --check --repo-root .
+  echo "gates: report-only - any header/inventory problem above is not blocking (set GATES_STRICT=1 to enforce)."
+fi
+exit 0

@@ -1,0 +1,3 @@
+binding_status: capability-bound
+rule: infrastructure-misconfiguration.no-unrestricted-ingress
+gate: iac-scan

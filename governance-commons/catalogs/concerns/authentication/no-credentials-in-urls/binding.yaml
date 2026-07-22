@@ -1,0 +1,3 @@
+binding_status: capability-bound
+rule: authentication.no-credentials-in-urls
+gate: sast

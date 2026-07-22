@@ -1,0 +1,45 @@
+id: feature-flags.no-hardcoded-flag
+name: A feature flag is not hardcoded to a constant value or short-circuited in source,
+  bypassing the flag system
+layer: mechanical
+characteristic: maintainability
+severity: medium
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-06-04'
+  entered_stable: '2026-06-06'
+  authored_by: Myoung Hong
+sources:
+- title: 'Martin Fowler, Feature Toggles: toggles carry a carrying cost and should be
+    retired by removing the toggle point, not by pinning the flag on in code'
+  url: https://martinfowler.com/articles/feature-toggles.html
+- title: 'OWASP Top 10 A05:2021 Security Misconfiguration: a control pinned in code so
+    an operational toggle no longer governs it is a misconfiguration of the intended control
+    surface'
+  url: https://owasp.org/Top10/A05_2021-Security_Misconfiguration/
+cwe:
+- CWE-547
+applies_to:
+  language: any
+  framework: any
+  environment: any
+references: []
+statement: 'A value the codebase treats as a feature flag is resolved by evaluating the
+  flag, not by assigning or comparing it against a hardcoded literal in production source.
+  A flag is not initialized to a literal true or false that shadows its evaluation, a
+  flag conditional is not replaced by a literal condition while the flag is still referenced
+  or named, and an evaluation result is not overwritten by a constant before use. When
+  a flag has completed its lifecycle and is being retired, it is retired cleanly: the
+  toggle point is removed and only the chosen branch remains, with no lingering flag reference,
+  rather than the flag being pinned to a constant and left in place.'
+rationale: 'The harm in a pinned flag is invisibility. The flag still appears in the provider
+  and in the flag inventory, so the review (feature-flags.lifecycle-and-kill-switch) believes it governs behavior,
+  while in the code it has been overridden by a constant that the provider can no longer
+  influence. The most dangerous instance is a kill switch pinned on for convenience during
+  an incident and never reverted: the next time the switch is needed, flipping it in the
+  provider does nothing because the code ignores it. Clean retirement, removing the toggle
+  point entirely, is the correct end state and is explicitly not a finding. The rule is
+  mechanical because the constant-shadowing-a-flag shape (a flag key or consumer-declared
+  flag identity adjacent to a literal boolean assignment or comparison) is a recognizable
+  source pattern.'

@@ -1,0 +1,66 @@
+id: cost-model-selection.workload-resource-limits
+name: Every workload declares CPU and memory resource limits; the orchestrator rejects
+  workloads that omit them
+layer: mechanical
+characteristic: performance-efficiency
+severity: high
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-21'
+  entered_stable: '2026-05-22'
+  authored_by: Myoung Hong
+sources:
+- title: 'Kubernetes documentation: Resource management for pods and containers (requests,
+    limits, quality of service classes)'
+  url: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+- title: 'Kubernetes documentation: Resource quotas (namespace-scoped cost bounding via
+    aggregate request and limit ceilings)'
+  url: https://kubernetes.io/docs/concepts/policy/resource-quotas/
+- title: 'Kubernetes documentation: Limit ranges (namespace-scoped per-pod minimum and
+    maximum bounds)'
+  url: https://kubernetes.io/docs/concepts/policy/limit-range/
+- title: 'AWS Lambda documentation: Memory and timeout configuration (the cost-relevant
+    declaration on serverless workloads)'
+  url: https://docs.aws.amazon.com/lambda/latest/dg/configuration-memory.html
+- title: 'Google Cloud Run documentation: CPU and memory limits (the cost-relevant declaration
+    on managed-container workloads)'
+  url: https://cloud.google.com/run/docs/configuring/cpu-limits
+- title: 'AWS ECS task definition: cpu and memory parameters (the cost-relevant declaration
+    on ECS workloads, including Fargate)'
+  url: https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task_definition_parameters.html
+cwe:
+- CWE-770
+applies_to:
+  language: any-iac
+  framework: any-workload-orchestrator
+  environment: any-orchestrated-runtime
+references: []
+statement: 'Every workload (container in a Kubernetes pod spec, a Lambda function, a Cloud
+  Run service revision, an ECS task definition''s container, an Azure Container Apps container,
+  an Azure Functions plan-scoped function, or other orchestrator-managed workload) declares
+  its CPU limit and memory limit as part of the workload manifest committed to IaC. The
+  orchestrator or admission controller rejects workloads that omit the limit declaration:
+  Kubernetes via a LimitRange or an admission policy (OPA Gatekeeper, Kyverno, or Pod
+  Security Standards equivalent); AWS Lambda via a consumer-side IaC linter that fails
+  the pipeline on missing memorySize; Cloud Run via the substrate-recommended deployment
+  gate; ECS via task-definition validation in the consumer''s deployment pipeline. Substrate-recommended
+  floor: every container declares both resources.limits.cpu and resources.limits.memory
+  (Kubernetes terminology; equivalent in other orchestrators). Substrate-recommended addition:
+  resources.requests are also declared and aligned with the limits per the consumer''s
+  QoS class policy (L2 scope; see cost-model-selection.cost-emission-pipeline).'
+rationale: 'Cost discipline at the workload layer is bounding. Without a CPU limit, a
+  runaway thread saturates a node CPU; without a memory limit, a leaking allocation grows
+  until the orchestrator''s OOM killer terminates the workload or, on platforms without
+  OOM bounds, the node OOMs and evicts every other workload on it. The cost consequence
+  is twofold: the runaway workload consumes capacity the consumer pays for at the runaway
+  rate; the eviction of neighbors triggers cascade restart costs (cold-start latency,
+  replica scaling, downstream retry storms) that bill against services that did nothing
+  wrong. Resource limits also gate the noisiest workload-level cost surprise: a workload
+  sized for one traffic profile and deployed against a different one without an explicit
+  limit. The substrate-recommended L2 review (cost-model-selection.cost-emission-pipeline cost-emission pipeline) covers
+  whether the limit values match the workload''s actual profile; the L1 rule''s concern
+  is only that limits exist. The rule is mechanical because limit declarations are positional
+  in the workload manifest: a key under a resources block (Kubernetes), a MemorySize field
+  (Lambda), a resources.limits block (Cloud Run), a cpu and memory field at the container
+  level (ECS). Static analysis verifies presence; right-sizing is L2.'

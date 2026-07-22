@@ -1,0 +1,40 @@
+id: error-handling.error-response-contract
+name: Error responses follow a single documented stable contract consistent across all
+  surfaces of the application
+layer: semantic
+characteristic: reliability
+severity: high
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-24'
+  entered_stable: '2026-05-26'
+  authored_by: Myoung Hong
+sources:
+- title: RFC 7807 Problem Details for HTTP APIs
+  url: https://datatracker.ietf.org/doc/html/rfc7807
+- title: RFC 9457 Problem Details for HTTP APIs (obsoletes 7807; substrate accepts either;
+    9457 is the current published standard)
+  url: https://datatracker.ietf.org/doc/html/rfc9457
+- title: OWASP ASVS v5.0.0 V7.4.4 (Error responses follow a consistent format)
+  url: https://github.com/OWASP/ASVS/blob/v5.0.0/5.0/en/0x15-V7-Error-Logging.md
+cwe:
+- CWE-755
+applies_to:
+  environment: any-with-network-response-surface
+references: []
+statement: Error responses across the application follow a single documented contract.
+  The substrate-preferred contract is RFC 7807 (or its successor RFC 9457) Problem Details,
+  which defines a JSON or XML response body with type (URI identifying the problem class),
+  title (short human-readable), status (HTTP status code mirrored in body), detail (longer
+  human-readable specific to this occurrence), and instance (URI identifying this occurrence)
+  fields. Alternatives (JSON:API error format, GraphQL error extensions, custom application
+  format) are acceptable when documented in the error-handling.error-handling-strategy strategy ADR and applied consistently
+  across the application. Mixing contracts within a single application's surface is forbidden.
+rationale: 'Consistent error response shape is the substrate''s interop foundation: clients
+  can author a single error-handling code path, observability tools can parse a single
+  format, runbooks can document a single set of fields. The L2 review surface checks the
+  application-wide consistency that L1 cannot detect locally. The rule is L2 because consistency
+  is a property of the whole application surface, not of a single response-construction
+  site. Reviewers verify the contract is declared once (in the application''s error-handler
+  module), referenced from each endpoint''s error path, and applied to every error response.'

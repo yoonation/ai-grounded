@@ -1,0 +1,41 @@
+id: backup-recovery.strategy-adr
+name: The backup-and-recovery strategy is decided and recorded in an Architecture Decision
+  Record
+layer: judgmental
+characteristic: reliability
+severity: high
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-06-05'
+  entered_stable: '2026-06-06'
+  authored_by: Myoung Hong
+sources:
+- title: NIST SP 800-34 Rev. 1, on developing and recording a contingency strategy including
+    backup, recovery objectives, and alternate storage.
+  url: https://csrc.nist.gov/pubs/sp/800/34/r1/upd1/final
+- title: NIST SP 800-209, on storage-infrastructure security including immutability and
+    write-once protections for backup copies.
+  url: https://csrc.nist.gov/pubs/sp/800/209/final
+applies_to:
+  language: any
+  framework: any
+  environment: any
+references: []
+statement: 'The consumer MUST decide and record, in an Architecture Decision Record, its
+  backup-and-recovery strategy. The ADR MUST address, at minimum: the protection inventory
+  and tiers (deferring classification to data-classification); the backup topology (full
+  and incremental, on-site and off-site, cross-region, and the keep-multiple-copies discipline);
+  the retention and immutability policy; the recovery point and recovery time objectives
+  per tier; the restore-verification cadence; the encryption and key-custody boundary
+  (deferring handling to secrets-management); the destructive-operation guard convention;
+  and ownership and review cadence.'
+rationale: 'The backup-and-recovery decisions are interlocking and durable, and they are
+  expensive to reconstruct after the fact. The strategy is the place where the consumer
+  decides the surface the lower-layer rules then police: what must be protected and how
+  well, how long copies are kept and how immutable they are, how much data loss and downtime
+  each tier tolerates, how restores are proven, and where the boundaries with data-classification,
+  reliability, monitoring-alerting, infrastructure-misconfiguration, and secrets-management
+  sit. Recording it once lets every service inherit one coherent recovery discipline and
+  lets reviewers check a backup against a written standard rather than relitigating the
+  basics each time.'

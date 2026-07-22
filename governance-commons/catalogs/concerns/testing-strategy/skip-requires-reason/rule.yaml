@@ -1,0 +1,49 @@
+id: testing-strategy.skip-requires-reason
+name: Skipped tests include a documented rationale referencing an issue tracker, TODO
+  marker, or explicit explanation
+layer: mechanical
+characteristic: functional-suitability
+severity: medium
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-25'
+  entered_stable: '2026-05-26'
+  authored_by: Myoung Hong
+sources:
+- title: OWASP ASVS v5.0.0 V14.1 (Build process produces evidence of test execution; this
+    rule extends to skipped-test discipline)
+  url: https://github.com/OWASP/ASVS/blob/v5.0.0/5.0/en/0x22-V14-Config.md
+- title: ISO/IEC/IEEE 29119-2:2021 Software Testing Test Processes (test management requires
+    documented rationale for test exclusions)
+  url: https://www.iso.org/standard/79428.html
+- title: CWE-1006 Bad Coding Practices (broad coverage of anti-patterns that include undocumented
+    skips)
+  url: https://cwe.mitre.org/data/definitions/1006.html
+cwe:
+- CWE-1006
+applies_to:
+  language: any
+  framework: any-testing-framework
+  environment: any
+references: []
+statement: Every test-skip directive (Python `@pytest.mark.skip`, `@pytest.mark.skipif`,
+  `@unittest.skip`, `@unittest.skipUnless`; JavaScript `xdescribe`, `xit`, `describe.skip`,
+  `it.skip`, `test.skip`; Java `@Disabled`, `@Ignore`; Ruby RSpec `xdescribe`, `xit`,
+  `skip "reason"`; Go `t.Skip`, `t.SkipNow`; Kotlin `@Disabled`; C# `[Ignore]`, `[Skip]`)
+  includes a documented rationale. The rationale is the `reason` argument to the skip
+  decorator where the framework supports it, a string argument to `t.Skip` in Go, an `@Disabled("reason")`
+  argument in JUnit 5, or a comment directly above the skip referencing an issue tracker
+  URL or ticket identifier. Bare skips with no argument and no associated comment are
+  forbidden.
+rationale: 'Skipped tests are the substrate''s silent-failure surface for the test suite.
+  The skip mechanically excludes test code from execution; the CI report shows green;
+  the coverage tool reports the test exists. Without a documented reason, the skip accumulates:
+  developers don''t know whether the test was skipped because it was flaky (and should
+  now be fixed), because the feature was deprecated (and the test should be deleted),
+  because of a known bug (and a tracker issue documents the work), or because someone
+  was debugging and forgot to remove the skip. Each unexplained skip is a tax on every
+  future contributor. The rule operates at L1 because skip directives are syntactically
+  detectable, and the presence-or-absence of a reason argument is locally checkable. The
+  quality of the reason (does the issue reference resolve? is the TODO actionable?) is
+  L2 review territory.'

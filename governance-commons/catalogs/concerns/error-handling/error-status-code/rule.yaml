@@ -1,0 +1,45 @@
+id: error-handling.error-status-code
+name: HTTP error paths return error-class status codes rather than hardcoded success codes
+layer: semantic
+characteristic: reliability
+severity: high
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-24'
+  entered_stable: '2026-05-26'
+  authored_by: Myoung Hong
+sources:
+- title: 'RFC 9110 HTTP Semantics: Status Codes (defines the 4xx and 5xx classes that
+    error responses use)'
+  url: https://datatracker.ietf.org/doc/html/rfc9110#name-status-codes
+- title: RFC 7807 Problem Details for HTTP APIs (defines the substrate-preferred error
+    response shape)
+  url: https://datatracker.ietf.org/doc/html/rfc7807
+- title: CWE-754 Improper Check for Unusual or Exceptional Conditions
+  url: https://cwe.mitre.org/data/definitions/754.html
+cwe:
+- CWE-754
+applies_to:
+  language: any
+  framework: any-with-http-response
+  environment: any-with-http-surface
+references: []
+statement: 'HTTP responses that represent error outcomes (client error, server error,
+  dependency error) use HTTP status codes from the 4xx or 5xx classes per RFC 9110. The
+  substrate''s mapping is: 400 for client input errors (schema rejection, malformed body),
+  401 for unauthenticated, 403 for unauthorized (after authentication), 404 for resource
+  not found, 409 for conflict (duplicate key, optimistic-locking version mismatch), 422
+  for semantic validation failure (well-formed input that violates a domain constraint),
+  429 for rate-limit, 500 for unhandled server error, 502 for dependency error, 503 for
+  planned unavailability, 504 for dependency timeout. The response status is not hardcoded
+  to 200 with an error body in the payload.'
+rationale: 'HTTP status codes are the protocol-level signal that infrastructure components
+  (load balancers, reverse proxies, CDN error tracking, observability tooling) use to
+  classify response outcomes. The "always 200" anti-pattern (sometimes adopted in early
+  GraphQL services or in misguided "client decides" API designs) breaks every infrastructure
+  layer above the application: metric dashboards count all responses as success; load
+  balancers do not detect upstream health degradation; retry middleware does not know
+  whether to retry. The rule operates at L1 because hardcoded 200 in a branch alongside
+  an error response body is locally detectable. The taint-style case (error flows through
+  a helper that always returns 200) is L2 review territory.'

@@ -1,0 +1,52 @@
+id: supply-chain.supply-chain-integrity-strategy
+name: Substrate consumer authors and maintains a supply-chain integrity strategy ADR documenting
+  SLSA level target, attestation scope, SBOM cadence, signing identity policy, transparency
+  log selection, and exemption discipline
+layer: judgmental
+characteristic: security
+severity: high
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-23'
+  entered_stable: '2026-05-26'
+  authored_by: Myoung Hong
+sources:
+- title: SLSA v1.1 Threats overview (substrate-recommended threat-model anchor for the
+    ADR)
+  url: https://slsa.dev/spec/v1.1/threats-overview
+- title: NIST SP 800-218 SSDF v1.1 (substrate-recommended technical-framework anchor for
+    the ADR)
+  url: https://csrc.nist.gov/pubs/sp/800/218/final
+- title: NIST SP 800-161r1 Cybersecurity Supply Chain Risk Management
+  url: https://csrc.nist.gov/pubs/sp/800/161/r1/final
+- title: Executive Order 14028 (foundational US policy generating SSDF; substrate-referenced
+    for historical context; federal collection mandate rescinded operationally by OMB
+    M-26-05 Feb 2026)
+  url: https://www.federalregister.gov/documents/2021/05/17/2021-10460/improving-the-nations-cybersecurity
+- title: EU Regulation 2024/2847 (Cyber Resilience Act; active enforceable regulatory
+    driver; reporting obligations activate 2026-09-11)
+  url: https://eur-lex.europa.eu/eli/reg/2024/2847/oj
+references: []
+statement: 'The consumer authors and maintains an ADR (Architecture Decision Record) documenting
+  their supply-chain integrity strategy. The ADR addresses each substrate-required decision:
+  target SLSA Build Level (1, 2, or 3 substrate-recommended; consumer may select higher);
+  attestation scope (which artifacts carry attestations, which predicate types are required);
+  SBOM cadence (every release, every patch, every dependency change); SBOM format (CycloneDX
+  or SPDX or both); signing identity policy (which OIDC issuers, which signer patterns,
+  which signature schemes); transparency log selection (Sigstore Rekor public-good, self-hosted
+  Rekor, equivalent); retention horizon (substrate-recommended profile-keyed defaults;
+  consumer may deviate with rationale); exemption discipline (criteria for accepting unverified
+  artifacts during transition; maximum transition window; approver identity). The ADR
+  is committed under the consumer''s substrate-recommended ADR directory and reviewed
+  on a substrate-recommended annual cadence or upon regulatory change (substrate-recommended
+  explicit attention to EU CRA full-enforcement activation 2027-12-11).'
+rationale: 'Supply-chain integrity is a portfolio of decisions, not a single setting.
+  The substrate cannot pick the consumer''s SLSA Build Level target because the target
+  depends on the consumer''s threat model, regulatory exposure, and engineering investment
+  tolerance. The substrate provides the decision framework; the consumer''s ADR records
+  the choices. The substrate elects an ADR rather than a profile setting because supply-chain
+  strategy decisions interact: choosing SLSA Build L3 implies hosted-hardened build platforms
+  which implies a specific set of OIDC issuers which implies a specific allowed-signers
+  policy which implies a transparency-log configuration. A profile setting reduces the
+  interaction to a single value; an ADR preserves the interaction and the rationale.'

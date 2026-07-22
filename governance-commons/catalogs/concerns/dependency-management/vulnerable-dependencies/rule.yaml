@@ -1,0 +1,57 @@
+id: dependency-management.vulnerable-dependencies
+name: Known-vulnerable dependency versions are blocked at build time when their published
+  advisory severity meets or exceeds the substrate-selected threshold
+layer: mechanical
+characteristic: compatibility
+severity: high
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-20'
+  entered_stable: '2026-05-22'
+  authored_by: Myoung Hong
+sources:
+- title: OWASP Top 10:2021 A06 Vulnerable and Outdated Components
+  url: https://owasp.org/Top10/A06_2021-Vulnerable_and_Outdated_Components/
+- title: OWASP Software Component Verification Standard (SCVS) V5 Vulnerability and Patch
+    Management
+  url: https://owasp.org/www-project-software-component-verification-standard/
+- title: NIST SP 800-218 SSDF v1.1 (RV.1 identify vulnerabilities continuously; PW.4.4
+    confirm component integrity)
+  url: https://csrc.nist.gov/publications/detail/sp/800-218/final
+- title: OSV Schema for vulnerability advisories (ossf.github.io)
+  url: https://ossf.github.io/osv-schema/
+- title: OpenSSF Scorecard Vulnerabilities check specification
+  url: https://github.com/ossf/scorecard/blob/main/docs/checks.md#vulnerabilities
+cwe:
+- CWE-1104
+- CWE-937
+applies_to:
+  language: any
+  framework: any
+  environment: any-with-production-dependencies
+references: []
+statement: 'The CI pipeline runs an ecosystem-appropriate vulnerability scanner against
+  the application''s full resolved dependency closure on every pull request and on a schedule
+  (substrate-recommended at least daily for long-running branches). The scanner consults
+  authoritative advisory databases: OSV (osv.dev) for multi-ecosystem coverage; ecosystem-native
+  sources (GitHub Advisory Database, npm advisory database, PyPI Advisory Database, Rust
+  Security Advisory Database, Go vulnerability database) for ecosystem coverage; and NVD
+  for CVE numbering. Findings at the profile-selected severity threshold and above fail
+  the build. Exemptions are time-bounded (substrate-recommended ceiling: 30 days), documented
+  in a tracked artifact (issue, ADR, or exemption file in the repository), and associated
+  with a remediation plan. Permanent exemptions require a documented decision per DEPS-L3-
+  001 and pair with compensating controls.'
+rationale: 'Vulnerable dependencies are not theoretical risk: they are the documented
+  exploitation path in many significant breaches. Equifax, Capital One, log4shell, xz-utils,
+  and the broader npm-ecosystem incidents all involve published advisories against components
+  in use. The defense is mechanical: the advisory exists, the affected version is in the
+  lockfile, the build must not ship. The substrate places this at L1 because the detection
+  is fully mechanical (compare lockfile contents to advisory database) and the response
+  is binary (fail the build). Cases where the advisory does not apply (the affected code
+  path is not reachable) become documented exemptions; they do not make the rule L2. Severity
+  threshold tailoring matters because not every published advisory is equally exploitable;
+  OWASP and NIST guidance both note that consumer context determines effective severity.
+  The substrate exposes threshold as a profile parameter so consumers can tighten or loosen
+  without modifying the rule itself; the default in production-grade-baseline is to block
+  on high and above with critical treated as drop-everything.'

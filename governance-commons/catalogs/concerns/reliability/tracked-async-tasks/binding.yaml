@@ -1,0 +1,3 @@
+binding_status: capability-bound
+rule: reliability.tracked-async-tasks
+gate: lint

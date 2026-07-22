@@ -1,0 +1,543 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Myoung Hong
+
+
+# FastAPI library context for AI tools.
+#
+# FastAPI is mature and stable, but AI tools often produce patterns
+# from older versions (pre-lifespan, pre-Annotated) or mix FastAPI
+# patterns with Flask/Django idioms.
+#
+# Maintenance cadence: quarterly (stable API)
+
+library:
+  name: fastapi
+  ecosystem: python
+  current_version: "0.115.x"
+  last_reviewed: "2026-05-12"
+  review_cadence: quarterly
+  primary_docs: https://fastapi.tiangolo.com/
+
+# ============================================================
+# Notable evolution
+# ============================================================
+
+evolution_notes: |
+  FastAPI doesn't have major version breaks (still on 0.x), but
+  several pattern shifts happened over time:
+
+  - Annotated-style dependencies (Annotated[T, Depends(f)]) became
+    standard. Older style still works but Annotated is preferred.
+
+  - Lifespan context managers replaced on_event("startup")/
+    on_event("shutdown") for app lifecycle hooks. on_event is
+    deprecated.
+
+  - Pydantic v2 is now standard. v1-only patterns won't work.
+
+  - Form() and File() parameters changed slightly with the
+    Annotated transition.
+
+# ============================================================
+# Current imports
+# ============================================================
+
+current_imports:
+  - module: fastapi
+    exports:
+      - FastAPI
+      - APIRouter
+      - Depends
+      - HTTPException
+      - status
+      - Request
+      - Response
+      - BackgroundTasks
+      - WebSocket
+      - WebSocketDisconnect
+      - Query
+      - Path
+      - Body
+      - Header
+      - Cookie
+      - Form
+      - File
+      - UploadFile
+    notes: >
+      All top-level. Path, Query, Body, etc. are parameter declarators
+      used with Annotated.
+
+  - module: fastapi.responses
+    exports:
+      - JSONResponse
+      - HTMLResponse
+      - PlainTextResponse
+      - RedirectResponse
+      - StreamingResponse
+      - FileResponse
+    notes: >
+      Specific response types. Return from path operations or
+      use as response_class.
+
+  - module: fastapi.middleware.cors
+    exports:
+      - CORSMiddleware
+    notes: >
+      For CORS configuration. Add via app.add_middleware.
+
+  - module: fastapi.security
+    exports:
+      - OAuth2PasswordBearer
+      - OAuth2PasswordRequestForm
+      - HTTPBearer
+      - HTTPBasic
+      - HTTPBasicCredentials
+      - APIKeyHeader
+      - APIKeyCookie
+      - APIKeyQuery
+    notes: >
+      Security scheme classes. Use as dependencies.
+
+# ============================================================
+# Deprecations
+# ============================================================
+
+deprecations:
+  - api: "@app.on_event('startup') and @app.on_event('shutdown')"
+    deprecated_in: "0.93"
+    removed_in: null
+    replacement: "lifespan context manager"
+    migration: |
+      Old:
+        @app.on_event("startup")
+        async def startup():
+            ...
+
+      New:
+        from contextlib import asynccontextmanager
+
+        @asynccontextmanager
+        async def lifespan(app: FastAPI):
+            # Startup
+            yield
+            # Shutdown
+
+        app = FastAPI(lifespan=lifespan)
+
+  - api: "def endpoint(dep: SomeType = Depends(get_dep))"
+    deprecated_in: null  # works but discouraged
+    removed_in: null
+    replacement: "def endpoint(dep: Annotated[SomeType, Depends(get_dep)])"
+    migration: |
+      Old: def endpoint(item_id: int = Path(...), q: str = Query(None))
+      New: def endpoint(
+               item_id: Annotated[int, Path()],
+               q: Annotated[str | None, Query()] = None
+           )
+    notes: >
+      Annotated style is preferred. Allows better default-value
+      handling and is more compatible with type checkers.
+
+  - api: "Pydantic v1 model patterns"
+    deprecated_in: "0.100"
+    removed_in: null
+    replacement: "Pydantic v2 patterns"
+    migration: >
+      FastAPI 0.100+ supports Pydantic v2 natively. Use v2 model
+      patterns (see lib-context/pydantic.yaml).
+
+# ============================================================
+# Current API: core patterns
+# ============================================================
+
+current_api:
+  - name: "Basic app and route"
+    description: >
+      Minimum viable FastAPI application.
+    example: |
+      from fastapi import FastAPI
+
+      app = FastAPI()
+
+      @app.get("/")
+      async def root():
+          return {"message": "Hello World"}
+
+      @app.get("/items/{item_id}")
+      async def read_item(item_id: int):
+          return {"item_id": item_id}
+    notes: >
+      Path parameters in the URL pattern (item_id) are matched by
+      name to function parameters. Type annotations drive validation
+      and OpenAPI generation.
+
+  - name: "Lifespan context manager"
+    description: >
+      Manage app startup and shutdown resources.
+    example: |
+      from contextlib import asynccontextmanager
+      from fastapi import FastAPI
+
+      @asynccontextmanager
+      async def lifespan(app: FastAPI):
+          # Startup
+          app.state.db = await create_db_pool()
+          yield
+          # Shutdown
+          await app.state.db.close()
+
+      app = FastAPI(lifespan=lifespan)
+    notes: >
+      Resources created before yield are available during request
+      handling. Cleanup happens after yield on shutdown. Replaces
+      deprecated on_event.
+
+  - name: "Dependency injection with Annotated"
+    description: >
+      Inject dependencies using the Annotated type-hint style.
+    example: |
+      from typing import Annotated
+      from fastapi import Depends, FastAPI
+
+      app = FastAPI()
+
+      async def get_current_user(token: str) -> dict:
+          # ... resolve token to user
+          return {"id": 123}
+
+      UserDep = Annotated[dict, Depends(get_current_user)]
+
+      @app.get("/users/me")
+      async def me(user: UserDep):
+          return user
+    notes: >
+      Defining type aliases (UserDep above) reduces repetition when
+      the same dependency is used in many endpoints.
+
+  - name: "Pydantic request body"
+    description: >
+      Use Pydantic models to validate request bodies.
+    example: |
+      from fastapi import FastAPI
+      from pydantic import BaseModel
+
+      app = FastAPI()
+
+      class Item(BaseModel):
+          name: str
+          price: float
+          tags: list[str] = []
+
+      @app.post("/items/")
+      async def create_item(item: Item):
+          return item
+    notes: >
+      Pydantic v2 models. The model class drives both validation and
+      OpenAPI schema generation.
+
+  - name: "Query and path parameters with constraints"
+    description: >
+      Constrain parameters with Path() and Query().
+    example: |
+      from typing import Annotated
+      from fastapi import FastAPI, Path, Query
+
+      app = FastAPI()
+
+      @app.get("/items/{item_id}")
+      async def read_items(
+          item_id: Annotated[int, Path(ge=1, le=1000)],
+          q: Annotated[str | None, Query(min_length=3, max_length=50)] = None,
+          limit: Annotated[int, Query(gt=0, le=100)] = 10
+      ):
+          return {"item_id": item_id, "q": q, "limit": limit}
+
+  - name: "Response model and status code"
+    description: >
+      Declare response shape and HTTP status.
+    example: |
+      from fastapi import FastAPI, status
+      from pydantic import BaseModel
+
+      app = FastAPI()
+
+      class ItemIn(BaseModel):
+          name: str
+          password: str
+
+      class ItemOut(BaseModel):
+          name: str
+          # password not exposed
+
+      @app.post("/items/",
+                response_model=ItemOut,
+                status_code=status.HTTP_201_CREATED)
+      async def create_item(item: ItemIn):
+          # The response will be coerced to ItemOut shape
+          return item
+    notes: >
+      response_model controls the OpenAPI doc and filters response.
+      Useful for hiding fields (like passwords) from responses.
+
+  - name: "Error handling with HTTPException"
+    description: >
+      Raise HTTPException to return error responses.
+    example: |
+      from fastapi import FastAPI, HTTPException, status
+
+      app = FastAPI()
+
+      @app.get("/items/{item_id}")
+      async def read_item(item_id: int):
+          if item_id == 0:
+              raise HTTPException(
+                  status_code=status.HTTP_404_NOT_FOUND,
+                  detail="Item not found"
+              )
+          return {"item_id": item_id}
+
+  - name: "Custom exception handlers"
+    description: >
+      Centralize handling of custom exceptions.
+    example: |
+      from fastapi import FastAPI, Request
+      from fastapi.responses import JSONResponse
+
+      app = FastAPI()
+
+      class UnicornException(Exception):
+          def __init__(self, name: str):
+              self.name = name
+
+      @app.exception_handler(UnicornException)
+      async def unicorn_exception_handler(request: Request, exc: UnicornException):
+          return JSONResponse(
+              status_code=418,
+              content={"message": f"Oops {exc.name} did something."}
+          )
+
+  - name: "Background tasks"
+    description: >
+      Run tasks after the response is returned to the client.
+    example: |
+      from fastapi import BackgroundTasks, FastAPI
+
+      app = FastAPI()
+
+      def write_log(message: str):
+          with open("log.txt", "a") as f:
+              f.write(message + "\n")
+
+      @app.post("/send/")
+      async def send(message: str, background_tasks: BackgroundTasks):
+          background_tasks.add_task(write_log, message)
+          return {"status": "sent"}
+    notes: >
+      For lightweight post-response work. For heavier or long-running
+      tasks, use a real task queue (Celery, Arq, etc.).
+
+  - name: "Routers for modular apps"
+    description: >
+      Organize endpoints across multiple files using APIRouter.
+    example: |
+      # In items.py
+      from fastapi import APIRouter
+
+      router = APIRouter(prefix="/items", tags=["items"])
+
+      @router.get("/")
+      async def list_items():
+          return []
+
+      # In main.py
+      from fastapi import FastAPI
+      from items import router as items_router
+
+      app = FastAPI()
+      app.include_router(items_router)
+    notes: >
+      APIRouter has the same decorators as FastAPI. Include with
+      app.include_router. Prefix and tags carry through to all routes.
+
+  - name: "Middleware"
+    description: >
+      Wrap requests/responses with middleware.
+    example: |
+      from fastapi import FastAPI, Request
+      import time
+
+      app = FastAPI()
+
+      @app.middleware("http")
+      async def add_process_time_header(request: Request, call_next):
+          start = time.time()
+          response = await call_next(request)
+          response.headers["X-Process-Time"] = str(time.time() - start)
+          return response
+
+  - name: "CORS configuration"
+    description: >
+      Enable cross-origin requests.
+    example: |
+      from fastapi import FastAPI
+      from fastapi.middleware.cors import CORSMiddleware
+
+      app = FastAPI()
+
+      app.add_middleware(
+          CORSMiddleware,
+          allow_origins=["https://example.com"],
+          allow_credentials=True,
+          allow_methods=["*"],
+          allow_headers=["*"]
+      )
+
+  - name: "Async vs sync endpoints"
+    description: >
+      Endpoints can be either async or regular functions.
+    example: |
+      # Async endpoint - runs in event loop
+      @app.get("/async-route")
+      async def async_handler():
+          result = await some_async_db_call()
+          return result
+
+      # Sync endpoint - runs in thread pool
+      @app.get("/sync-route")
+      def sync_handler():
+          result = some_blocking_call()
+          return result
+    notes: >
+      Use async when your handler awaits async I/O (httpx,
+      asyncpg, etc.). Use sync (def) when your handler calls
+      synchronous code (most ORMs, requests, etc.). FastAPI runs
+      sync endpoints in a thread pool so they don't block.
+
+  - name: "WebSockets"
+    description: >
+      Bidirectional communication over WebSocket.
+    example: |
+      from fastapi import FastAPI, WebSocket, WebSocketDisconnect
+
+      app = FastAPI()
+
+      @app.websocket("/ws")
+      async def websocket_endpoint(websocket: WebSocket):
+          await websocket.accept()
+          try:
+              while True:
+                  data = await websocket.receive_text()
+                  await websocket.send_text(f"Echo: {data}")
+          except WebSocketDisconnect:
+              pass
+
+# ============================================================
+# Common hallucination patterns
+# ============================================================
+
+common_hallucinations:
+  - pattern: "@app.on_event('startup')"
+    problem: >
+      Deprecated. AI frequently produces this from older tutorials.
+    correct: |
+      Use lifespan context manager.
+
+  - pattern: "Flask-style request global: from fastapi import request"
+    problem: >
+      FastAPI doesn't have a Flask-style request global. Request
+      objects are injected as parameters.
+    correct: |
+      async def handler(request: Request):
+          # request is the Request object for this call
+          ...
+
+  - pattern: "render_template('template.html', ...)"
+    problem: >
+      Flask/Jinja idiom. FastAPI uses Jinja differently.
+    correct: |
+      from fastapi.templating import Jinja2Templates
+      templates = Jinja2Templates(directory="templates")
+
+      @app.get("/")
+      async def home(request: Request):
+          return templates.TemplateResponse(
+              "index.html", {"request": request}
+          )
+
+  - pattern: "django-style URL configuration"
+    problem: >
+      FastAPI uses decorators or APIRouter, not URL pattern files.
+    correct: "Use @app.get('/path') or include_router(router)"
+
+  - pattern: "async def with no await"
+    problem: >
+      Defining endpoints as async when they don't actually await
+      anything is fine but loses no benefit. If using sync libraries,
+      regular def is appropriate.
+    correct: |
+      Choose async only when you have actual await points. The
+      thread-pool execution of sync def endpoints is well-optimized.
+
+  - pattern: "def get_db(): yield SessionLocal() # generator dependency"
+    problem: >
+      Common pattern but easy to get wrong. The yield should be the
+      only yield in the function; cleanup goes after.
+    correct: |
+      def get_db():
+          db = SessionLocal()
+          try:
+              yield db
+          finally:
+              db.close()
+
+  - pattern: "raise Exception('not found')"
+    problem: >
+      Generic exceptions become 500s. Use HTTPException for HTTP errors.
+    correct: |
+      raise HTTPException(status_code=404, detail="Not found")
+
+  - pattern: "from pydantic import BaseModel  # then using v1 patterns"
+    problem: >
+      FastAPI uses Pydantic v2. v1 patterns in models won't work.
+    correct: "See lib-context/pydantic.yaml for v2 patterns."
+
+  - pattern: "JWT validation rolled by hand in middleware"
+    problem: >
+      Reinventing the wheel. FastAPI's security dependencies handle
+      most of this.
+    correct: |
+      Use fastapi.security.OAuth2PasswordBearer with python-jose or
+      Authlib for JWT validation. Wire as a Depends().
+
+# ============================================================
+# Performance notes
+# ============================================================
+
+performance_notes:
+  - topic: "ASGI server"
+    detail: >
+      Production uses uvicorn or gunicorn-with-uvicorn-workers, not
+      the built-in dev server. fastapi run for dev; uvicorn directly
+      or gunicorn for production.
+
+  - topic: "Database connection pooling"
+    detail: >
+      Use connection pools sized to worker count, not per-request
+      connections. Create the pool in lifespan startup; share via
+      app.state.
+
+  - topic: "Async DB libraries"
+    detail: >
+      asyncpg, motor, redis.asyncio for true async I/O. SQLAlchemy
+      2.0+ supports async natively (AsyncSession).
+
+# ============================================================
+# References
+# ============================================================
+
+references:
+  - https://fastapi.tiangolo.com/
+  - https://fastapi.tiangolo.com/tutorial/
+  - https://fastapi.tiangolo.com/advanced/
+  - https://github.com/fastapi/fastapi
+  - https://fastapi.tiangolo.com/release-notes/

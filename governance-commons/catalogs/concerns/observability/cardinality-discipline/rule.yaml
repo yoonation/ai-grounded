@@ -1,0 +1,42 @@
+id: observability.cardinality-discipline
+name: Metric label values stay within bounded cardinality (no per-customer, per-session,
+  or per-request identifiers as label values)
+layer: semantic
+characteristic: maintainability
+severity: high
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-21'
+  entered_stable: '2026-05-22'
+  authored_by: Myoung Hong
+sources:
+- title: 'Prometheus Instrumentation Practices: Do Not Overuse Labels (cardinality guidance)'
+  url: https://prometheus.io/docs/practices/instrumentation/#do-not-overuse-labels
+- title: 'OpenTelemetry Semantic Conventions: Attribute Naming (cardinality consideration
+    for attribute selection)'
+  url: https://opentelemetry.io/docs/specs/semconv/general/attribute-naming/
+applies_to:
+  language: any
+  framework: any
+  environment: any-production
+references: []
+statement: 'Metric label values are drawn from bounded vocabularies whose cardinality
+  is predictable at service design time and verifiable in cardinality audits. The substrate-recommended
+  bounded vocabularies are: tenant_id (where the tenant set is bounded by business unit
+  count), region (the deployment region list), environment (production, staging, development),
+  service version, endpoint template (the routed path pattern not the substituted URL),
+  HTTP status code, error class. The substrate-recognized unbounded vocabularies that
+  must NOT be label values are: user_id, customer email, session identifier, request identifier,
+  raw URL with substituted parameters, arbitrary user input, free-form error messages,
+  full timestamps. Each metric carries documentation of the bounded vocabulary for each
+  of its labels.'
+rationale: Cardinality is the dominant cost driver for time-series metric backends. Prometheus
+  tsdb storage cost grows linearly with active series count; vendor SaaS billing typically
+  charges per custom metric (defined as a name plus label combination). A metric with
+  a user_id label in a service with 100,000 active users produces 100,000 series for that
+  one metric, multiplying for each additional value of every other label dimensionally.
+  The substrate-recommended pattern lifts identity questions out of metrics and into traces
+  (where per-request identity is captured in span attributes governed by observability.no-sensitive-data-in-telemetry and
+  bounded by retention rather than continuously growing) or into logs (where structured
+  fields carry identity with retention-based cost discipline).

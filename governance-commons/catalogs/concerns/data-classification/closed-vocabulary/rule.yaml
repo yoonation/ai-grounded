@@ -1,0 +1,37 @@
+id: data-classification.closed-vocabulary
+name: Classification labels use the closed scheme vocabulary, not an ad-hoc or free-text
+  value
+layer: mechanical
+characteristic: security
+severity: medium
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-31'
+  entered_stable: '2026-06-01'
+  authored_by: Myoung Hong
+sources:
+- title: FIPS 199 (standardized security categories, the concept basis for a closed classification
+    vocabulary)
+  url: https://csrc.nist.gov/pubs/fips/199/final
+applies_to:
+  language: any
+  framework: any
+  environment: any
+references: []
+statement: Classification labels are drawn from the closed scheme vocabulary (the substrate
+  default is public, internal, confidential, restricted, configurable per consumer). Labels
+  are not ad-hoc or free-text values. The rule's mechanical slice flags literal label
+  values outside the configured vocabulary; whether the in-vocabulary class chosen is
+  correct is assessed in review. A label expressed through a scheme enum or constant satisfies
+  the rule.
+rationale: A classification label is only useful if it joins to the handling rules, the
+  access policies, and the infrastructure tags that key off it, and that join works only
+  when the label value is from the one agreed vocabulary. An out-of-vocabulary label is
+  a value nothing matches, so the datum is effectively unclassified while wearing the
+  appearance of a class. The substrate makes vocabulary conformance a mechanical floor
+  because a literal out-of-set value is statically visible and always a mistake, while
+  reserving the harder question of whether the correct in-set class was chosen for review.
+  Using a scheme enum rather than free strings is the structural fix the rule nudges toward,
+  and it aligns the application's labels with the data-sensitivity tag values infrastructure-misconfiguration.governance-tagging
+  enforces in infrastructure.

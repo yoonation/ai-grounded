@@ -1,0 +1,20 @@
+# Structured self-check for the sample feature.
+# US1/1 covered with evidence; US1/2 claimed addressed but no evidence (flagged);
+# US2/1 absent entirely (missing_from_self_check). This fixture intentionally
+# fails the stop condition to demonstrate the gap reporting.
+stories:
+  - id: US1
+    priority: P1
+    scenarios:
+      - index: 1
+        addressed: true
+        evidence: ["tests/filter.test.ts::secret filter", "src/filter.ts"]
+      - index: 2
+        addressed: true
+        evidence: []
+  - id: US2
+    priority: P2
+    scenarios: []
+scope:
+  planned: ["src/filter.ts", "src/rank.ts"]
+  touched: ["src/filter.ts", "src/rank.ts", "src/telemetry.ts"]

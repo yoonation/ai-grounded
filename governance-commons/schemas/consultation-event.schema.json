@@ -1,0 +1,251 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://governance-commons/schemas/consultation-event.schema.json",
+  "title": "Consultation Event Schema",
+  "description": "Optional structural validation for consultation evidence events per the contract in spec/consultation-evidence.md. The contract is semantic (medium-agnostic) and consumers may use any audit medium; this schema provides one possible JSON representation for consumers who want format validation. Schema is in draft lifecycle status.",
+  "x-governance-commons": {
+    "schema-kind": "consultation-event",
+    "lifecycle-status": "draft",
+    "commons-version": "0.1.0",
+    "schema-version": "0.1.0",
+    "authored": "2026-05-17",
+    "author": "myoung",
+    "ai-assistance": "AI drafted based on spec/consultation-evidence.md required fields; human review pending real-event validation",
+    "validation-notes": "This schema is OPTIONAL per Charter Article VI. The consultation evidence contract is semantic. Consumers using JSONL audit medium may validate events against this schema; consumers using OpenTelemetry, immutable databases, or other media satisfy the contract through their own format. The first consumer to wire consultation evidence (this framework) will exercise the schema."
+  },
+  "type": "object",
+  "required": [
+    "event_id",
+    "timestamp",
+    "consulter_id",
+    "consulter_type",
+    "commons_version",
+    "profile_id",
+    "catalogs_consulted",
+    "rules_examined"
+  ],
+  "additionalProperties": true,
+  "properties": {
+    "event_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Stable unique identifier for this event (ULID, UUID, or monotonic sequence)"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 UTC timestamp of consultation"
+    },
+    "consulter_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "consulter_type": {
+      "type": "string",
+      "enum": ["ai_agent", "runtime_principal", "human", "system"]
+    },
+    "principal_on_behalf_of": {
+      "type": "string"
+    },
+    "session_id": {
+      "type": "string",
+      "description": "Required for ai_agent consulters per spec/consultation-evidence.md"
+    },
+    "duration_ms": {
+      "type": "number",
+      "minimum": 0
+    },
+    "commons_version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+(-[0-9A-Za-z.-]+)?(\\+[0-9A-Za-z.-]+)?$"
+    },
+    "profile_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "profile_version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+(-[0-9A-Za-z.-]+)?(\\+[0-9A-Za-z.-]+)?$"
+    },
+    "manifest_ref": {
+      "type": "string"
+    },
+    "catalogs_consulted": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["catalog_id"],
+        "additionalProperties": true,
+        "properties": {
+          "catalog_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "catalog_version": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "rules_examined": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Specific rule identifiers consulted within catalogs. Reflects what was actually accessed, not what catalogs contain."
+    },
+    "mappings_consulted": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "decision_frameworks_consulted": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "findings": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/finding"
+      }
+    },
+    "no_findings": {
+      "type": "boolean",
+      "description": "True when consultation occurred and produced no findings. Recording absence of findings is part of the contract per spec/consultation-evidence.md."
+    },
+    "closure_claims": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/closure-claim"
+      }
+    },
+    "closure_verifications": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/closure-verification"
+      }
+    },
+    "prior_event_ref": {
+      "type": "string"
+    },
+    "signature": {
+      "type": "string",
+      "description": "Optional cryptographic signature over event content"
+    },
+    "cost_tokens_input": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "cost_tokens_output": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "cost_usd_estimated": {
+      "type": "number",
+      "minimum": 0
+    },
+    "model_id": {
+      "type": "string"
+    },
+    "tool_invocations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": true
+      }
+    },
+    "trace_id": {
+      "type": "string"
+    },
+    "annotations": {
+      "type": "object",
+      "additionalProperties": true
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "consulter_type": {
+            "const": "ai_agent"
+          }
+        }
+      },
+      "then": {
+        "required": ["session_id"],
+        "description": "AI agent consulters require session_id per spec/consultation-evidence.md"
+      }
+    }
+  ],
+  "$defs": {
+    "finding": {
+      "type": "object",
+      "required": ["finding_id", "rule_ref", "severity", "summary"],
+      "additionalProperties": true,
+      "properties": {
+        "finding_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "rule_ref": {
+          "type": "string",
+          "description": "Rule identifier this finding references. Per spec/consultation-evidence.md, findings without rule references are not governed findings."
+        },
+        "severity": {
+          "type": "string",
+          "enum": ["P1", "P2", "P3"]
+        },
+        "summary": {
+          "type": "string",
+          "minLength": 1
+        },
+        "evidence_ref": {
+          "type": "string",
+          "description": "Optional pointer to the consumer artifact the finding applies to"
+        }
+      }
+    },
+    "closure-claim": {
+      "type": "object",
+      "required": ["finding_id", "closure_type"],
+      "additionalProperties": true,
+      "properties": {
+        "finding_id": {
+          "type": "string"
+        },
+        "closure_type": {
+          "type": "string",
+          "enum": ["resolved", "deferred", "overridden", "accepted"]
+        },
+        "justification_ref": {
+          "type": "string",
+          "description": "Pointer to consumer artifact justifying closure (commit, ADR, deferral document)"
+        }
+      }
+    },
+    "closure-verification": {
+      "type": "object",
+      "required": ["claim_ref", "verifier_id", "verification_outcome"],
+      "additionalProperties": true,
+      "properties": {
+        "claim_ref": {
+          "type": "string",
+          "description": "References a closure-claim. Verifier must be distinct from original consulter per Charter Article VI Section 6.5"
+        },
+        "verifier_id": {
+          "type": "string"
+        },
+        "verification_outcome": {
+          "type": "string",
+          "enum": ["confirmed", "rejected"]
+        },
+        "verification_notes": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

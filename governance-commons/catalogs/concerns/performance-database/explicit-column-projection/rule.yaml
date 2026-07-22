@@ -1,0 +1,40 @@
+id: performance-database.explicit-column-projection
+name: Application read queries select an explicit column projection rather than a wildcard
+  (no SELECT * or fetch-all-columns) on the request path
+layer: mechanical
+characteristic: performance-efficiency
+severity: medium
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-31'
+  entered_stable: '2026-06-01'
+  authored_by: Myoung Hong
+sources:
+- title: Postgres index-only scans (a narrow projection lets a covering index satisfy
+    the query without a heap fetch)
+  url: https://www.postgresql.org/docs/current/indexes-index-only-scans.html
+- title: SQLAlchemy column loading and load_only (restricting the columns an ORM query
+    fetches)
+  url: https://docs.sqlalchemy.org/en/20/orm/queryguide/columns.html
+applies_to:
+  language: any
+  framework: any
+  environment: any
+references: []
+statement: Read queries on the request path select an explicit list of the columns the
+  code uses rather than a wildcard. Expressed in raw SQL this means naming the columns
+  instead of SELECT *; expressed through an ORM it means using the field-restriction directive
+  where the response needs only a subset of a wide model. The rule targets read paths
+  where projection width affects cost; it does not require projecting away columns from
+  a single-row fetch whose full entity is genuinely used and mutated. The presence of
+  a wildcard projection on a read path is the finding.
+rationale: 'Selecting columns the code does not use is pure waste paid on every execution:
+  more bytes off disk, more bytes over the wire, more deserialization, and more memory.
+  The quieter cost is the defeat of covering indexes: a narrow query can sometimes be
+  answered entirely from an index without touching the table, an index-only scan that
+  is often an order of magnitude cheaper, and a wildcard makes that impossible because
+  the index cannot contain every column. A wildcard also couples the query to the table''s
+  full shape, so adding a large column later silently slows every wildcard read. The substrate
+  sets this at medium because the cost is a constant factor rather than an unbounded blowup,
+  but it remains a mechanical floor because the waste is unambiguous and the fix is free.'

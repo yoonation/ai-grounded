@@ -1,0 +1,3 @@
+binding_status: capability-bound
+rule: logging.severity-levels
+gate: lint

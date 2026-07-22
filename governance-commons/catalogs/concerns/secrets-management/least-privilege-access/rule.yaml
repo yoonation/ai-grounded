@@ -1,0 +1,48 @@
+id: secrets-management.least-privilege-access
+name: Secret access is least-privilege; each consumer (human, workload, service) receives
+  access only to the secrets it needs to perform its function
+layer: semantic
+characteristic: security
+severity: high
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-20'
+  entered_stable: '2026-05-22'
+  authored_by: Myoung Hong
+sources:
+- title: OWASP Secrets Management Cheat Sheet (access control section)
+  url: https://cheatsheetseries.owasp.org/cheatsheets/Secrets_Management_Cheat_Sheet.html
+- title: OWASP ASVS v5.0.0 V13 Configuration (access control on the secrets management
+    solution)
+  url: https://github.com/OWASP/ASVS/blob/v5.0.0/5.0/en/0x22-V13-Configuration.md
+- title: CWE-269 Improper Privilege Management
+  url: https://cwe.mitre.org/data/definitions/269.html
+cwe:
+- CWE-269
+- CWE-732
+applies_to:
+  language: any
+  framework: any
+  environment: any-handling-secrets
+references: []
+statement: The secrets platform's access policy grants each consumer access only to the
+  specific secrets the consumer requires for its declared function. Workloads (services,
+  jobs, schedulers) authenticate via platform-native identity (workload identity, IAM
+  role, service account); human access is tightly scoped, audited, and time-bound where
+  possible (just-in-time elevation; session recording for sensitive secret retrievals).
+  Wildcard read access (allow all secrets) is prohibited at production. Shared access
+  patterns where multiple workloads use the same identity are limited to cases where the
+  workloads have identical secret requirements and shared identity is justified.
+rationale: 'Compromise of a consumer with broad secret access cascades: the attacker obtains
+  every secret the consumer could read. Compromise of a least-privilege consumer is bounded:
+  the attacker obtains only the secrets that consumer''s function required. Modern secrets
+  platforms support per-secret policy with low operational overhead. Authentication via
+  workload identity eliminates the chicken-and-egg of secret-zero (the workload presents
+  platform-native identity to fetch application-level secrets). Tag-based or namespace-based
+  grouping allows policy expression that scales without per-secret hand-editing. Human
+  access is treated differently from workload access because humans typically need broader
+  read access during operations but should not have production secret read access by default.
+  The substrate-recommended pattern is just-in-time elevation with a documented business
+  reason and session-level audit, similar to break-glass patterns in identity and access
+  management.'

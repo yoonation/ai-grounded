@@ -1,0 +1,10 @@
+id: reliability
+name: Reliability
+characteristic: reliability
+status: stable
+summary: >
+  How the service stays available under failure: a documented reliability
+  strategy, failure isolation and graceful degradation, distinct liveness
+  and readiness signals, idempotency for retried operations, bounded
+  in-memory buffers, tracked async tasks, and no synchronous blocking on
+  async event-loop paths.

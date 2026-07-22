@@ -1,0 +1,10 @@
+id: documentation
+name: Documentation
+characteristic: interaction-capability
+status: stable
+summary: >
+  How knowledge is recorded and kept current: doc comments on every public
+  API surface, documentation kept in sync with the code it describes,
+  significant decisions and operational knowledge recorded and
+  discoverable, no placeholder or TODO documentation shipped, and a
+  recorded documentation strategy.

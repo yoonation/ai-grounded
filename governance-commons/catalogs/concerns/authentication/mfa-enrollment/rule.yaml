@@ -1,0 +1,43 @@
+id: authentication.mfa-enrollment
+name: MFA enrollment requires fresh authentication and generates secure recovery options
+layer: semantic
+characteristic: security
+severity: high
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-18'
+  entered_stable: '2026-05-18'
+  authored_by: Myoung Hong
+sources:
+- title: OWASP ASVS v5.0.0 V6 MFA enrollment and recovery requirements
+  url: https://github.com/OWASP/ASVS/blob/v5.0.0/5.0/en/0x15-V6-Authentication.md
+- title: CWE-640 Weak Password Recovery Mechanism
+  url: https://cwe.mitre.org/data/definitions/640.html
+cwe:
+- CWE-308
+- CWE-640
+- CWE-287
+applies_to:
+  language: any
+  framework: any
+  environment: any-with-mfa
+references: []
+statement: MFA enrollment, modification, and removal operations require fresh authentication
+  per authentication.mfa-on-privileged-operations. Enrollment generates a set of single-use backup codes shown to the
+  user once and stored cryptographically protected server-side. Recovery flows for MFA
+  loss require out-of-band identity proof (support-channel verification, knowledge of
+  pre-registered recovery information, or a previously-enrolled secondary factor) and
+  never silently bypass MFA based only on session authenticity.
+rationale: MFA enrollment is the gateway to the user's second factor. If enrollment can
+  be performed with only session credentials (no fresh MFA challenge), then an attacker
+  who compromises a session can enroll their own factor and bypass the legitimate user's
+  MFA. This is a common practical attack against systems that gate MFA login but not MFA
+  enrollment. Backup codes are the user's break-glass mechanism for lost factors. They
+  must be generated cryptographically randomly, displayed to the user once for them to
+  record, and stored hashed server-side (not in plaintext). Backup codes used once must
+  be invalidated to prevent replay. Recovery flows are the highest-risk surface in the
+  MFA design because they exist precisely to bypass MFA. They must require independent
+  identity proof beyond session authenticity. "Send a recovery code to the email on file"
+  often fails because the email is itself compromised (single attacker compromises email
+  first, then leverages it for everything).

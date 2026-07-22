@@ -1,0 +1,44 @@
+id: logging.severity-levels
+name: Log records carry a severity level field selected from a documented, finite vocabulary
+layer: mechanical
+characteristic: maintainability
+severity: medium
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-20'
+  entered_stable: '2026-05-22'
+  authored_by: Myoung Hong
+sources:
+- title: RFC 5424 The Syslog Protocol (severity vocabulary, Section 6.2.1)
+  url: https://datatracker.ietf.org/doc/html/rfc5424
+- title: OWASP Logging Cheat Sheet (event severity attribution)
+  url: https://cheatsheetseries.owasp.org/cheatsheets/Logging_Cheat_Sheet.html
+- title: OpenTelemetry Logs Data Model (severity field, severity number mapping)
+  url: https://opentelemetry.io/docs/specs/otel/logs/data-model/
+cwe:
+- CWE-778
+applies_to:
+  language: any
+  framework: any
+  environment: any
+references: []
+statement: Every log record carries a structured severity field whose value is drawn from
+  a finite documented vocabulary. The substrate-recommended vocabulary is the OpenTelemetry
+  Logs severity scale (TRACE, DEBUG, INFO, WARN, ERROR, FATAL) or the RFC 5424 Syslog
+  vocabulary (debug, info, notice, warning, error, critical, alert, emergency); consumers
+  may use a subset of either. Calls to language-builtin output functions (print, console.log)
+  and to logger methods whose severity is implied by the method name (logger.debug, logger.info)
+  are equivalent at the output level; both produce a record with a severity field. Custom
+  severity vocabularies are documented in the consumer's logging ADR (logging.architecture) and
+  remain stable across application code.
+rationale: 'Severity is the field on which every operational workflow filters: incident
+  response queries for ERROR and above; alerting fires on FATAL and CRITICAL; cost-management
+  dashboards trim DEBUG and TRACE; SOC workflows route different severities to different
+  response paths. A log stream without a severity field is a log stream that defeats these
+  workflows; a log stream with an inconsistent severity vocabulary produces correctness
+  problems when filters miss events that should have surfaced. The substrate prefers standards-aligned
+  vocabularies because the receiving aggregators (Splunk, Datadog, Elastic, GCP Cloud
+  Logging, Azure Monitor, AWS CloudWatch) have built-in handling for them. Custom vocabularies
+  force per-consumer aggregator configuration and create cross-team friction when logs
+  from multiple systems converge.'

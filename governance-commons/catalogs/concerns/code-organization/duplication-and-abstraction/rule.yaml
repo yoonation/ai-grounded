@@ -1,0 +1,48 @@
+id: code-organization.duplication-and-abstraction
+name: Significant duplication is consolidated where it reflects one concept, and abstractions
+  are introduced only when justified
+layer: semantic
+characteristic: maintainability
+severity: medium
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-31'
+  entered_stable: '2026-06-01'
+  authored_by: Myoung Hong
+sources:
+- title: The Don't-Repeat-Yourself principle (every piece of knowledge has a single authoritative
+    representation; concept referenced, from The Pragmatic Programmer)
+  url: https://en.wikipedia.org/wiki/Don%27t_repeat_yourself
+- title: The rule of three (refactor to remove duplication when the third occurrence appears;
+    concept referenced)
+  url: https://en.wikipedia.org/wiki/Rule_of_three_(computer_programming)
+- title: jscpd copy-paste detector (multi-language clone detection that surfaces duplication
+    candidates for review)
+  url: https://github.com/kucherenko/jscpd
+applies_to:
+  language: any
+  framework: any
+  environment: any
+references: []
+statement: 'Significant duplication is consolidated when, and only when, it represents
+  a single piece of knowledge expressed in more than one place; and abstractions are introduced
+  only when a genuine shared concept justifies them, not merely because two pieces of
+  code currently look alike. The rule asks reviewers to distinguish true duplication (one
+  concept, several copies, which should be unified) from coincidental similarity (different
+  concepts that happen to resemble each other today and will diverge tomorrow, which should
+  be left separate). The substrate adopts the rule of three as a default trigger for consolidation
+  and the avoid-hasty-abstractions stance as a default brake: prefer a little duplication
+  over the wrong abstraction, and unify when the third occurrence confirms the pattern
+  is real.'
+rationale: 'Don''t-Repeat-Yourself is about knowledge, not about characters: its target
+  is the duplication of a decision or a rule, so that a single change of mind requires
+  a single change of code. The common failure is to apply it to textual similarity instead,
+  collapsing two pieces of code that look alike but encode different decisions; the resulting
+  abstraction couples them, and every later change that applies to one but not the other
+  must be threaded through a parameter or a flag until the abstraction becomes harder
+  to understand than the duplication it replaced. The rule is semantic because only a
+  human who understands the two concepts can say whether they are one rule wearing two
+  faces or two rules that happen to rhyme. Tools measure textual duplication and flag
+  clones; they cannot tell true duplication from coincidence, which is exactly the judgment
+  the rule preserves for review.'

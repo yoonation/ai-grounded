@@ -1,0 +1,34 @@
+id: data-classification.data-classification-policy
+name: The application has a documented data-classification policy recording the scheme,
+  the per-class handling matrix, and the propagation rules
+layer: judgmental
+characteristic: security
+severity: high
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-31'
+  entered_stable: '2026-06-01'
+  authored_by: Myoung Hong
+applies_to:
+  language: any
+  framework: any
+  environment: any
+references: []
+statement: 'The application has a recorded data-classification policy ADR, discoverable
+  from its documentation and current relative to the last significant change, covering
+  six sub-decisions: the scheme (the closed class vocabulary), the determination rule
+  (how a datum''s class is decided, including aggregation), the per-class handling matrix
+  (encryption, access, retention, logging, masking), the propagation rules, the tag-and-label
+  binding (to application labels and to the infrastructure tags infrastructure-misconfiguration.governance-tagging enforces),
+  and ownership and review cadence. The local L1 and L2 choices cohere with the policy.
+  The ADR is revisited on a periodic cadence and at significant data or regulatory changes.'
+rationale: 'Classification fails as a pile of locally reasonable decisions that do not
+  cohere: one team''s labels differ from another''s, a class is encrypted in one store
+  and not the next, an aggregate is classified by guess. The policy ADR is where the scheme,
+  the determination rule, the handling matrix, and the propagation rules are made explicit
+  and owned, and where the application''s labels are bound to the infrastructure tags
+  so the two layers agree. The substrate requires it to be recorded and complete, not
+  long; a small application''s policy is short, but it is written down and updatable rather
+  than rediscovered after an exposure. The six sub-decisions are the minimum that make
+  the eight conformance rules meaningful.'

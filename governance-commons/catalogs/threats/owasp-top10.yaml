@@ -1,0 +1,340 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Myoung Hong
+
+
+# OWASP Top 10 - Web Application Security Risks
+# Authoritative threat taxonomy for traditional web application security,
+# the 2025 edition (https://owasp.org/Top10/2025/, licensed CC BY). Threat
+# definitions here are substrate-original summaries with attribution to the
+# OWASP source; no OWASP prose is reproduced verbatim. Sibling to
+# owasp-llm-top10.yaml and owasp-agentic-asi-2026.yaml.
+
+metadata:
+  catalog_id: owasp-top10
+  catalog_name: OWASP Top 10 (Web Application Security Risks)
+  schema_version: 1.0.0
+  last_reviewed: '2026-06-29'
+  upstream_source: https://owasp.org/Top10/2025/
+  upstream_version: 2025 (eighth edition, released January 2026)
+  next_review_due: '2027-06-29'
+  maintainer: <set-during-init>
+  review_protocol: governance-commons/MAINTENANCE.md
+  applies_to:
+  - build_time
+  - runtime
+threats:
+- id: A01
+  name: Broken Access Control
+  short_description: Enforcement of what an authenticated user may do fails, letting them act outside
+    their intended permissions. In the 2025 edition this category absorbs server-side request forgery.
+  categories:
+  - authorization
+  - access-control
+  severity: critical
+  applies_to:
+  - build_time
+  - runtime
+  common_vectors:
+  - 'Insecure direct object reference (IDOR): a record id in the request reaches another user''s data'
+  - Missing function-level authorization on privileged or administrative endpoints
+  - Path traversal reaching files outside the intended directory
+  - Privilege escalation through tampered roles, tokens, or client-supplied claims
+  - Server-side request forgery coercing the server to reach internal-only resources
+  mitigations:
+  - Deny by default; grant access explicitly per role and per object
+  - Enforce every authorization decision on the server; never trust client-side checks
+  - Verify object ownership on each record access, not only the route
+  - Centralize access decisions in a policy engine rather than scattering ad hoc checks
+  - Allowlist outbound request targets to contain SSRF
+  - Log access-control failures and alert on spikes
+  references:
+  - https://owasp.org/Top10/2025/A01_2025-Broken_Access_Control/
+  related_threats:
+  - A07
+  related_compliance:
+  - GDPR-Art-32
+  - PCI-DSS-Req-7
+  - HIPAA-164.312-a-1
+  - SOC2-CC6.1
+- id: A02
+  name: Security Misconfiguration
+  short_description: 'The application or its platform is built correctly but wired up insecurely: insecure
+    defaults, unnecessary features, or missing hardening. It rose to second in the 2025 data.'
+  categories:
+  - configuration
+  - hardening
+  severity: high
+  applies_to:
+  - build_time
+  - runtime
+  common_vectors:
+  - Default or sample credentials left enabled
+  - Verbose error messages or stack traces exposed in production
+  - Debug endpoints, admin consoles, or directory listings reachable
+  - Unnecessary services, ports, or features enabled
+  - Permissive cloud storage or missing security headers
+  mitigations:
+  - Harden by default and remove unused features, accounts, and services
+  - Scan infrastructure-as-code for risky settings before deploy
+  - Separate and lock down configuration per environment; no debug in production
+  - Set security headers and least-privilege defaults
+  - Re-check configuration drift on a schedule, not only at launch
+  references:
+  - https://owasp.org/Top10/2025/A02_2025-Security_Misconfiguration/
+  related_threats:
+  - A01
+  - A03
+  related_compliance:
+  - PCI-DSS-Req-2
+  - SOC2-CC6.1
+- id: A03
+  name: Software Supply Chain Failures
+  short_description: 'A new and broadened 2025 category expanding the old vulnerable-and-outdated-components
+    entry to the whole dependency ecosystem: compromised packages, malicious updates, and weaknesses in
+    build and distribution pipelines.'
+  categories:
+  - supply-chain
+  - dependency-risk
+  severity: critical
+  applies_to:
+  - build_time
+  - runtime
+  common_vectors:
+  - Dependencies with known CVEs pulled transitively and unpinned
+  - Compromised or typosquatted packages from public registries
+  - Malicious updates pushed through a trusted maintainer or build account
+  - Tampered build or distribution artifacts with no provenance
+  - Unverified third-party scripts loaded into the application at runtime
+  mitigations:
+  - Pin and lock dependencies; review the transitive tree
+  - Scan dependencies against advisory databases in CI and on a schedule
+  - Verify artifact provenance and signatures (SLSA, Sigstore, cosign)
+  - Restrict and audit who can publish to build and release pipelines
+  - Maintain a software bill of materials and inventory third-party scripts
+  references:
+  - https://owasp.org/Top10/2025/A03_2025-Software_Supply_Chain_Failures/
+  related_threats:
+  - A08
+  - A02
+  related_compliance:
+  - PCI-DSS-Req-6
+  - SOC2-CC8.1
+- id: A04
+  name: Cryptographic Failures
+  short_description: Sensitive data is exposed because protection in transit or at rest is weak, missing,
+    or misapplied. Previously named Sensitive Data Exposure.
+  categories:
+  - cryptography
+  - data-leakage
+  severity: high
+  applies_to:
+  - build_time
+  - runtime
+  common_vectors:
+  - Weak or broken algorithms used for security (MD5, SHA1, DES)
+  - Hardcoded keys or secrets in source or configuration
+  - Missing TLS, or downgraded and improperly validated TLS
+  - Unsalted or fast-hashed passwords
+  - Weak randomness for tokens, keys, or session identifiers
+  mitigations:
+  - Classify data and encrypt sensitive data in transit and at rest
+  - Use vetted modern algorithms and strong key sizes; retire weak ones
+  - Keep keys out of source; use a managed secret store and rotation
+  - Hash passwords with a slow salted function (argon2, bcrypt, scrypt)
+  - Use a cryptographically secure random source for all security tokens
+  references:
+  - https://owasp.org/Top10/2025/A04_2025-Cryptographic_Failures/
+  related_threats:
+  - A02
+  related_compliance:
+  - GDPR-Art-32
+  - PCI-DSS-Req-3
+  - PCI-DSS-Req-4
+  - HIPAA-164.312-a-1
+- id: A05
+  name: Injection
+  short_description: Untrusted data is sent to an interpreter or parser and treated as code or commands.
+    Cross-site scripting is part of this category.
+  categories:
+  - injection
+  - output-validation
+  severity: critical
+  applies_to:
+  - build_time
+  - runtime
+  common_vectors:
+  - SQL and NoSQL injection through unparameterized queries
+  - OS command injection from unsanitized input passed to a shell
+  - LDAP, XPath, or template injection
+  - Cross-site scripting from unescaped output rendered in a browser
+  - Header and log injection from unvalidated input
+  mitigations:
+  - Use parameterized queries and safe ORM APIs; never concatenate input into queries
+  - Validate input at the boundary and encode output for its context
+  - Avoid shelling out; use safe library calls and strict allowlists when unavoidable
+  - Apply a content security policy and contextual escaping to contain XSS
+  - Treat all external content as untrusted data, never instructions
+  references:
+  - https://owasp.org/Top10/2025/A05_2025-Injection/
+  related_threats:
+  - A01
+  related_compliance:
+  - PCI-DSS-Req-6
+  - EU-AI-ACT-Art-15
+- id: A06
+  name: Insecure Design
+  short_description: Flaws originating in missing or weak security design rather than in implementation.
+    The 2025 edition broadens it toward AI-integrated attack surfaces such as model injection and trust-boundary
+    failures in applications that call model APIs.
+  categories:
+  - design
+  - threat-modeling
+  severity: high
+  applies_to:
+  - build_time
+  - runtime
+  common_vectors:
+  - No threat model, so whole classes of abuse are never considered
+  - Trust extended too far across a boundary (client, third party, or model)
+  - Missing rate limiting, anti-automation, or abuse controls by design
+  - Business-logic flows that can be replayed, skipped, or reordered
+  - AI-integrated flows that pass untrusted content into a model with too much authority
+  mitigations:
+  - Threat-model features during design, before implementation
+  - Define and enforce trust boundaries and least authority per component
+  - Design in rate limiting, quotas, and abuse detection
+  - Validate business-logic invariants on the server, not the client
+  - For model-calling features, constrain model permissions and treat its inputs and outputs as untrusted
+  references:
+  - https://owasp.org/Top10/2025/A06_2025-Insecure_Design/
+  related_threats:
+  - A01
+  - A05
+  related_compliance:
+  - EU-AI-ACT-Art-9
+  - SOC2-CC3.2
+- id: A07
+  name: Authentication Failures
+  short_description: Confirmation of identity, session management, or recovery flows are weak or broken.
+    Renamed from Identification and Authentication Failures.
+  categories:
+  - authentication
+  severity: high
+  applies_to:
+  - build_time
+  - runtime
+  common_vectors:
+  - Weak password policy or no protection against credential stuffing
+  - Missing or bypassable multi-factor authentication
+  - Predictable or improperly invalidated session identifiers
+  - Insecure password recovery or account-enumeration flows
+  - Missing logout or session timeout on sensitive contexts
+  mitigations:
+  - Support strong credentials and check them against breached-password lists
+  - Require multi-factor authentication for sensitive access
+  - Generate high-entropy session ids and rotate them on privilege change
+  - Rate-limit and monitor authentication attempts; lock out on abuse
+  - Invalidate sessions on logout, timeout, and credential change
+  references:
+  - https://owasp.org/Top10/2025/A07_2025-Authentication_Failures/
+  related_threats:
+  - A01
+  related_compliance:
+  - PCI-DSS-Req-8
+  - HIPAA-164.312-d
+  - SOC2-CC6.1
+- id: A08
+  name: Software or Data Integrity Failures
+  short_description: Code or data is trusted without verifying its integrity, allowing tampering to flow
+    into the application. The 2025 edition emphasizes CI/CD pipeline integrity.
+  categories:
+  - data-integrity
+  - supply-chain
+  severity: high
+  applies_to:
+  - build_time
+  - runtime
+  common_vectors:
+  - Unsigned or unverified updates, plugins, or downloads
+  - Insecure deserialization of attacker-influenced data
+  - CI/CD pipelines that deploy unverified artifacts
+  - Auto-update mechanisms without integrity checks
+  - Trusting client-supplied data for security-relevant decisions
+  mitigations:
+  - Verify signatures and integrity of code, updates, and artifacts before use
+  - Avoid native deserialization of untrusted data; use safe formats and schemas
+  - Gate deployments on verified, provenance-checked build artifacts
+  - 'Protect the pipeline: least privilege, signed commits, and review'
+  - Validate and re-derive security decisions server-side
+  references:
+  - https://owasp.org/Top10/2025/A08_2025-Software_or_Data_Integrity_Failures/
+  related_threats:
+  - A03
+  related_compliance:
+  - PCI-DSS-Req-6
+  - SOC2-CC8.1
+- id: A09
+  name: Security Logging and Alerting Failures
+  short_description: Security-relevant events are not logged, or detection does not trigger a response.
+    Renamed from Security Logging and Monitoring Failures to stress that a log without an alert is not
+    enough.
+  categories:
+  - observability
+  - detection
+  severity: medium
+  applies_to:
+  - build_time
+  - runtime
+  common_vectors:
+  - Authentication, access-control, and integrity events not logged
+  - Logs without enough context to investigate, or with sensitive data in them
+  - No alerting, so detections never reach a responder
+  - Logs that can be tampered with or are not retained
+  - No correlation across services to see an attack in progress
+  mitigations:
+  - Log security-relevant events with enough context, and without secrets or PII
+  - Alert on suspicious patterns; a log that nobody is paged on does not detect
+  - Protect log integrity and retain per policy
+  - Centralize and correlate logs across services
+  - Test detection and response with exercises, not only at audit time
+  references:
+  - https://owasp.org/Top10/2025/A09_2025-Security_Logging_and_Alerting_Failures/
+  related_threats:
+  - A01
+  - A07
+  related_compliance:
+  - GDPR-Art-33
+  - HIPAA-164.312-b
+  - PCI-DSS-Req-10
+  - SOC2-CC7.2
+- id: A10
+  name: Mishandling of Exceptional Conditions
+  short_description: A new 2025 category covering improper error handling, failing open, logical errors,
+    and other failures stemming from abnormal conditions the system was not designed to handle safely.
+  categories:
+  - reliability
+  - error-handling
+  severity: medium
+  applies_to:
+  - build_time
+  - runtime
+  common_vectors:
+  - 'Failing open: an error path grants access or skips a check'
+  - Unhandled exceptions leaking stack traces or internal state
+  - Logic errors in edge cases that bypass intended controls
+  - Inconsistent error handling that leaves the system in an unsafe state
+  - Resource-exhaustion paths that degrade controls under load
+  mitigations:
+  - 'Fail closed: an error must deny, not grant'
+  - Handle exceptions explicitly; never expose internal detail to the user
+  - Test edge cases and abnormal inputs, including fault injection
+  - Keep error handling consistent so failures land in a known safe state
+  - Bound resource use and degrade safely under load
+  references:
+  - https://owasp.org/Top10/2025/A10_2025-Mishandling_of_Exceptional_Conditions/
+  related_threats:
+  - A06
+  - A09
+  related_compliance:
+  - SOC2-CC7.1
+  - EU-AI-ACT-Art-15

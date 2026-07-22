@@ -1,0 +1,10 @@
+id: performance-caching
+name: Performance Caching
+characteristic: performance-efficiency
+status: stable
+summary: >
+  How caching is done safely: a documented caching strategy, time-to-live
+  on write with bounded eviction, correct invalidation and explicit
+  staleness budgets, namespaced keys, stampede protection, the cache
+  treated as optional to correctness, and no per-item cache calls inside
+  loops.

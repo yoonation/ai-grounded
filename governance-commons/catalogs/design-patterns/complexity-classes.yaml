@@ -1,0 +1,158 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Myoung Hong
+
+
+# Algorithmic complexity classes
+# A vocabulary for reasoning about how an algorithm's cost grows with input
+# size, expressed in Big-O notation (an asymptotic upper bound). The same
+# classes describe time and space; the entries below use time, and each notes
+# typical sources and the point at which a class becomes a scaling or
+# denial-of-service risk on unbounded input. Descriptions here are
+# substrate-original paraphrase of public concepts; no source text is
+# reproduced. Consult while assessing whether an algorithm will hold up at the
+# expected and worst-case input sizes.
+
+metadata:
+  catalog_id: complexity-classes
+  catalog_name: Algorithmic Complexity Classes
+  schema_version: 1.0.0
+  category_system: time-complexity
+  upstream_source: https://en.wikipedia.org/wiki/Time_complexity
+  last_reviewed: 2026-06-28
+  next_review_due: 2027-06-28
+  maintainer: <set-during-init>
+  review_protocol: governance-commons/MAINTENANCE.md
+
+patterns:
+
+  - id: CPLX-CONSTANT
+    name: O(1) Constant
+    category: time-complexity
+    intent: >
+      Cost does not grow with input size; the operation takes the same time
+      whether the input has ten elements or ten million.
+    when_to_use: >
+      The target for hot-path lookups and updates: hash-table access, array
+      indexing, pushing to a stack. Prefer structures that give O(1) for the
+      operations a hot path performs most.
+    consequences: >
+      Scales indefinitely on that operation; the trade is often memory
+      (a hash index) or amortization (occasional resize) behind the constant.
+    avoid_when: >
+      Not a hazard, but be honest about amortized versus worst-case: a single
+      resize or rehash can spike even when the average is constant.
+
+  - id: CPLX-LOGARITHMIC
+    name: O(log n) Logarithmic
+    category: time-complexity
+    intent: >
+      Cost grows by a constant amount each time the input doubles; doubling
+      the data adds one step, not double the work.
+    when_to_use: >
+      Binary search over sorted data, balanced-tree operations, and index
+      lookups. Effectively flat at any realistic scale.
+    consequences: >
+      Excellent scaling; the precondition (sorted or balanced structure) has
+      its own maintenance cost.
+    avoid_when: >
+      Not a hazard; just verify the structure actually maintains the invariant
+      (sortedness, balance) that the logarithmic bound assumes.
+
+  - id: CPLX-LINEAR
+    name: O(n) Linear
+    category: time-complexity
+    intent: >
+      Cost grows in direct proportion to input size; processing twice the data
+      takes twice the time.
+    when_to_use: >
+      A single pass over the input: scanning a list, summing values, filtering.
+      The natural and acceptable cost for touching every element once.
+    consequences: >
+      Predictable and usually fine; on very large or streaming inputs even one
+      linear pass can dominate, so avoid stacking several where one suffices.
+    avoid_when: >
+      Not a hazard, but watch for hidden linear scans inside loops, which
+      silently become quadratic.
+
+  - id: CPLX-LINEARITHMIC
+    name: O(n log n) Linearithmic
+    category: time-complexity
+    intent: >
+      Cost grows a little faster than linear; the practical floor for
+      comparison-based sorting and many divide-and-conquer algorithms.
+    when_to_use: >
+      Efficient sorts (merge, heap, quick on average) and algorithms that sort
+      as a sub-step. The expected cost when ordering matters.
+    consequences: >
+      Scales well to large inputs; if a sort sits on a hot path, consider
+      whether the data can be kept ordered incrementally instead.
+    avoid_when: >
+      Sorting when you only need a partial result (a top-k selection is O(n)),
+      or re-sorting data that arrives already ordered.
+
+  - id: CPLX-QUADRATIC
+    name: O(n^2) Quadratic
+    category: time-complexity
+    intent: >
+      Cost grows with the square of input size; the classic signature is a
+      loop nested over the same data, where doubling the input quadruples the
+      work.
+    when_to_use: >
+      Acceptable only on small, bounded inputs where n is known to stay tiny;
+      otherwise a quadratic algorithm is a refactor target.
+    consequences: >
+      Degrades sharply: an input that is fine in testing can stall in
+      production an order of magnitude larger.
+    avoid_when: >
+      On user-controlled or unbounded input, quadratic cost is a
+      denial-of-service vector. Replace the nested scan with a hash lookup
+      (often O(n)), impose a hard input-size limit, or stream in chunks. This
+      is the failure mode performance-reviewer flags as quadratic-input.
+
+  - id: CPLX-POLYNOMIAL
+    name: O(n^3) and higher polynomial
+    category: time-complexity
+    intent: >
+      Cost grows as a fixed power of input size above two; triply nested work
+      over the same data, and worse.
+    when_to_use: >
+      Rare and only justified on inputs guaranteed small (some matrix and
+      graph algorithms); always document the bound on n that keeps it viable.
+    consequences: >
+      Becomes infeasible quickly; even modest inputs can exceed any reasonable
+      time budget.
+    avoid_when: >
+      On anything user-facing or growing; treat higher-order polynomial cost on
+      unbounded input as a correctness-of-scale defect, not a tuning detail.
+
+  - id: CPLX-EXPONENTIAL
+    name: O(2^n) Exponential
+    category: time-complexity
+    intent: >
+      Cost doubles with each additional input element; the signature of naive
+      exhaustive search over subsets or unmemoized recursion that branches.
+    when_to_use: >
+      Only on very small n, or as a baseline before applying memoization,
+      dynamic programming, pruning, or an approximation.
+    consequences: >
+      Intractable beyond a few dozen elements; what runs instantly at n=20 can
+      outlast the universe at n=100.
+    avoid_when: >
+      Whenever a polynomial reformulation exists; exponential blowup from
+      unmemoized recursion is a common and fixable cause (cache subproblems).
+
+  - id: CPLX-FACTORIAL
+    name: O(n!) Factorial
+    category: time-complexity
+    intent: >
+      Cost grows as the factorial of input size; the signature of generating
+      all permutations or brute-forcing an ordering problem.
+    when_to_use: >
+      Essentially never at scale; acceptable only for tiny n or as a
+      correctness reference against which a smarter algorithm is checked.
+    consequences: >
+      The fastest-growing class encountered in practice; infeasible past a
+      handful of elements.
+    avoid_when: >
+      Any production path; reach for a heuristic, a constraint solver, or a
+      polynomial approximation instead of enumerating orderings.

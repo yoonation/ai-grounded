@@ -1,0 +1,554 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Myoung Hong
+
+# OWASP Top 10 (Web Application Security Risks, 2025) to substrate
+# concern rules.
+#
+# Source taxonomy: governance-commons/catalogs/threats/owasp-top10.yaml
+# Target catalogs: substrate concern catalogs at
+# governance-commons/catalogs/concerns/ (umbrella "concerns";
+# qualified rule IDs in target-rule provide specific references).
+#
+# Dominant relation type is "addressed-by" since OWASP categories are
+# risk groupings and substrate concern rules are controls. Coverage
+# gaps (dimensions of an OWASP category not addressed by current
+# substrate L1/L2 rules) are recorded explicitly. Sibling to
+# owasp-llm-to-concerns.oscal.yaml and stride-to-concerns.oscal.yaml.
+
+mapping:
+  uuid: "c7e4f2a1-9b3d-4e56-8a72-1f0d6b8e5c34"
+
+  metadata:
+    title: "OWASP Top 10 (2025) to Substrate Concerns"
+    version: "1.0.0"
+    last-modified: "2026-07-01T00:00:00Z"
+
+    props:
+      - name: mapping-id
+        ns: governance-commons
+        value: "owasp-top10-to-concerns"
+      - name: lifecycle-status
+        ns: governance-commons
+        value: stable
+      - name: commons-version
+        ns: governance-commons
+        value: "1.2.0"
+      - name: entered-draft-at
+        ns: governance-commons
+        value: "2026-07-01"
+      - name: entered-stable-at
+        ns: governance-commons
+        value: "2026-07-01"
+      - name: reviewer
+        ns: governance-commons
+        value: "myoung-self-attested"
+      - name: reviewed
+        ns: governance-commons
+        value: "2026-07-01"
+      - name: attestation-mechanism
+        ns: governance-commons
+        value: "Charter Section 2.4.1 solo-author attestation; author-elected same-session promotion"
+        remarks: >
+          Attested under Charter Section 2.4.1 (solo-author attestation)
+          on 2026-07-01. Section 2.4 validation criteria applied:
+          relation rationales are defensible; the A06 coverage-gap record
+          is honest; all target-rule references resolve to live
+          substrate-rule IDs (verified 50 distinct rules); no relation
+          duplicates another mapping's claim. The Section 2.4.1
+          minimum-interval-one-calendar-day rule was NOT honored: the
+          author expressly elected same-session promotion (drafted and
+          attested 2026-07-01) to unblock feature-006. This is a recorded
+          author override of the cooling-off interval, not an observed
+          interval.
+      - name: ai-assistance
+        ns: governance-commons
+        value: drafted-and-reviewed
+      - name: ai-assistance-detail
+        ns: governance-commons
+        value: >
+          AI-drafted to close the one threat spine (traditional OWASP
+          Top 10) that had a catalog but no concern mapping, the sixth
+          catalog against five existing mappings. Each 2025 category was
+          mapped to substrate concern rules whose intent materially
+          addresses the category per the OWASP category description and
+          the substrate concern-rule content. Reviewed and promoted to
+          stable by the substrate author in the same session via a
+          recorded Section 2.4.1 override (see attestation-mechanism).
+
+    source-catalog:
+      catalog-id: "owasp-top10"
+      catalog-version: "2025"
+      href: "../catalogs/threats/owasp-top10.yaml"
+
+    target-catalog:
+      catalog-id: "concerns"
+      catalog-version: "1.2.0"
+      href: "../catalogs/concerns/"
+
+    methodology: >
+      For each OWASP Top 10 (2025) category, substrate concern rules
+      whose intent materially addresses the category were identified.
+      "Materially addresses" means: applying the rule reduces the
+      likelihood or impact of the risk, or provides detection capability
+      for it, such that a consumer relying on the substrate could
+      reasonably claim governance coverage of the category. Relation type
+      "addressed-by" is used throughout (a substrate rule addresses an
+      OWASP category). Coverage is partial where the substrate mitigates
+      some but not all dimensions of a category; partial coverage is
+      recorded in coverage-gaps rather than overclaimed in a relation.
+      SSRF is mapped under A01 per the 2025 consolidation.
+
+  relations:
+
+    - id: "A01-addressed-by-authz-before-resource-access"
+      source-rule: "A01"
+      target-rule: "authorization.authz-before-resource-access"
+      relation-type: addressed-by
+      rationale: >
+        Broken access control is fundamentally the failure to enforce an
+        authorization decision before a resource is reached. This rule
+        requires that enforcement point to exist on every protected path.
+
+    - id: "A01-addressed-by-object-level-authorization"
+      source-rule: "A01"
+      target-rule: "authorization.object-level-authorization"
+      relation-type: addressed-by
+      rationale: >
+        Insecure direct object reference (IDOR), the most common A01
+        instance, is defended by requiring per-object ownership checks
+        rather than trusting an identifier supplied by the caller.
+
+    - id: "A01-addressed-by-centralized-deny-by-default-policy"
+      source-rule: "A01"
+      target-rule: "authorization.centralized-deny-by-default-policy"
+      relation-type: addressed-by
+      rationale: >
+        Deny-by-default closes the fail-open gap where an unlisted route
+        or action is implicitly permitted, a recurring root cause in A01.
+
+    - id: "A01-addressed-by-no-client-side-only-authz"
+      source-rule: "A01"
+      target-rule: "authorization.no-client-side-only-authz"
+      relation-type: addressed-by
+      rationale: >
+        A01 includes bypass by manipulating client state; server-side
+        enforcement is required so client-side checks are not the control.
+
+    - id: "A01-addressed-by-ssrf-prevention"
+      source-rule: "A01"
+      target-rule: "input-validation.ssrf-prevention"
+      relation-type: addressed-by
+      rationale: >
+        SSRF folded into A01 in the 2025 edition. This rule constrains
+        server-initiated requests (allowlist destinations, block metadata
+        endpoints), the SSRF control set.
+
+    - id: "A01-addressed-by-path-traversal-prevention"
+      source-rule: "A01"
+      target-rule: "input-validation.path-traversal-prevention"
+      relation-type: addressed-by
+      rationale: >
+        Path traversal is an access-control failure over the filesystem
+        namespace; canonicalization and confinement defend it.
+
+    - id: "A02-addressed-by-infrastructure-security-baseline"
+      source-rule: "A02"
+      target-rule: "infrastructure-misconfiguration.infrastructure-security-baseline"
+      relation-type: addressed-by
+      rationale: >
+        A02 is hardening gaps and unsafe defaults; a required security
+        baseline for infrastructure is the direct control.
+
+    - id: "A02-addressed-by-no-unrestricted-ingress"
+      source-rule: "A02"
+      target-rule: "infrastructure-misconfiguration.no-unrestricted-ingress"
+      relation-type: addressed-by
+      rationale: >
+        Open ingress (0.0.0.0/0 to sensitive ports) is a canonical
+        misconfiguration; this rule blocks it.
+
+    - id: "A02-addressed-by-least-privilege-iac-iam"
+      source-rule: "A02"
+      target-rule: "infrastructure-misconfiguration.least-privilege-iac-iam"
+      relation-type: addressed-by
+      rationale: >
+        Over-broad IAM grants are a misconfiguration that widens blast
+        radius; least-privilege IaC IAM constrains it.
+
+    - id: "A02-addressed-by-no-hardcoded-config"
+      source-rule: "A02"
+      target-rule: "configuration-management.no-hardcoded-config"
+      relation-type: addressed-by
+      rationale: >
+        Environment-specific values baked into code produce divergent,
+        unhardened deployments; externalized config prevents that drift.
+
+    - id: "A02-addressed-by-startup-validation"
+      source-rule: "A02"
+      target-rule: "configuration-management.startup-validation"
+      relation-type: addressed-by
+      rationale: >
+        Validating required configuration at startup fails a
+        misconfigured deployment closed rather than serving insecurely.
+
+    - id: "A02-addressed-by-no-stack-trace-in-response"
+      source-rule: "A02"
+      target-rule: "error-handling.no-stack-trace-in-response"
+      relation-type: addressed-by
+      rationale: >
+        Verbose error output exposing internals is an A02 example;
+        suppressing stack traces in responses closes it.
+
+    - id: "A03-addressed-by-dependency-vetting"
+      source-rule: "A03"
+      target-rule: "supply-chain.dependency-vetting"
+      relation-type: addressed-by
+      rationale: >
+        A03 (new in 2025) targets compromised or malicious dependencies;
+        vetting before adoption is the front-line control.
+
+    - id: "A03-addressed-by-sbom-presence-and-validity"
+      source-rule: "A03"
+      target-rule: "supply-chain.sbom-presence-and-validity"
+      relation-type: addressed-by
+      rationale: >
+        An SBOM is the inventory that makes supply-chain exposure legible
+        and actionable when a component is found compromised.
+
+    - id: "A03-addressed-by-signature-verification"
+      source-rule: "A03"
+      target-rule: "supply-chain.signature-verification"
+      relation-type: addressed-by
+      rationale: >
+        Verifying artifact signatures detects tampered or substituted
+        components in the distribution path.
+
+    - id: "A03-addressed-by-slsa-provenance-verification"
+      source-rule: "A03"
+      target-rule: "supply-chain.slsa-provenance-verification"
+      relation-type: addressed-by
+      rationale: >
+        Provenance attestation ties an artifact to the build that
+        produced it, defending build-system and distribution compromise.
+
+    - id: "A03-addressed-by-digest-pinned-artifacts"
+      source-rule: "A03"
+      target-rule: "supply-chain.digest-pinned-artifacts"
+      relation-type: addressed-by
+      rationale: >
+        Digest pinning prevents silent substitution of a mutable tag,
+        a common supply-chain injection vector.
+
+    - id: "A03-addressed-by-vulnerable-dependencies"
+      source-rule: "A03"
+      target-rule: "dependency-management.vulnerable-dependencies"
+      relation-type: addressed-by
+      rationale: >
+        A03 expands the old vulnerable-and-outdated-components category;
+        scanning for known-vulnerable dependencies is the retained core.
+
+    - id: "A03-addressed-by-pinned-versions"
+      source-rule: "A03"
+      target-rule: "dependency-management.pinned-versions"
+      relation-type: addressed-by
+      rationale: >
+        Version pinning makes the dependency set deterministic and
+        auditable, reducing exposure to dependency-confusion swaps.
+
+    - id: "A04-addressed-by-secrets-encryption-at-rest"
+      source-rule: "A04"
+      target-rule: "secrets-management.encryption-at-rest"
+      relation-type: addressed-by
+      rationale: >
+        Cryptographic failure includes secrets stored without protection;
+        encryption at rest is the direct control.
+
+    - id: "A04-addressed-by-encryption-per-class"
+      source-rule: "A04"
+      target-rule: "data-classification.encryption-per-class"
+      relation-type: addressed-by
+      rationale: >
+        Encrypting data according to its sensitivity class prevents
+        sensitive-data exposure, the primary A04 impact.
+
+    - id: "A04-addressed-by-data-resource-encryption-at-rest"
+      source-rule: "A04"
+      target-rule: "infrastructure-misconfiguration.data-resource-encryption-at-rest"
+      relation-type: addressed-by
+      rationale: >
+        Data stores provisioned without encryption at rest are a common
+        cryptographic-failure root cause at the infrastructure layer.
+
+    - id: "A04-addressed-by-key-management-design"
+      source-rule: "A04"
+      target-rule: "infrastructure-misconfiguration.key-management-design"
+      relation-type: addressed-by
+      rationale: >
+        Weak key management (no rotation, shared keys) undermines
+        otherwise-correct encryption; a key-management design addresses it.
+
+    - id: "A04-addressed-by-password-hashing"
+      source-rule: "A04"
+      target-rule: "authentication.password-hashing"
+      relation-type: addressed-by
+      rationale: >
+        Storing credentials with a strong, salted hash rather than
+        reversible or weak transforms is a core cryptographic control.
+
+    - id: "A05-addressed-by-parameterized-queries"
+      source-rule: "A05"
+      target-rule: "input-validation.parameterized-queries"
+      relation-type: addressed-by
+      rationale: >
+        SQL injection is defended by parameterization, which separates
+        query structure from attacker-controlled data.
+
+    - id: "A05-addressed-by-no-shell-injection"
+      source-rule: "A05"
+      target-rule: "input-validation.no-shell-injection"
+      relation-type: addressed-by
+      rationale: >
+        Command injection is defended by avoiding shell interpolation of
+        untrusted input.
+
+    - id: "A05-addressed-by-contextual-output-encoding"
+      source-rule: "A05"
+      target-rule: "input-validation.contextual-output-encoding"
+      relation-type: addressed-by
+      rationale: >
+        Cross-site scripting (in A05 since 2021) is defended by encoding
+        output for its rendering context.
+
+    - id: "A05-addressed-by-no-unsafe-deserialization"
+      source-rule: "A05"
+      target-rule: "input-validation.no-unsafe-deserialization"
+      relation-type: addressed-by
+      rationale: >
+        Injection via crafted serialized payloads is defended by refusing
+        to deserialize untrusted data into executable object graphs.
+
+    - id: "A05-addressed-by-schema-validation-at-boundary"
+      source-rule: "A05"
+      target-rule: "input-validation.schema-validation-at-boundary"
+      relation-type: addressed-by
+      rationale: >
+        Rejecting malformed input at the trust boundary shrinks the
+        surface every injection variant relies on.
+
+    - id: "A06-addressed-by-input-validation-strategy"
+      source-rule: "A06"
+      target-rule: "input-validation.input-validation-strategy"
+      relation-type: addressed-by
+      rationale: >
+        Insecure design is countered by forcing a deliberate, recorded
+        design decision; the input-validation strategy ADR is one such
+        forcing function. See coverage-gaps: this is design-process
+        coverage, not a full threat-modeling methodology.
+
+    - id: "A06-addressed-by-authentication-strategy"
+      source-rule: "A06"
+      target-rule: "authentication.authentication-strategy"
+      relation-type: addressed-by
+      rationale: >
+        Requiring an explicit authentication design decision prevents the
+        ad-hoc auth designs A06 warns against.
+
+    - id: "A06-addressed-by-authorization-model-selection"
+      source-rule: "A06"
+      target-rule: "authorization.authorization-model-selection"
+      relation-type: addressed-by
+      rationale: >
+        Choosing and recording an authorization model up front is secure
+        design applied to access control.
+
+    - id: "A06-addressed-by-rate-limiting"
+      source-rule: "A06"
+      target-rule: "authentication.rate-limiting"
+      relation-type: addressed-by
+      rationale: >
+        Designing in abuse resistance (rate limiting) is a secure-design
+        control against the resource-abuse failure modes A06 covers.
+
+    - id: "A07-addressed-by-authentication-strategy"
+      source-rule: "A07"
+      target-rule: "authentication.authentication-strategy"
+      relation-type: addressed-by
+      rationale: >
+        Authentication failures are reduced by requiring a coherent,
+        recorded authentication design rather than piecemeal mechanisms.
+
+    - id: "A07-addressed-by-mfa-on-privileged-operations"
+      source-rule: "A07"
+      target-rule: "authentication.mfa-on-privileged-operations"
+      relation-type: addressed-by
+      rationale: >
+        Missing MFA on sensitive actions is a named A07 weakness;
+        requiring it on privileged operations addresses it.
+
+    - id: "A07-addressed-by-password-policy"
+      source-rule: "A07"
+      target-rule: "authentication.password-policy"
+      relation-type: addressed-by
+      rationale: >
+        Weak password policy enables credential attacks central to A07.
+
+    - id: "A07-addressed-by-account-lockout"
+      source-rule: "A07"
+      target-rule: "authentication.account-lockout"
+      relation-type: addressed-by
+      rationale: >
+        Lockout/backoff defends the brute-force and credential-stuffing
+        paths A07 enumerates.
+
+    - id: "A07-addressed-by-session-regeneration"
+      source-rule: "A07"
+      target-rule: "authentication.session-regeneration"
+      relation-type: addressed-by
+      rationale: >
+        Regenerating session identifiers on privilege change defends
+        session fixation, an A07 weakness.
+
+    - id: "A07-addressed-by-token-expiration"
+      source-rule: "A07"
+      target-rule: "authentication.token-expiration"
+      relation-type: addressed-by
+      rationale: >
+        Bounded token lifetime limits the window a compromised session
+        token is usable.
+
+    - id: "A08-addressed-by-signature-verification"
+      source-rule: "A08"
+      target-rule: "supply-chain.signature-verification"
+      relation-type: addressed-by
+      rationale: >
+        Integrity failures include accepting unverified updates or
+        artifacts; signature verification is the integrity control.
+
+    - id: "A08-addressed-by-slsa-provenance-verification"
+      source-rule: "A08"
+      target-rule: "supply-chain.slsa-provenance-verification"
+      relation-type: addressed-by
+      rationale: >
+        Provenance attestation establishes that an artifact's integrity
+        chain from source to deployment is intact.
+
+    - id: "A08-addressed-by-signed-commit-and-protected-branch"
+      source-rule: "A08"
+      target-rule: "supply-chain.signed-commit-and-protected-branch"
+      relation-type: addressed-by
+      rationale: >
+        Signed commits and protected branches defend the integrity of the
+        source that later becomes a build artifact.
+
+    - id: "A08-addressed-by-no-unsafe-deserialization"
+      source-rule: "A08"
+      target-rule: "input-validation.no-unsafe-deserialization"
+      relation-type: addressed-by
+      rationale: >
+        Insecure deserialization is an A08 data-integrity failure;
+        refusing untrusted object graphs addresses it.
+
+    - id: "A08-addressed-by-logging-integrity"
+      source-rule: "A08"
+      target-rule: "logging.integrity"
+      relation-type: addressed-by
+      rationale: >
+        Tamper-evident logs defend the integrity of the audit record
+        itself, a data-integrity concern.
+
+    - id: "A09-addressed-by-logging-architecture"
+      source-rule: "A09"
+      target-rule: "logging.architecture"
+      relation-type: addressed-by
+      rationale: >
+        A09 is insufficient logging; requiring a deliberate logging
+        architecture ensures security-relevant events are recorded.
+
+    - id: "A09-addressed-by-no-sensitive-data-in-logs"
+      source-rule: "A09"
+      target-rule: "logging.no-sensitive-data-in-logs"
+      relation-type: addressed-by
+      rationale: >
+        Logging must not itself leak sensitive data; this rule keeps the
+        A09 control from becoming an A04 exposure.
+
+    - id: "A09-addressed-by-detection-coverage"
+      source-rule: "A09"
+      target-rule: "monitoring-alerting.detection-coverage"
+      relation-type: addressed-by
+      rationale: >
+        A09 includes failure to detect and alert; explicit detection
+        coverage over security-relevant events addresses it.
+
+    - id: "A09-addressed-by-alerting-strategy"
+      source-rule: "A09"
+      target-rule: "monitoring-alerting.alerting-strategy"
+      relation-type: addressed-by
+      rationale: >
+        A recorded alerting strategy ensures detected conditions actually
+        reach a responder, the second half of A09.
+
+    - id: "A09-addressed-by-audit-events-on-decisions"
+      source-rule: "A09"
+      target-rule: "authorization.audit-events-on-decisions"
+      relation-type: addressed-by
+      rationale: >
+        Emitting audit events on authorization decisions produces the
+        security log trail A09 requires.
+
+    - id: "A10-addressed-by-error-handling-strategy"
+      source-rule: "A10"
+      target-rule: "error-handling.error-handling-strategy"
+      relation-type: addressed-by
+      rationale: >
+        A10 (new in 2025) is mishandling of exceptional conditions; a
+        deliberate error-handling strategy is the design-level control.
+
+    - id: "A10-addressed-by-no-exception-swallow"
+      source-rule: "A10"
+      target-rule: "error-handling.no-exception-swallow"
+      relation-type: addressed-by
+      rationale: >
+        Swallowing exceptions is a canonical A10 failure that hides errors
+        and can leave the system in an unsafe state.
+
+    - id: "A10-addressed-by-no-bare-except"
+      source-rule: "A10"
+      target-rule: "error-handling.no-bare-except"
+      relation-type: addressed-by
+      rationale: >
+        Overbroad catches conflate distinct failures and defeat correct
+        handling of exceptional conditions.
+
+    - id: "A10-addressed-by-error-response-contract"
+      source-rule: "A10"
+      target-rule: "error-handling.error-response-contract"
+      relation-type: addressed-by
+      rationale: >
+        A defined error-response contract ensures abnormal conditions
+        produce safe, consistent responses rather than undefined behavior.
+
+    - id: "A10-addressed-by-graceful-degradation"
+      source-rule: "A10"
+      target-rule: "reliability.graceful-degradation"
+      relation-type: addressed-by
+      rationale: >
+        Failing open or crashing under abnormal conditions is an A10
+        concern; graceful degradation is the fail-safe control.
+
+  coverage-gaps:
+
+    - source-rule: "A06"
+      gap-description: >
+        Partial coverage. The substrate addresses insecure design through
+        design-forcing "strategy" rules that require a recorded decision
+        per concern (input validation, authentication, authorization,
+        error handling). It does not provide a general secure-design or
+        threat-modeling methodology rule at L1/L2 covering the full A06
+        scope (e.g., systematic abuse-case analysis, security design
+        review). The threat-modeler agent supplies this at review time
+        rather than the concern catalog.
+      recommended-action: >
+        Treat A06 substrate coverage as design-process forcing functions
+        plus the threat-modeler review pass. Consider a dedicated
+        secure-design concern if consumers need L1/L2 secure-design rules.

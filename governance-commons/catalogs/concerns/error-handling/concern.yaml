@@ -1,0 +1,11 @@
+id: error-handling
+name: Error Handling
+characteristic: reliability
+status: stable
+summary: >
+  How failures are caught and surfaced: a documented error-handling
+  strategy, typed error classification separating domain from
+  infrastructure, a stable error-response contract that leaks no stack
+  traces or existence, typed exception handling without swallowing,
+  language-native resource finalization, and bounded retry with circuit
+  breakers.

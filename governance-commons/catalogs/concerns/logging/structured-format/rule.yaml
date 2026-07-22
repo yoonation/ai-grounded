@@ -1,0 +1,50 @@
+id: logging.structured-format
+name: Application log output uses a structured format (JSON or key-value) rather than
+  free-form prose
+layer: mechanical
+characteristic: maintainability
+severity: high
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-20'
+  entered_stable: '2026-05-22'
+  authored_by: Myoung Hong
+sources:
+- title: OWASP ASVS v5.0.0 V11 Logging and Error Handling (structured logging requirement)
+  url: https://github.com/OWASP/ASVS/blob/v5.0.0/5.0/en/0x20-V11-BusLogic.md
+- title: OWASP Top 10 2021 A09 Security Logging and Monitoring Failures (insufficient
+    logging context)
+  url: https://owasp.org/Top10/A09_2021-Security_Logging_and_Monitoring_Failures/
+- title: OWASP Logging Cheat Sheet (event log format guidance)
+  url: https://cheatsheetseries.owasp.org/cheatsheets/Logging_Cheat_Sheet.html
+- title: NIST SP 800-92 Guide to Computer Security Log Management (log format and consistency)
+  url: https://csrc.nist.gov/publications/detail/sp/800-92/final
+- title: CWE-778 Insufficient Logging
+  url: https://cwe.mitre.org/data/definitions/778.html
+cwe:
+- CWE-778
+applies_to:
+  language: any
+  framework: any
+  environment: any-production
+references: []
+statement: Every log statement emitted from production code uses a structured logger whose
+  output is machine-parseable without bespoke regex. The substrate-recommended output
+  format is JSON; key-value (logfmt) is substrate-acceptable when the consumer's downstream
+  pipeline requires it. Free-form prose log output (Python's print, JavaScript's console.log,
+  Go's fmt.Println, Ruby's puts, Java System.out.println, or any logger configured to
+  emit prose-only output without a structured layout) is prohibited in code paths that
+  reach production.
+rationale: 'Structured logs are the substrate''s load-bearing assumption for every subsequent
+  logging rule. Retention policies (logging.retention-policy) require records have a stable identity
+  for retention-band classification. Integrity attestation (logging.integrity) requires per-record
+  serialization that downstream tooling can hash. Redaction (logging.redaction) requires field-level
+  access to the record''s content. Aggregation readiness (LOG-L2- 004) requires the indexer
+  treat each log as a typed document. None of these are achievable on free-form prose
+  without authoring per-application parsers that themselves become maintenance burden
+  and produce ambiguity at parse failure. The substrate-recommended structured logger
+  families are: structlog and the stdlib logging module with a JSON formatter (Python);
+  pino, winston, or bunyan (Node.js); zap or zerolog (Go); slf4j with logstash encoder
+  (Java/JVM); semantic_logger or lograge (Ruby); serilog (.NET). The substrate does not
+  mandate a specific library; it mandates the output property.'

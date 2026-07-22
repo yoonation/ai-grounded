@@ -1,0 +1,40 @@
+id: monitoring-alerting.on-call-rotation-coverage
+name: A documented on-call rotation covers every hour with a defined handoff, so every
+  paging alert reaches a responsible human at any time
+layer: semantic
+characteristic: reliability
+severity: medium
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-06-03'
+  entered_stable: '2026-06-04'
+  authored_by: Myoung Hong
+sources:
+- title: Google SRE Book Chapter 11 Being On-Call (the on-call rotation, coverage, and
+    handoff, referenced as a concept)
+  url: https://sre.google/sre-book/being-on-call/
+- title: Google SRE Book Chapter 6 Practical Alerting (a page must reach a responder who
+    can act, referenced as a concept)
+  url: https://sre.google/sre-book/practical-alerting/
+applies_to:
+  language: any
+  framework: any
+  environment: any
+references: []
+statement: 'A documented on-call rotation covers every hour of the period the service
+  is operated, defines a handoff between outgoing and incoming responders, and aligns
+  with the escalation targets monitoring-alerting.routing-and-escalation routes pages to, so a page fired at any time
+  reaches a responsible human. The rule is review-only: it confirms the human coverage
+  the routing and escalation mechanics depend on. A rotation with an uncovered window,
+  an undefined handoff, or escalation targets that do not match the rotation is the finding.'
+rationale: 'The most carefully built routing and escalation chain still terminates at
+  a human, and if no human is on the other end the chain is decorative. Coverage gaps
+  are the quiet failure: the rotation looks complete until a holiday or a departed engineer
+  leaves a window nobody owns, and the gap is discovered only when a page falls into it.
+  The handoff is the second failure: an outgoing responder who stops watching before the
+  incoming one is ready leaves a seam where pages are missed. The substrate makes this
+  a review-only rule, with no test template, because a rotation is an organizational artifact
+  that no application-source test can settle, the same honesty applied to the contractual
+  privacy.processor-and-transfer-safeguards and agentic-systems.instruction-data-separation rules. It cross-references the routing and escalation it
+  underwrites (monitoring-alerting.routing-and-escalation) and the strategy that records the model (monitoring-alerting.alerting-strategy).'

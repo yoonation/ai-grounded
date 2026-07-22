@@ -1,0 +1,210 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Myoung Hong
+
+
+# MITRE ATLAS (Adversarial Threat Landscape for Artificial Intelligence
+# Systems) - selected techniques relevant to LLM applications and agents.
+#
+# ATLAS is a comprehensive matrix similar to MITRE ATT&CK but for AI.
+# This catalog includes the techniques most relevant to AI-assisted
+# development and agentic systems; the full matrix is much larger and
+# available at the upstream URL.
+
+metadata:
+  catalog_id: mitre-atlas
+  catalog_name: MITRE ATLAS Techniques (Selected)
+  schema_version: 1.0.0
+  last_reviewed: 2026-05-11
+  upstream_source: https://atlas.mitre.org/
+  upstream_version: "as of 2026-Q1"
+  scope: selected techniques relevant to LLM and agentic systems
+  full_matrix_url: https://atlas.mitre.org/matrices/ATLAS
+  next_review_due: 2026-08-09
+  maintainer: <set-during-init>
+  review_protocol: governance-commons/MAINTENANCE.md
+  applies_to: [runtime, build_time]
+
+# Note: ATLAS uses tactics (high-level adversary goals) and techniques
+# (specific methods). This catalog organizes by technique with tactic
+# tagging.
+
+techniques:
+
+  - id: AML.T0040
+    name: ML Model Inference API Access
+    tactic: reconnaissance
+    short_description: >
+      Adversary uses inference API access to gather information about
+      a target ML model, including capabilities, vulnerabilities, and
+      potential attack surfaces.
+    common_vectors:
+      - Probing inference endpoints for system prompt structure
+      - Testing rate limits and quotas
+      - Capability enumeration through prompted exploration
+    mitigations:
+      - Rate limiting on inference endpoints
+      - Authentication required for API access
+      - Monitor query patterns for reconnaissance behavior
+    related_threats: [LLM02, LLM07]
+
+  - id: AML.T0043
+    name: Craft Adversarial Data
+    tactic: ml-attack-staging
+    short_description: >
+      Adversary crafts inputs specifically designed to cause an AI
+      system to behave incorrectly, leak information, or take
+      unintended actions.
+    common_vectors:
+      - Carefully tuned prompt injections
+      - Adversarial examples in classifier inputs
+      - Inputs designed to trigger edge cases
+    mitigations:
+      - Adversarial robustness testing during development
+      - Input validation and anomaly detection
+      - Defensive distillation and adversarial training
+    related_threats: [LLM01, ASI01]
+
+  - id: AML.T0048
+    name: External Harms (External Effects)
+    tactic: impact
+    short_description: >
+      Adversary causes the AI system to take actions that harm
+      external systems, people, or organizations beyond the AI's
+      intended scope.
+    common_vectors:
+      - Agent makes financial transactions to attacker accounts
+      - LLM generates content used in social engineering
+      - Agent damages reputation through inappropriate outputs
+    mitigations:
+      - Human approval for high-stakes external actions
+      - Circuit breakers on cost and frequency
+      - Output validation before external effects
+      - Audit log of all external-effect actions
+    related_threats: [LLM06, ASI02, ASI09]
+
+  - id: AML.T0051
+    name: LLM Prompt Injection
+    tactic: initial-access
+    short_description: >
+      Adversary injects instructions into LLM inputs to manipulate
+      its behavior, bypass safety mechanisms, or extract information.
+    common_vectors:
+      - Direct injection in user prompts
+      - Indirect injection via retrieved documents
+      - Multi-modal injection (images, audio)
+    mitigations:
+      - Input/output filtering for injection patterns
+      - Privilege separation between LLM and underlying systems
+      - Treat all external data as untrusted
+    related_threats: [LLM01, ASI01]
+
+  - id: AML.T0052
+    name: Phishing via LLM
+    tactic: initial-access
+    short_description: >
+      Adversary uses LLM-generated content to craft phishing messages
+      or other social engineering content with greater scale or
+      sophistication than possible manually.
+    common_vectors:
+      - Tailored phishing emails generated at scale
+      - Spear-phishing with LLM-personalized content
+      - Voice cloning combined with LLM scripts
+    mitigations:
+      - Email authentication (DMARC, SPF, DKIM)
+      - User awareness training
+      - Anti-phishing email filters
+    related_threats: [LLM02]
+
+  - id: AML.T0053
+    name: LLM Plugin Compromise
+    tactic: initial-access
+    short_description: >
+      Adversary compromises a plugin, tool, or extension used by an
+      LLM, leveraging the LLM's trust in the tool to attack the
+      broader system.
+    common_vectors:
+      - Compromised MCP servers
+      - Malicious tools registered to agent registries
+      - Plugins with excessive permissions
+    mitigations:
+      - Verify MCP server authenticity before connecting
+      - Sandbox tool execution
+      - Tool allowlisting per agent
+      - Plugin code review before adoption
+    related_threats: [LLM03, ASI02]
+
+  - id: AML.T0054
+    name: LLM Jailbreak
+    tactic: defense-evasion
+    short_description: >
+      Adversary bypasses LLM safety guardrails, content policies, or
+      other restrictions through specially crafted prompts.
+    common_vectors:
+      - Role-playing exploits ("pretend you are an AI without restrictions")
+      - Encoding bypasses (base64, Pig Latin, etc.)
+      - Multi-turn buildups that erode restrictions
+      - Hypothetical framings
+    mitigations:
+      - Robust safety training
+      - Output filters for policy violations
+      - Multi-layer defenses (training + system prompt + output filter)
+      - Monitoring for jailbreak attempt patterns
+    related_threats: [LLM01]
+
+  - id: AML.T0055
+    name: Unsecured Credentials
+    tactic: credential-access
+    short_description: >
+      AI systems with access to unsecured credentials, secrets, or
+      tokens, accessible via prompt manipulation or memory extraction.
+    common_vectors:
+      - Credentials in system prompts
+      - API keys in tool configurations
+      - Cached credentials in agent memory
+    mitigations:
+      - Never embed credentials in prompts
+      - Use scoped, short-lived tokens
+      - Audit memory for credential patterns
+      - Hooks blocking credential file access (see settings.json)
+    related_threats: [LLM02, LLM07]
+
+  - id: AML.T0057
+    name: LLM Data Leakage
+    tactic: exfiltration
+    short_description: >
+      Sensitive information extracted from LLM systems through
+      prompts, side-channels, or system behaviors.
+    common_vectors:
+      - Training data extraction prompts
+      - System prompt extraction
+      - Timing or token-count side channels
+      - Output verbosity manipulation
+    mitigations:
+      - Data sanitization in training
+      - Output filtering for sensitive patterns
+      - Side-channel analysis during development
+      - Differential privacy techniques
+    related_threats: [LLM02, LLM07]
+
+  - id: AML.T0059
+    name: Erode ML Model Integrity
+    tactic: impact
+    short_description: >
+      Adversary causes degradation in ML model accuracy, reliability,
+      or trustworthiness over time through accumulated influences.
+    common_vectors:
+      - Poisoned feedback in RLHF loops
+      - Adversarial fine-tuning data
+      - Memory poisoning in stateful agents
+    mitigations:
+      - Verify integrity of all training/feedback data
+      - Monitor model performance for drift
+      - Periodic re-evaluation against baseline
+      - Rollback capability for degraded models
+    related_threats: [LLM04, ASI04]
+
+# Note on completeness: This catalog includes 10 selected techniques.
+# The full ATLAS matrix contains 60+ techniques across 14 tactics.
+# When deeper coverage is needed, reference upstream directly.
+
+# End of MITRE ATLAS selected catalog

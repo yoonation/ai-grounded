@@ -1,0 +1,50 @@
+id: authentication.mfa-factor-selection
+name: MFA factor selection is explicitly decided and documented via the substrate's MADR
+  framework
+layer: judgmental
+characteristic: security
+severity: high
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-19'
+  entered_stable: '2026-05-19'
+  authored_by: Myoung Hong
+sources:
+- title: OWASP ASVS v5.0.0 V6 MFA authenticator requirements
+  url: https://github.com/OWASP/ASVS/blob/v5.0.0/5.0/en/0x15-V6-Authentication.md
+- title: NIST SP 800-63B-4 authenticator types and authenticator assurance levels (AAL1,
+    AAL2, AAL3)
+  url: https://pages.nist.gov/800-63-4/sp800-63b.html
+applies_to:
+  language: any
+  framework: any
+  environment: any-with-mfa
+references: []
+statement: 'Applications subject to this rule have an explicitly documented decision on
+  their MFA factor selection. The decision is recorded in a MADR document following the
+  substrate''s decision-framework template at decision-frameworks/mfa-factor-selection.madr.md.
+  The MADR is stored in the application''s decision-record location (substrate-recommended:
+  /docs/decisions/ADR-XXX-mfa-factor-selection.md) and is referenced from the application''s
+  architectural documentation. The MADR addresses every section the substrate''s template
+  requires; deviations from substrate-recommended choices are explicitly justified. The
+  rule applies conditionally: only when the authentication.authentication-strategy strategy decision results in a
+  strategy that requires the application to select an MFA factor independently of the
+  primary authentication method (e.g., passwords-plus-MFA, federated-with-step-up). When
+  authentication.authentication-strategy chose passkeys as primary, this rule does not apply (passkeys are the factor;
+  no separate selection is needed).'
+rationale: MFA factor selection determines the authenticator assurance level achievable
+  by the authenticated session. Different factor types provide different phishing resistance,
+  different recovery flow complexity, and different regulatory acceptability. The most
+  common substrate failure mode is defaulting to SMS-based codes because they are familiar
+  and easy to implement. SMS suffers from SIM-swap attacks, telco SS7 vulnerabilities,
+  and carrier-dependency. NIST SP 800-63B-4 explicitly does NOT permit SMS as an OOB authenticator
+  at AAL2 or higher as of the 2024 revision. Defaulting to SMS without analyzing whether
+  it meets the application's assurance level requirements is the failure mode this rule
+  prevents. Making this choice without explicit analysis forces the team into the SMS-default
+  pattern. An explicit documented decision forces them to consider their threat model
+  (is phishing in scope? is SIM-swap in scope?), their regulatory context (which AAL is
+  required?), and their user population (can users use modern authenticators?). This rule
+  is judgmental because the right answer depends on context. The substrate provides analysis
+  of each factor option but does not prescribe a single choice. The substrate does require
+  that the choice be deliberate and that substrate-discouraged choices be justified.

@@ -1,0 +1,10 @@
+id: code-organization
+name: Code Organization
+characteristic: maintainability
+status: stable
+summary: >
+  How source is structured for maintainability: module boundaries and
+  cohesion, dependency direction and absence of import cycles,
+  public-interface minimalism, function length and cyclomatic-complexity
+  bounds, duplication and abstraction judgment, data-model single source
+  of truth, and a documented organization strategy.

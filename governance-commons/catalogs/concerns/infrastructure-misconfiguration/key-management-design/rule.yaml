@@ -1,0 +1,42 @@
+id: infrastructure-misconfiguration.key-management-design
+name: 'Encryption-key management is deliberate: customer-managed vs provider-managed key
+  choice is intentional, rotation is enabled, key policies are scoped'
+layer: semantic
+characteristic: security
+severity: medium
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-31'
+  entered_stable: '2026-06-01'
+  authored_by: Myoung Hong
+sources:
+- title: NIST SP 800-53 Rev. 5 SC-12 Cryptographic Key Establishment and Management, SC-13
+    Cryptographic Protection
+  url: https://csrc.nist.gov/projects/cprt/catalog#/cprt/framework/version/SP_800_53_5_1_1/home
+- title: NIST SP 800-57 Part 1 Rev. 5 Recommendation for Key Management
+  url: https://csrc.nist.gov/pubs/sp/800/57/pt-1/r5/final
+cwe:
+- CWE-321
+- CWE-320
+applies_to:
+  language: any-iac
+  framework: terraform-cloudformation-pulumi-arm-bicep
+  environment: any-cloud-encryption-key-construct
+references: []
+statement: IaC declarations of encryption-key constructs (AWS KMS keys and aliases, Azure
+  Key Vault keys, GCP Cloud KMS keys) reflect a deliberate choice between customer-managed
+  and provider-managed keys per the profile's tilt; customer-managed keys carry key policies
+  scoped to the principals that legitimately use the key; key rotation is enabled at the
+  substrate's recommended cadence (annual for provider-managed, annual or shorter for
+  customer-managed per profile); keys are not shared across trust boundaries (a workload's
+  encryption key is not also used by an unrelated workload). Where a shared key is intentional
+  (multi-tenant SaaS with tenant-keyed cryptography), the design is reviewed at architecture-review
+  with a documented justification that the infrastructure-misconfiguration.infrastructure-security-baseline MADR governs.
+rationale: 'The key-management design determines the meaning of encryption-at-rest. With
+  a shared provider-managed key, encryption protects against media theft and snapshot
+  misdirection but not against account-level compromise of the cloud-control-plane. With
+  a customer-managed key whose key policy denies broad principal access, the same encryption
+  additionally protects against the cloud-control-plane compromise scenario. The substrate
+  treats this as L2 review because the choice is contextual: a small consumer''s regulatory
+  baseline may not require the CMK isolation; a regulated consumer''s baseline does.'

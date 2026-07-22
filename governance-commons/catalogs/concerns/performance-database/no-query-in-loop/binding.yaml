@@ -1,0 +1,3 @@
+binding_status: capability-bound
+rule: performance-database.no-query-in-loop
+gate: sast

@@ -1,0 +1,69 @@
+#!/usr/bin/env bash
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Myoung Hong
+#
+# Pre-commit gate dispatcher.
+#
+# core.hooksPath=.githooks makes THIS file the single active pre-commit
+# hook. Anything under .git/hooks/ is inert while core.hooksPath is set,
+# so additional gates must NOT be placed there. To run more than one gate
+# from the single core.hooksPath slot, this dispatcher runs:
+#
+#   1. the framework's loop-closure gate (.claude/hooks/verify-loop-closure.sh)
+#   2. every executable in .githooks/pre-commit.d/ (sorted), where consumers
+#      drop extra gates: secret scan (gitleaks), lint, SAST, etc.
+#
+# A consumer adds a gate by making it executable and dropping it into
+# .githooks/pre-commit.d/. Never chain a gate through .git/hooks/.
+#
+# Every gate runs even if an earlier one fails, so a single commit attempt
+# reports all blockers. Exit code is 0 only if every gate passed.
+#
+# bash 3.2 compatible (macOS system bash): no associative arrays, no
+# mapfile, no process substitution.
+set -u
+
+REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+HOOK_DIR="$(cd "$(dirname "$0")" && pwd)"
+cd "$REPO_ROOT" || exit 1
+
+OVERALL=0
+
+run_gate() {
+  gate_label="$1"
+  shift
+  if "$@"; then
+    :
+  else
+    echo "pre-commit: gate FAILED: ${gate_label}" >&2
+    OVERALL=1
+  fi
+}
+
+LOOP_GATE="${REPO_ROOT}/.claude/hooks/verify-loop-closure.sh"
+if [ -f "$LOOP_GATE" ]; then
+  run_gate "loop-closure" bash "$LOOP_GATE"
+else
+  echo "pre-commit: loop-closure gate missing at ${LOOP_GATE}; run scripts/bootstrap.sh" >&2
+  OVERALL=1
+fi
+
+GATES_DIR="${HOOK_DIR}/pre-commit.d"
+if [ -d "$GATES_DIR" ]; then
+  for gate in "$GATES_DIR"/*; do
+    [ -e "$gate" ] || continue
+    case "$gate" in
+      *.sample) continue ;;
+      */README.md) continue ;;
+    esac
+    if [ -x "$gate" ]; then
+      run_gate "$(basename "$gate")" "$gate"
+    fi
+  done
+fi
+
+if [ "$OVERALL" -ne 0 ]; then
+  echo "pre-commit: one or more gates failed; commit blocked." >&2
+  echo "pre-commit: (loop-closure honors SKIP_LOOP_VERIFY=1 plus SKIP_LOOP_VERIFY_REASON=\"<why>\" for documented emergencies)" >&2
+fi
+exit "$OVERALL"

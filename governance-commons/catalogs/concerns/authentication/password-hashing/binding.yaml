@@ -1,0 +1,3 @@
+binding_status: capability-bound
+rule: authentication.password-hashing
+gate: sast

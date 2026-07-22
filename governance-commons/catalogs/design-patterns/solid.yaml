@@ -1,0 +1,116 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Myoung Hong
+
+
+# SOLID design principles
+# Five object-oriented design principles popularized by Robert C. Martin.
+# They are principles, not recipes: each names a property of a design that
+# tends to keep change cheap and coupling low. Descriptions here are
+# substrate-original paraphrase of public concepts; no source text is
+# reproduced. Consult while designing class and module boundaries.
+
+metadata:
+  catalog_id: solid
+  catalog_name: SOLID Design Principles
+  schema_version: 1.0.0
+  category_system: principle
+  upstream_source: https://en.wikipedia.org/wiki/SOLID
+  last_reviewed: 2026-06-14
+  next_review_due: 2027-06-14
+  maintainer: <set-during-init>
+  review_protocol: governance-commons/MAINTENANCE.md
+
+patterns:
+
+  - id: SOLID-SRP
+    name: Single Responsibility Principle
+    category: principle
+    intent: >
+      A module should have one reason to change, meaning it should answer to
+      a single actor or concern rather than serving several at once.
+    when_to_use: >
+      When a class accumulates unrelated responsibilities (persistence plus
+      formatting plus business rules), splitting along the axes of change
+      isolates edits and reduces the blast radius of any one change.
+    consequences: >
+      Smaller, more cohesive units that are easier to test and reuse; the
+      cost is more units to navigate and the risk of fragmenting code that
+      genuinely changes together.
+    avoid_when: >
+      Splitting on imagined future change rather than observed change axes,
+      which produces anemic classes and ceremony without benefit.
+
+  - id: SOLID-OCP
+    name: Open/Closed Principle
+    category: principle
+    intent: >
+      Software entities should be open for extension but closed for
+      modification: add behavior by adding code, not by editing code that
+      already works.
+    when_to_use: >
+      When a stable abstraction has variation points that grow over time
+      (new payment methods, new report formats), express the variation
+      through polymorphism or composition so new cases do not reopen tested
+      code.
+    consequences: >
+      New variants land without touching proven paths, lowering regression
+      risk; the cost is an abstraction layer that adds indirection and is
+      only worthwhile where variation is real.
+    avoid_when: >
+      Speculative abstraction ahead of a second concrete case; one
+      implementation does not justify a plug-in seam.
+
+  - id: SOLID-LSP
+    name: Liskov Substitution Principle
+    category: principle
+    intent: >
+      A subtype must be usable anywhere its base type is expected without
+      changing the correctness of the program.
+    when_to_use: >
+      When designing inheritance hierarchies, ensure subtypes honor the
+      base's contract: no strengthened preconditions, no weakened
+      postconditions, no surprising exceptions or no-ops.
+    consequences: >
+      Callers can rely on the base contract and treat subtypes uniformly;
+      violations surface as type checks and special-casing at call sites.
+    avoid_when: >
+      Reaching for inheritance to reuse code when the subtype cannot honor
+      the contract; prefer composition (the classic square-is-not-a-mutable-
+      rectangle problem).
+
+  - id: SOLID-ISP
+    name: Interface Segregation Principle
+    category: principle
+    intent: >
+      Clients should not be forced to depend on methods they do not use;
+      prefer several focused interfaces over one general-purpose interface.
+    when_to_use: >
+      When a fat interface forces implementers to stub methods they cannot
+      meaningfully support, split it into role-specific interfaces each
+      client actually needs.
+    consequences: >
+      Implementers carry only relevant obligations and changes to one role
+      do not ripple to unrelated clients; the cost is more interface types
+      to name and track.
+    avoid_when: >
+      Over-segmenting into single-method interfaces everywhere, which scatters
+      a cohesive contract and obscures intent.
+
+  - id: SOLID-DIP
+    name: Dependency Inversion Principle
+    category: principle
+    intent: >
+      High-level policy should not depend on low-level detail; both should
+      depend on abstractions, and abstractions should not depend on details.
+    when_to_use: >
+      When business logic is wired directly to a database driver, HTTP
+      client, or framework, introduce an abstraction the policy owns and
+      inject the concrete implementation at the edge.
+    consequences: >
+      Policy becomes testable in isolation and infrastructure becomes
+      swappable; this is the backbone of hexagonal and clean architecture.
+      The cost is indirection and the discipline of defining ownership of
+      the abstraction.
+    avoid_when: >
+      Wrapping every concrete dependency in an interface reflexively; invert
+      the dependencies that cross a meaningful boundary, not all of them.

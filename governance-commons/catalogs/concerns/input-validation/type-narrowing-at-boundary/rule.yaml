@@ -1,0 +1,37 @@
+id: input-validation.type-narrowing-at-boundary
+name: Domain values crossing the input boundary are parsed into domain types rather than
+  carried as primitive strings through the application
+layer: semantic
+characteristic: security
+severity: high
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-23'
+  entered_stable: '2026-05-26'
+  authored_by: Myoung Hong
+sources:
+- title: OWASP ASVS v5.0.0 V5.1.5 (Input is parsed to strong types where the type encodes
+    domain constraints)
+  url: https://github.com/OWASP/ASVS/blob/v5.0.0/5.0/en/0x13-V5-Validation-Sanitization-Encoding.md
+- title: CWE-704 Incorrect Type Conversion or Cast
+  url: https://cwe.mitre.org/data/definitions/704.html
+cwe:
+- CWE-704
+applies_to:
+  environment: any-with-typed-language
+references: []
+statement: Domain values that have structural constraints (UUID, email address, URL, monetary
+  amount, date, phone number, country code) are parsed into a domain type at the input
+  boundary. Handlers and downstream code receive the domain type, not a primitive string.
+  The parse step rejects malformed values; downstream code can assume the value conforms
+  to the type's invariants without re-checking.
+rationale: 'Stringly-typed code accumulates defensive checks across every use site. A
+  UUID parameter carried as a string requires every consumer to re-validate or accept
+  malformed values; a UUID parameter carried as the language''s UUID type requires no
+  downstream check because the type''s existence is the guarantee. The same pattern applies
+  to email addresses (carrying an EmailAddress type rather than a str), to monetary amounts
+  (Money rather than float or Decimal without precision policy), and to URLs (URL with
+  scheme/host validation rather than str). The "parse, don''t validate" framing extends
+  input-validation.schema-validation-at-boundary into the type system: the schema''s output is a strongly-typed object rather
+  than a validated dict.'

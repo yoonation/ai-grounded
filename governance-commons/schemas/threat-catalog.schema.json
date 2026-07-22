@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://governance-commons/schemas/threat-catalog.schema.json",
+  "title": "Threat Catalog Schema",
+  "description": "Validates substrate-authored threat catalogs under governance-commons/catalogs/threats/. Threat catalogs are review-cadence reference catalogs (not on the draft/stable lifecycle); they enumerate an external threat taxonomy as substrate-original paraphrase, keyed by the upstream item identifier. The five catalogs use three top-level collection shapes (categories for STRIDE, threats for the OWASP taxonomies, techniques for MITRE ATLAS); this schema validates the shared structure (a metadata block plus at least one collection of identified items) without constraining the per-taxonomy item fields. Schema is at draft lifecycle status; it rides to stable with its threat-catalog consumers on a future cooling-off per the schema-rides-content precedent.",
+  "x-governance-commons": {
+    "schema-kind": "threat-catalog",
+    "lifecycle-status": "draft",
+    "commons-version": "1.0.1",
+    "schema-version": "0.1.0",
+    "authored": "2026-06-05",
+    "author": "myoung",
+    "ai-assistance": "AI drafted to close the threat-catalog validation gap that validate-catalogs.sh explicitly defers. The schema was derived from the five existing threat catalogs (stride, owasp-llm-top10, owasp-agentic-asi-2026, owasp-agentic-skills-top10, mitre-atlas) after the stride and asi catalogs were repaired from malformed to valid YAML in the same 1.0.1 corrections release. The schema validates shared structure only; it does not manufacture per-taxonomy item constraints the catalogs do not already share.",
+    "validation-notes": "Validated against all five threat catalogs in catalogs/threats/ at authoring (2026-06-05). The schema requires a metadata block with catalog_id, catalog_name, and schema_version, and at least one item collection (categories, threats, or techniques) whose items each carry id and name. Top-level and metadata additionalProperties are open to tolerate per-catalog fields (usage_note, upstream_taxonomy_alias, full_matrix_url, applies_to, and similar). Promotion to stable follows the schema-rides-content Path A precedent (decisions 14, 17, 22): the schema flips draft to stable alongside a future threat-catalog content event after the Charter cooling-off, with no schema content change expected."
+  },
+  "type": "object",
+  "required": ["metadata"],
+  "additionalProperties": true,
+  "properties": {
+    "metadata": {
+      "type": "object",
+      "required": ["catalog_id", "catalog_name", "schema_version"],
+      "additionalProperties": true,
+      "properties": {
+        "catalog_id": { "type": "string", "minLength": 1 },
+        "catalog_name": { "type": "string", "minLength": 1 },
+        "schema_version": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$" },
+        "upstream_source": { "type": "string" },
+        "last_reviewed": { "type": "string" },
+        "next_review_due": { "type": "string" },
+        "review_protocol": { "type": "string" },
+        "maintainer": { "type": "string" }
+      }
+    },
+    "categories": { "$ref": "#/$defs/itemCollection" },
+    "threats": { "$ref": "#/$defs/itemCollection" },
+    "techniques": { "$ref": "#/$defs/itemCollection" }
+  },
+  "anyOf": [
+    { "required": ["categories"] },
+    { "required": ["threats"] },
+    { "required": ["techniques"] }
+  ],
+  "$defs": {
+    "itemCollection": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "name"],
+        "additionalProperties": true,
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "name": { "type": "string", "minLength": 1 }
+        }
+      }
+    }
+  }
+}

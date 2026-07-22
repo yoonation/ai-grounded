@@ -1,0 +1,37 @@
+id: backup-recovery.coverage-and-objectives
+name: Backup coverage matches the protection inventory and recovery objectives are defined
+  and met
+layer: semantic
+characteristic: reliability
+severity: high
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-06-05'
+  entered_stable: '2026-06-06'
+  authored_by: Myoung Hong
+sources:
+- title: NIST SP 800-34 Rev. 1, on recovery point and recovery time objectives and matching
+    backup strategy to recovery priorities.
+  url: https://csrc.nist.gov/pubs/sp/800/34/r1/upd1/final
+- title: NIST SP 800-53 Rev. 5, contingency-planning control family, on backing up the
+    information the system requires to recover.
+  url: https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final
+applies_to:
+  language: any
+  framework: any
+  environment: any
+references: []
+statement: 'The set of backed-up data stores MUST reconcile against the protection inventory
+  that data-classification defines: every store classified as requiring protection MUST
+  have a backup. Each protected tier MUST have a defined recovery point objective and
+  recovery time objective, the backup frequency MUST satisfy the recovery point objective,
+  and the verified restore time (backup-recovery.restore-verification) MUST satisfy the recovery time objective.'
+rationale: Coverage and objectives are where backup strategy meets reality. The protection
+  inventory says what matters; the backup set must match it, or there is a gap nobody
+  chose. The recovery point objective says how much data the business can afford to lose;
+  the backup frequency must be at least that often, or a recovery loses more than is tolerable.
+  The recovery time objective says how long recovery may take; the measured restore time
+  must fit, or recovery arrives too late. Defining the objectives per tier and reconciling
+  the coverage and timings against them turns recovery from an assumption into a measured
+  property.

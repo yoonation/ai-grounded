@@ -1,0 +1,41 @@
+id: responsible-ai.model-documentation-artifact
+name: Every deployed model or AI system carries a machine-checkable documentation artifact
+  recording its intended use, limitations, evaluation summary, owner, and version
+layer: semantic
+characteristic: safety
+severity: medium
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-06-02'
+  entered_stable: '2026-06-04'
+  authored_by: Myoung Hong
+sources:
+- title: NIST AI Risk Management Framework (the MAP and MEASURE functions, documenting
+    a system's context, intended use, and evaluation, referenced as a concept)
+  url: https://www.nist.gov/itl/ai-risk-management-framework
+- title: EU AI Act Regulation 2024/1689 (Article 11 technical documentation and Article
+    13 transparency, referenced as a concept)
+  url: https://eur-lex.europa.eu/eli/reg/2024/1689/oj
+applies_to:
+  language: any
+  framework: any
+  environment: any
+references: []
+statement: Every deployed model or AI system carries a machine-checkable documentation
+  artifact (a model card or system card, or a structured metadata record) recording its
+  intended use, its known limitations, an evaluation summary, an owner, and a model version.
+  The rule applies to models and systems that are deployed or served; it does not apply
+  to scratch or experiment models marked as non-deployed, which are exempted by marker
+  or directory. The presence of the artifact and its required fields is the finding; whether
+  the documented content is adequate and honest is assessed in review (responsible-ai.fitness-evaluation).
+rationale: 'The conformance rules of responsible AI (evaluate for fitness, measure fairness,
+  provide oversight) are all functions of a stated intended use and a known set of limitations,
+  so an undocumented model is a model those rules cannot be applied to. The dominant first
+  failure is not a wrong claim in a model card but a missing card: a model that accreted
+  into production without anyone recording what it is for, where it should not be used,
+  and how it was evaluated. The substrate makes the presence of a documentation artifact
+  a mechanical floor because the absence is statically visible and almost always an oversight,
+  while the adequacy of the content is a judgment. The rule is deliberately modest about
+  what it proves (documentation exists, not that it is honest) and explicit that the deployed-versus-experiment
+  distinction makes it heuristic.'

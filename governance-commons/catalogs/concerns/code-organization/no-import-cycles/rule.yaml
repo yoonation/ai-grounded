@@ -1,0 +1,49 @@
+id: code-organization.no-import-cycles
+name: First-party modules do not form circular import or dependency relationships
+layer: mechanical
+characteristic: maintainability
+severity: high
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-31'
+  entered_stable: '2026-06-01'
+  authored_by: Myoung Hong
+sources:
+- title: The Acyclic Dependencies Principle (component dependency graph must be a directed
+    acyclic graph; concept referenced, originated by Robert C. Martin)
+  url: https://en.wikipedia.org/wiki/Acyclic_dependencies_principle
+- title: 'import-linter contract types (Python: forbidden, independence, and layers contracts
+    that detect and prevent first-party cycles)'
+  url: https://import-linter.readthedocs.io/en/stable/contract_types.html
+- title: eslint-plugin-import no-cycle rule (JavaScript and TypeScript first-party import-cycle
+    detection)
+  url: https://github.com/import-js/eslint-plugin-import/blob/main/docs/rules/no-cycle.md
+- title: 'ArchUnit cycle checks (Java and JVM: slices().should() .beFreeOfCycles() architecture
+    test)'
+  url: https://www.archunit.org/userguide/html/000_Index.html#_cycle_checks
+applies_to:
+  language: any
+  framework: any
+  environment: any
+references: []
+statement: 'The dependency graph of first-party modules contains no cycles. Built by static
+  import or dependency analysis at the consumer-selected granularity (module, package,
+  or architectural layer), the graph has no strongly connected component of size greater
+  than one. The rule covers first-party source only: a cycle through a third-party library
+  is not in scope (and is generally impossible to introduce), and the rule never asserts
+  anything about the external dependency graph, which is the dependency-management concern.
+  Where the language compiler already forbids cycles at the chosen granularity (Go package
+  imports), the rule is satisfied by the build, and the substrate-recommended detection
+  target shifts to finer-grained or layer-level cycles the compiler does not catch.'
+rationale: 'A cycle is the one structural property that is both unambiguous and almost
+  always wrong, which makes it ideal for mechanical enforcement. Unlike length or complexity,
+  where the threshold is a heuristic, cycle-freedom is a crisp graph property with a clear
+  remediation vocabulary. Cycles are corrosive because they erase modularity at the exact
+  granularity the consumer chose to reason in: two modules in a cycle are effectively
+  one module that has been split for filing convenience, with all the coupling and none
+  of the independence. Enforcing acyclicity early and continuously keeps the cost of each
+  break small (one edge to invert or extract) rather than letting cycles accrete into
+  a tangle that resists any decomposition. The rule is the mechanical foundation on which
+  code-organization.dependency-direction-layering builds: you cannot meaningfully ask which way the arrows should point
+  until you have established that the arrows form a directed acyclic graph at all.'

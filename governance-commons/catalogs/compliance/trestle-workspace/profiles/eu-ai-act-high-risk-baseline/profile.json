@@ -1,0 +1,65 @@
+{
+  "profile": {
+    "uuid": "9af978c6-e057-415f-bae2-f0c772034f28",
+    "metadata": {
+      "title": "EU AI Act High-Risk Baseline (Title III)",
+      "last-modified": "2026-06-28T00:00:00Z",
+      "version": "0.1.0",
+      "oscal-version": "1.2.1",
+      "remarks": "The complete Title III obligation set for high-risk AI systems under Regulation (EU) 2024/1689, resolved as a baseline. It imports every control in the hand-authored eu-ai-act catalog: classification (Articles 6 to 7), the Chapter 2 requirements for high-risk systems (Articles 8 to 15), and provider and deployer obligations (Articles 16 to 27, as present in the catalog). A project whose AI system is high-risk adopts this profile as its baseline; security review verifies the code-relevant requirements (notably Articles 9 to 15, 12, and 19) against it. Honest framing: this is a learning and practice representation authored from the EUR-Lex text, not a conformity assessment under the Regulation.",
+      "parties": [
+        {
+          "uuid": "ce79096c-deb3-45df-a750-db2e612efecd",
+          "type": "person",
+          "name": "Profile Maintainer",
+          "remarks": "Set to actual maintainer name during project init."
+        }
+      ]
+    },
+    "imports": [
+      {
+        "href": "trestle://catalogs/eu-ai-act/catalog.json",
+        "include-controls": [
+          {
+            "with-ids": [
+              "art-6",
+              "art-7",
+              "art-8",
+              "art-9",
+              "art-10",
+              "art-11",
+              "art-12",
+              "art-13",
+              "art-14",
+              "art-15",
+              "art-16",
+              "art-17",
+              "art-18",
+              "art-19",
+              "art-20",
+              "art-25",
+              "art-26",
+              "art-27"
+            ]
+          }
+        ]
+      }
+    ],
+    "merge": {
+      "as-is": true
+    },
+    "modify": {
+      "alters": [],
+      "set-parameters": []
+    },
+    "back-matter": {
+      "resources": [
+        {
+          "uuid": "fce8c5b3-1d6a-4f3b-8d85-a2c247396583",
+          "title": "Selection rationale",
+          "description": "Title III of the EU AI Act is already scoped to high-risk AI systems, so the high-risk baseline is the whole of it rather than a subset. All 18 controls present in the catalog are included: Articles 6 and 7 (classification), Articles 8 through 15 (the requirements for high-risk systems: compliance, risk management, data governance, technical documentation, record-keeping, transparency, human oversight, and accuracy with robustness and cybersecurity), and Articles 16 through 27 (provider and deployer obligations, quality management, documentation, automatically generated logs, corrective actions, value-chain responsibilities, and the fundamental-rights impact assessment). Articles 21 through 24 are not part of the catalog and are therefore not selected. Code-level security review focuses on Articles 9 through 15, 12, and 19; the remaining articles are organizational obligations retained so the baseline represents the full Title III duty set."
+        }
+      ]
+    }
+  }
+}

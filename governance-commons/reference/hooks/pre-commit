@@ -1,0 +1,189 @@
+#!/usr/bin/env bash
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Myoung Hong
+#
+# Substrate write-isolation pre-commit hook (reference).
+#
+# This file is a substrate-published reference template demonstrating
+# the consumer obligation to prevent unauthorized writes into
+# `governance-commons/`. It operationalizes Charter Article II
+# (substrate isolation) at the consumer's commit boundary.
+#
+# Substrate-internal location:
+#   governance-commons/reference/hooks/pre-commit
+#
+# Substrate-recommended consumer integration:
+#   - Copy this file out of governance-commons/reference/hooks/ to
+#     the consumer's `.githooks/pre-commit` (or equivalent), make it
+#     executable, and either:
+#       (a) configure `git config core.hooksPath .githooks` once
+#           per clone, or
+#       (b) install via the pre-commit framework
+#           (https://pre-commit.com) by adding a local repo entry
+#           that invokes this script.
+#   - The substrate does not place this file at consumer-side
+#     locations on the consumer's behalf (Charter Article VII;
+#     Section 10 settled decision 24).
+#
+# Contract this hook enforces:
+#   - A commit that touches any file under `governance-commons/`
+#     is rejected unless the committer is in the consumer-configured
+#     substrate-author allowlist OR the SUBSTRATE_AUTHOR_OVERRIDE
+#     environment variable is set to `1` for the commit.
+#   - All other commits pass through unchanged.
+#
+# Why this hook exists:
+#   The substrate is human-authored governance content versioned and
+#   reviewed under the Charter's Article II discipline. A consumer
+#   agent (LLM-based or otherwise) that writes into
+#   `governance-commons/` would corrupt the substrate's
+#   reproducibility guarantee for downstream consumers and break
+#   the substrate's audit trail. Documentation alone is not
+#   sufficient to prevent this; mechanical enforcement at the commit
+#   boundary closes the gap.
+#
+# What this hook does NOT do:
+#   - Enforce read-only filesystem permissions. Consumers can layer
+#     filesystem-level read-only mounts on top of this hook for
+#     defense-in-depth (the substrate does not require it).
+#   - Detect substrate writes outside the git commit boundary
+#     (working tree edits, staged-but-uncommitted writes,
+#     out-of-band file injection). The hook operates at commit time;
+#     other tooling (CI checks, file-watcher daemons) is the
+#     consumer's responsibility.
+#   - Verify substrate content integrity. SLSA provenance and
+#     signature verification are scoped to the supply-chain catalog
+#     (supply-chain.slsa-provenance-verification,
+#     supply-chain.signature-verification); this hook scopes to
+#     write-isolation only.
+#
+# Compatibility:
+#   - macOS bash 3.2+, Linux bash 4+, zsh in bash-compatibility mode.
+#   - Uses only POSIX-portable git plumbing commands and parameter
+#     expansion. No associative arrays. No mapfile. No process
+#     substitution requirements.
+#   - Reads the substrate-author allowlist from
+#     `.substrate-authors` at the repo root (one identity per
+#     line; blank lines and `#` comments allowed). The consumer
+#     creates and maintains this file; the substrate ships a
+#     reference allowlist alongside this hook for illustration.
+#
+# Exit codes:
+#   0   - No substrate writes detected, or writer is authorized.
+#   1   - Substrate writes detected from an unauthorized committer.
+#         The commit is rejected; the committer's stderr explains
+#         which paths and why.
+#   2   - Internal error (git command failed; allowlist missing).
+#
+# The hook is intentionally short. The substrate-author favors
+# discoverability over abstraction.
+
+set -e
+set -u
+
+SUBSTRATE_DIR="governance-commons/"
+ALLOWLIST_FILE=".substrate-authors"
+
+REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || true)"
+if [ -z "$REPO_ROOT" ]; then
+  echo "[substrate-write-isolation] ERROR: not inside a git repository." >&2
+  exit 2
+fi
+
+cd "$REPO_ROOT"
+
+# Identify the staged changes that would land in this commit.
+# --cached    : staged for commit
+# --name-only : just paths, no diff content
+# --diff-filter=ACMR : added/copied/modified/renamed (skip deletions)
+STAGED_PATHS="$(git diff --cached --name-only --diff-filter=ACMR)"
+
+if [ -z "$STAGED_PATHS" ]; then
+  exit 0
+fi
+
+# Filter to substrate paths. Bash 3.2 portable: while-read loop.
+SUBSTRATE_PATHS=""
+while IFS= read -r path; do
+  case "$path" in
+    "${SUBSTRATE_DIR}"*)
+      SUBSTRATE_PATHS="${SUBSTRATE_PATHS}${path}
+"
+      ;;
+  esac
+done <<EOF
+$STAGED_PATHS
+EOF
+
+if [ -z "$SUBSTRATE_PATHS" ]; then
+  exit 0
+fi
+
+# Substrate writes detected. Determine whether the committer is
+# authorized.
+
+# Explicit per-commit override. Substrate-author uses this during
+# their own authoring sessions; consumers should NOT set this
+# environment variable in CI or automated pipelines.
+if [ "${SUBSTRATE_AUTHOR_OVERRIDE:-0}" = "1" ]; then
+  exit 0
+fi
+
+# Identity-based allowlist. Consumer maintains .substrate-authors.
+COMMITTER_EMAIL="$(git config user.email 2>/dev/null || true)"
+COMMITTER_NAME="$(git config user.name 2>/dev/null || true)"
+
+if [ -z "$COMMITTER_EMAIL" ] && [ -z "$COMMITTER_NAME" ]; then
+  echo "[substrate-write-isolation] ERROR: git user.email and user.name both unset." >&2
+  echo "[substrate-write-isolation] Configure them or set SUBSTRATE_AUTHOR_OVERRIDE=1 for this commit." >&2
+  exit 2
+fi
+
+if [ ! -f "$ALLOWLIST_FILE" ]; then
+  echo "[substrate-write-isolation] REJECTED: commit touches substrate paths but $ALLOWLIST_FILE is missing." >&2
+  echo "[substrate-write-isolation] " >&2
+  echo "[substrate-write-isolation] To allow this commit, the consumer must either:" >&2
+  echo "[substrate-write-isolation]   - Create $ALLOWLIST_FILE listing authorized substrate-author identities" >&2
+  echo "[substrate-write-isolation]     (one email or name per line; blank lines and # comments allowed), or" >&2
+  echo "[substrate-write-isolation]   - Set SUBSTRATE_AUTHOR_OVERRIDE=1 for this commit only." >&2
+  echo "[substrate-write-isolation] " >&2
+  echo "[substrate-write-isolation] Substrate paths in this commit:" >&2
+  printf '%s' "$SUBSTRATE_PATHS" | sed 's/^/[substrate-write-isolation]   /' >&2
+  exit 1
+fi
+
+# Match committer against allowlist. Match is exact-line; allowlist
+# may contain either email or name entries.
+AUTHORIZED=0
+while IFS= read -r line; do
+  case "$line" in
+    ''|'#'*) continue ;;
+  esac
+  if [ -n "$COMMITTER_EMAIL" ] && [ "$line" = "$COMMITTER_EMAIL" ]; then
+    AUTHORIZED=1
+    break
+  fi
+  if [ -n "$COMMITTER_NAME" ] && [ "$line" = "$COMMITTER_NAME" ]; then
+    AUTHORIZED=1
+    break
+  fi
+done < "$ALLOWLIST_FILE"
+
+if [ "$AUTHORIZED" = "1" ]; then
+  exit 0
+fi
+
+echo "[substrate-write-isolation] REJECTED: commit touches substrate paths but the committer is not in $ALLOWLIST_FILE." >&2
+echo "[substrate-write-isolation] " >&2
+echo "[substrate-write-isolation] Committer: ${COMMITTER_NAME} <${COMMITTER_EMAIL}>" >&2
+echo "[substrate-write-isolation] Allowlist: $ALLOWLIST_FILE" >&2
+echo "[substrate-write-isolation] " >&2
+echo "[substrate-write-isolation] Substrate paths in this commit:" >&2
+printf '%s' "$SUBSTRATE_PATHS" | sed 's/^/[substrate-write-isolation]   /' >&2
+echo "[substrate-write-isolation] " >&2
+echo "[substrate-write-isolation] To override for this commit only:" >&2
+echo "[substrate-write-isolation]   SUBSTRATE_AUTHOR_OVERRIDE=1 git commit ..." >&2
+echo "[substrate-write-isolation] " >&2
+echo "[substrate-write-isolation] To permanently authorize this committer, add their email or" >&2
+echo "[substrate-write-isolation] name as a new line in $ALLOWLIST_FILE." >&2
+exit 1

@@ -1,0 +1,290 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://governance-commons/schemas/profile.schema.json",
+  "title": "Profile Schema",
+  "description": "Validates substrate profile files in governance-commons/profiles/ against the OSCAL profile model plus substrate extensions. Schema is in draft lifecycle status; expected to be refined when production-grade-baseline profile is populated with real selections.",
+  "x-governance-commons": {
+    "schema-kind": "profile",
+    "lifecycle-status": "draft",
+    "commons-version": "0.1.0",
+    "schema-version": "0.1.0",
+    "authored": "2026-05-17",
+    "author": "myoung",
+    "ai-assistance": "AI drafted based on spec/extension-contract.md, profiles/README.md, and OSCAL profile model; human review pending real-profile validation",
+    "validation-notes": "This schema has not yet been validated against any populated profile. The production-grade-baseline profile shell ships empty; when concern catalogs land and selections are added, the schema will be exercised."
+  },
+  "type": "object",
+  "required": ["profile"],
+  "additionalProperties": false,
+  "properties": {
+    "profile": {
+      "type": "object",
+      "required": ["uuid", "metadata"],
+      "additionalProperties": true,
+      "properties": {
+        "uuid": {
+          "type": "string",
+          "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$"
+        },
+        "metadata": {
+          "type": "object",
+          "required": ["title", "version", "oscal-version", "props"],
+          "additionalProperties": true,
+          "properties": {
+            "title": {
+              "type": "string",
+              "minLength": 1
+            },
+            "published": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "last-modified": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "version": {
+              "type": "string",
+              "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+(-[0-9A-Za-z.-]+)?(\\+[0-9A-Za-z.-]+)?$"
+            },
+            "oscal-version": {
+              "type": "string"
+            },
+            "props": {
+              "type": "array",
+              "minItems": 4,
+              "items": {
+                "$ref": "#/$defs/property"
+              },
+              "description": "Required substrate extension properties: profile-id, profile-kind, lifecycle-status, commons-version. Optional: parent-profile-id, opinionation-statement, intended-audience."
+            },
+            "parties": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/party"
+              }
+            },
+            "links": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/link"
+              }
+            }
+          }
+        },
+        "imports": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/import"
+          },
+          "description": "Catalogs and parent profiles imported by this profile. Empty for placeholder profiles; populated as content is added."
+        },
+        "merge": {
+          "type": "object",
+          "additionalProperties": true,
+          "description": "OSCAL merge directives controlling how imports compose"
+        },
+        "modify": {
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "set-parameters": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/set-parameter"
+              }
+            },
+            "alters": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/alter"
+              }
+            }
+          },
+          "description": "Tailoring modifications applied to imported content per Charter Article IV Section 4.3"
+        },
+        "back-matter": {
+          "type": "object",
+          "additionalProperties": true
+        }
+      }
+    }
+  },
+  "$defs": {
+    "property": {
+      "type": "object",
+      "required": ["name", "value"],
+      "additionalProperties": true,
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "ns": {
+          "type": "string"
+        },
+        "value": {
+          "type": ["string", "number", "boolean"]
+        },
+        "class": {
+          "type": "string"
+        }
+      }
+    },
+    "link": {
+      "type": "object",
+      "required": ["href"],
+      "additionalProperties": true,
+      "properties": {
+        "href": {
+          "type": "string"
+        },
+        "rel": {
+          "type": "string"
+        }
+      }
+    },
+    "party": {
+      "type": "object",
+      "required": ["uuid", "type"],
+      "additionalProperties": true,
+      "properties": {
+        "uuid": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["person", "organization"]
+        },
+        "name": {
+          "type": "string"
+        },
+        "props": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/property"
+          }
+        }
+      }
+    },
+    "import": {
+      "type": "object",
+      "required": ["href"],
+      "additionalProperties": true,
+      "properties": {
+        "href": {
+          "type": "string",
+          "description": "Reference to imported catalog or profile"
+        },
+        "include-all": {
+          "type": "object",
+          "additionalProperties": true
+        },
+        "include-controls": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/include-control"
+          }
+        },
+        "exclude-controls": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/exclude-control"
+          }
+        }
+      }
+    },
+    "include-control": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "with-child-controls": {
+          "type": "string",
+          "enum": ["yes", "no"]
+        },
+        "with-ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "matching": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": true
+          }
+        }
+      }
+    },
+    "exclude-control": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "with-child-controls": {
+          "type": "string",
+          "enum": ["yes", "no"]
+        },
+        "with-ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "matching": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": true
+          }
+        }
+      }
+    },
+    "set-parameter": {
+      "type": "object",
+      "required": ["param-id"],
+      "additionalProperties": true,
+      "properties": {
+        "param-id": {
+          "type": "string"
+        },
+        "values": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "props": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/property"
+          }
+        }
+      }
+    },
+    "alter": {
+      "type": "object",
+      "required": ["control-id"],
+      "additionalProperties": true,
+      "properties": {
+        "control-id": {
+          "type": "string",
+          "description": "Rule identifier being altered. Identity is immutable per Charter Article IV; alters modify tailorable properties only."
+        },
+        "removes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": true
+          }
+        },
+        "adds": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": true
+          }
+        }
+      }
+    }
+  }
+}

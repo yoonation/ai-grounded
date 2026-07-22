@@ -1,0 +1,39 @@
+id: responsible-ai.fairness-objective
+name: A fairness objective is chosen and justified for the system, with its metric, its
+  acceptable disparity, and its mitigation approach
+layer: judgmental
+characteristic: safety
+severity: high
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-06-02'
+  entered_stable: '2026-06-04'
+  authored_by: Myoung Hong
+sources:
+- title: NIST AI Risk Management Framework (the MEASURE function, measuring and managing
+    bias and fairness, referenced as a concept)
+  url: https://www.nist.gov/itl/ai-risk-management-framework
+- title: EU AI Act Regulation 2024/1689 (Article 10 examination for bias, referenced as
+    a concept)
+  url: https://eur-lex.europa.eu/eli/reg/2024/1689/oj
+applies_to:
+  language: any
+  framework: any
+  environment: any
+references: []
+statement: 'A fairness objective is chosen and recorded for the system: the fairness criterion
+  it targets and why that criterion fits the use (the trade-off among parity of outcomes,
+  parity of error rates, and calibration made explicit), the groups across which fairness
+  is measured, the metric and the acceptable disparity threshold, and the mitigation approach
+  where the objective is not met. The responsible-ai.fitness-evaluation disaggregated evaluation measures against
+  this objective and the responsible-ai.responsible-ai-policy policy records the commitment. The decision is revisited
+  when the use, the population, or the model changes materially.'
+rationale: Because the formal fairness criteria cannot be satisfied simultaneously, fairness
+  is a choice the system must make and defend rather than a box it can tick, and leaving
+  it unmade does not avoid the choice, it defaults it to whatever the data produced. Naming
+  the criterion, the groups, the metric, the threshold, and the mitigation turns fairness
+  from an implicit accident into an explicit, measurable, contestable commitment, and
+  it gives the responsible-ai.fitness-evaluation evaluation a target. The substrate makes this an L3 ADR because
+  the choice among incompatible definitions is a real trade-off with no universally correct
+  answer, and pairs it with a MADR that structures the trade-off.

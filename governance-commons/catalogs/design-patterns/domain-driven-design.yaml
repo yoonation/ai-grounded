@@ -1,0 +1,317 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Myoung Hong
+
+
+# Domain-Driven Design patterns
+# Strategic and tactical patterns for modeling complex domains, popularized by
+# Eric Evans. The strategic patterns govern how a large model is divided into
+# bounded contexts and how those contexts relate; the tactical patterns govern
+# how a single context is built from aggregates, entities, and value objects.
+# Descriptions here are substrate-original paraphrase of public concepts; no
+# source text or diagrams are reproduced. Consult while drawing context
+# boundaries and modeling a domain.
+
+metadata:
+  catalog_id: domain-driven-design
+  catalog_name: Domain-Driven Design Patterns
+  schema_version: 1.0.0
+  category_system: strategic | tactical
+  upstream_source: https://en.wikipedia.org/wiki/Domain-driven_design
+  last_reviewed: 2026-06-28
+  next_review_due: 2027-06-28
+  maintainer: <set-during-init>
+  review_protocol: governance-commons/MAINTENANCE.md
+
+patterns:
+
+  # --- Strategic ---
+
+  - id: DDD-BOUNDED-CONTEXT
+    name: Bounded Context
+    category: strategic
+    intent: >
+      An explicit boundary within which a particular domain model and its
+      terms have a single, consistent meaning. The same word can mean
+      different things in different contexts, and that is allowed.
+    when_to_use: >
+      When one canonical model for the whole system becomes contradictory
+      (a Customer in billing is not the Customer in support), split into
+      contexts each with its own model and language.
+    consequences: >
+      Each context evolves independently and stays internally coherent; the
+      cost is translation at the seams and the discipline of keeping models
+      from leaking across the boundary.
+    avoid_when: >
+      The domain is small and one model genuinely fits; do not multiply
+      contexts for a system that has no real conceptual fault lines.
+
+  - id: DDD-UBIQUITOUS-LANGUAGE
+    name: Ubiquitous Language
+    category: strategic
+    intent: >
+      A shared, rigorous vocabulary used identically by domain experts and in
+      the code within a bounded context, so conversation and implementation
+      cannot drift apart.
+    when_to_use: >
+      Throughout modeling and implementation; the names in the code (classes,
+      methods, events) should be the words the experts use, with the same
+      precise meaning.
+    consequences: >
+      Fewer translation errors between requirement and code, and a model that
+      experts can read; the cost is ongoing curation as understanding sharpens
+      and terms are renamed.
+    avoid_when: >
+      Never as an excuse to freeze vocabulary; the language is meant to evolve
+      with understanding, not calcify.
+
+  - id: DDD-SUBDOMAIN
+    name: Subdomain (Core, Supporting, Generic)
+    category: strategic
+    intent: >
+      A partition of the problem space by business value: the core subdomain
+      is the differentiator worth the most design effort, supporting
+      subdomains are necessary but not distinctive, and generic subdomains are
+      solved problems best bought or adopted.
+    when_to_use: >
+      When deciding where to spend modeling effort and where to buy or use
+      off-the-shelf; invest deep design in the core, not in generic concerns
+      like authentication or notifications.
+    consequences: >
+      Effort flows to where it creates advantage; the risk is misclassifying
+      the core and over-investing in a commodity subdomain.
+    avoid_when: >
+      Treating every subdomain as core, which spreads effort thin and starves
+      the part that actually differentiates the business.
+
+  - id: DDD-CONTEXT-MAP
+    name: Context Map
+    category: strategic
+    intent: >
+      An explicit description of the bounded contexts in a system and the
+      relationships between them, including which team owns each and how data
+      and meaning cross each boundary.
+    when_to_use: >
+      Whenever more than one context exists; make the integration topology and
+      the power relationships between contexts visible rather than implicit.
+    consequences: >
+      Integration friction and ownership become discussable design decisions
+      instead of accidents; the cost is keeping the map current as contexts
+      and teams change.
+    avoid_when: >
+      A single-context system, where there are no inter-context relationships
+      to map.
+
+  - id: DDD-ANTI-CORRUPTION-LAYER
+    name: Anti-Corruption Layer
+    category: strategic
+    intent: >
+      A translation layer that isolates a context from a foreign or legacy
+      model, converting between the two so the foreign model's concepts do not
+      leak in and corrupt the local one.
+    when_to_use: >
+      When integrating with a legacy system, a third-party API, or another
+      team's context whose model you do not want to adopt; translate at the
+      edge into your own terms.
+    consequences: >
+      The local model stays clean and the integration is changeable in one
+      place; the cost is the translation code and the mapping it must
+      maintain.
+    avoid_when: >
+      The two models already agree or the foreign model is genuinely better;
+      do not build a translation layer that translates a thing into itself.
+
+  - id: DDD-SHARED-KERNEL
+    name: Shared Kernel
+    category: strategic
+    intent: >
+      A small, explicitly shared subset of the model that two contexts agree
+      to co-own, changing it only by mutual agreement.
+    when_to_use: >
+      When two closely cooperating teams find that duplicating a core slice of
+      the model costs more than coordinating on a shared one; keep the shared
+      part deliberately small.
+    consequences: >
+      Avoids duplicating a critical shared concept; the cost is the
+      coordination tax, since any change requires agreement from both owners.
+    avoid_when: >
+      Teams cannot coordinate closely or the shared part keeps growing; then
+      separate models with translation are safer.
+
+  - id: DDD-CUSTOMER-SUPPLIER
+    name: Customer-Supplier
+    category: strategic
+    intent: >
+      An upstream-downstream relationship where the downstream (customer)
+      context's needs are a planned input to the upstream (supplier) context's
+      roadmap.
+    when_to_use: >
+      When one context depends on another and the upstream team can and will
+      prioritize the downstream's requirements as first-class backlog items.
+    consequences: >
+      The downstream gets a voice and predictable evolution; the cost is the
+      upstream's commitment to the downstream's needs.
+    avoid_when: >
+      The upstream cannot commit to downstream needs; that is a Conformist or
+      Anti-Corruption-Layer situation instead.
+
+  - id: DDD-CONFORMIST
+    name: Conformist
+    category: strategic
+    intent: >
+      A downstream context chooses to adopt the upstream model as-is, giving
+      up model independence to eliminate translation, because the upstream
+      will not accommodate it.
+    when_to_use: >
+      When the upstream is a fixed external platform you cannot influence and
+      its model is good enough to live with directly.
+    consequences: >
+      No translation layer to build or maintain; the cost is coupling to the
+      upstream's model and its changes.
+    avoid_when: >
+      The upstream model would corrupt a core subdomain; there, pay for an
+      Anti-Corruption Layer instead of conforming.
+
+  - id: DDD-OPEN-HOST-SERVICE
+    name: Open Host Service
+    category: strategic
+    intent: >
+      A context publishes a well-defined, stable protocol for many consumers
+      to integrate against, rather than negotiating a bespoke integration with
+      each one.
+    when_to_use: >
+      When a context has several downstream consumers; a published service
+      contract scales better than point-to-point deals.
+    consequences: >
+      Integration cost per new consumer drops and the host controls its
+      surface; the cost is designing and versioning a public contract.
+    avoid_when: >
+      There is only one consumer and no prospect of more; a direct integration
+      is simpler.
+
+  - id: DDD-PUBLISHED-LANGUAGE
+    name: Published Language
+    category: strategic
+    intent: >
+      A shared, documented interchange format (a schema or standard) that two
+      or more contexts use to communicate, independent of any one context's
+      internal model.
+    when_to_use: >
+      Often paired with an Open Host Service; define a stable published schema
+      as the contract so internal models can change without breaking
+      consumers.
+    consequences: >
+      Consumers depend on the published language, not internals, decoupling
+      both sides; the cost is governing the shared format's evolution.
+    avoid_when: >
+      A lightweight, single-consumer integration where a full interchange
+      standard is overkill.
+
+  # --- Tactical ---
+
+  - id: DDD-AGGREGATE
+    name: Aggregate
+    category: tactical
+    intent: >
+      A cluster of entities and value objects treated as a single consistency
+      boundary, with one entity as the root through which all external access
+      and invariant enforcement pass.
+    when_to_use: >
+      When a set of objects must stay mutually consistent under change; make
+      the aggregate the unit of transactional consistency and load and save it
+      as a whole.
+    consequences: >
+      Invariants are enforced in one place and transactions have clear scope;
+      the cost is that large aggregates become contention and performance
+      hot-spots, so keep them small.
+    avoid_when: >
+      Objects have no shared invariant; do not group them into an aggregate
+      merely because they are related.
+
+  - id: DDD-ENTITY
+    name: Entity
+    category: tactical
+    intent: >
+      An object defined by a stable identity that persists through changes to
+      its attributes, rather than by the values of those attributes.
+    when_to_use: >
+      When the domain cares about continuity and identity over time (this
+      specific order, this specific account), give the object an identity
+      independent of its current state.
+    consequences: >
+      Identity supports lifecycle, history, and references; the cost is
+      managing identity and equality by id rather than by value.
+    avoid_when: >
+      The concept has no meaningful identity and two instances with equal
+      attributes are interchangeable; model it as a value object.
+
+  - id: DDD-VALUE-OBJECT
+    name: Value Object
+    category: tactical
+    intent: >
+      An immutable object defined entirely by its attributes, with no identity;
+      two value objects with the same attributes are equal and
+      interchangeable.
+    when_to_use: >
+      For descriptive concepts like money, a date range, or an address; model
+      them as immutable values with behavior, not as bare primitives.
+    consequences: >
+      Immutability removes a class of bugs and lets values be shared freely,
+      and behavior lives with the data; the cost is allocation churn for
+      frequently changing values.
+    avoid_when: >
+      The concept needs a persistent identity or mutable lifecycle; that is an
+      entity.
+
+  - id: DDD-DOMAIN-EVENT
+    name: Domain Event
+    category: tactical
+    intent: >
+      A record that something meaningful happened in the domain, named in the
+      past tense, that other parts of the system can react to.
+    when_to_use: >
+      When a state change has consequences elsewhere; emit an event so
+      reactions decouple from the action and so the history of what happened is
+      captured.
+    consequences: >
+      Loose coupling between cause and effect and an audit-friendly trail; the
+      cost is eventual-consistency reasoning and the infrastructure to deliver
+      events reliably.
+    avoid_when: >
+      The reaction is simple, synchronous, and local; a direct call is clearer
+      than an event for in-process, immediate effects.
+
+  - id: DDD-REPOSITORY
+    name: Repository
+    category: tactical
+    intent: >
+      An abstraction that provides collection-like access to aggregates,
+      hiding the persistence mechanism behind domain-meaningful queries.
+    when_to_use: >
+      To keep persistence concerns out of the domain model; the domain asks a
+      repository for aggregates by domain criteria, not by SQL or storage
+      detail.
+    consequences: >
+      The domain stays storage-agnostic and testable with in-memory fakes;
+      the cost is the repository implementation and the temptation to leak
+      query complexity back into callers.
+    avoid_when: >
+      Trivial CRUD with no domain model worth protecting; a repository adds
+      ceremony there. Relates to SOLID-DIP.
+
+  - id: DDD-DOMAIN-SERVICE
+    name: Domain Service
+    category: tactical
+    intent: >
+      A stateless operation that expresses domain logic which does not
+      naturally belong to any single entity or value object.
+    when_to_use: >
+      When a meaningful domain operation spans multiple aggregates or has no
+      obvious home object (a transfer between two accounts), model it as a
+      service named in the ubiquitous language.
+    consequences: >
+      Keeps entities focused and avoids forcing cross-cutting logic into an
+      arbitrary object; the cost is the risk of anemic entities if too much
+      behavior drifts into services.
+    avoid_when: >
+      The behavior clearly belongs to one entity or value object; put it there
+      rather than in a service.

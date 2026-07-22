@@ -1,0 +1,48 @@
+id: authorization.no-hardcoded-role-strings
+name: Authorization decisions in business logic do not compare against hardcoded role
+  or permission literal strings
+layer: mechanical
+characteristic: security
+severity: high
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-22'
+  entered_stable: '2026-05-26'
+  authored_by: Myoung Hong
+sources:
+- title: OWASP ASVS v5.0.0 V8.3.1 (Authorization is enforced at a trusted service layer)
+  url: https://github.com/OWASP/ASVS/blob/v5.0.0/5.0/en/0x17-V8-Authorization.md
+- title: NIST SP 800-53 AC-3 Access Enforcement and AC-25 Reference Monitor
+  url: https://csrc.nist.gov/projects/cprt/catalog#/cprt/framework/version/SP_800_53_5_1_1/home
+- title: CWE-547 Use of Hard-coded, Security-relevant Constants
+  url: https://cwe.mitre.org/data/definitions/547.html
+cwe:
+- CWE-547
+- CWE-732
+applies_to:
+  language: any
+  framework: any
+  environment: any-with-authorization
+references: []
+statement: 'Authorization decisions in business-logic code do not compare against hardcoded
+  literal role or permission strings. Code expressions of the form `principal.role ==
+  "admin"` (or the language-equivalent) inside business-logic functions are violations.
+  Authorization decisions are made by calling a named authorization function (substrate-recommended
+  signature: authorize(principal, resource, action)) or by querying a policy engine (Cedar,
+  OPA Rego, Casbin) that consults a managed policy expressed as data. Typed enums for
+  role identifiers used in policy definition (not in business logic) are acceptable; the
+  prohibition is on inline literal-string comparison within business-logic call sites.'
+rationale: 'When authorization decisions are scattered across the codebase as inline role-string
+  comparisons, the application''s policy is the union of every such comparison, with no
+  centralized representation that can be audited, changed atomically, or tested in isolation.
+  Concrete failure modes: Policy drift: role-string comparisons in one code path use "admin",
+  another uses "administrator", a third uses "ADMIN". Each works in isolation; together
+  they form a non-deterministic policy that fails inconsistently. Typo bypass: a comparison
+  against "adimn" (typo) silently never matches, allowing every principal past the check.
+  The typo passes code review because role-string literals look interchangeable. Audit
+  opacity: when an auditor asks "what does an editor role grant?" the answer requires
+  grepping the entire codebase for "editor" comparisons. Policy state is not visible from
+  any single artifact. Policy change cost: granting a new permission to an existing role
+  requires editing every code path that checks against that role, each as a separate code
+  change. Centralized policy makes the change one edit to a policy file.'

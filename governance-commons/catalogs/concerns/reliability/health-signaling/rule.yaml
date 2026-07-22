@@ -1,0 +1,49 @@
+id: reliability.health-signaling
+name: The service exposes distinct liveness and readiness signals with correct semantics,
+  so the orchestrator restarts and routes traffic correctly
+layer: semantic
+characteristic: reliability
+severity: medium
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-31'
+  entered_stable: '2026-06-01'
+  authored_by: Myoung Hong
+sources:
+- title: 'Kubernetes liveness, readiness, and startup probes (the canonical statement
+    of the distinct probe semantics: liveness governs restart, readiness governs traffic)'
+  url: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
+- title: Health Endpoint Monitoring pattern (a service exposes a health endpoint a control
+    plane consults; concept reference)
+  url: https://learn.microsoft.com/en-us/azure/architecture/patterns/health-endpoint-monitoring
+applies_to:
+  language: any
+  framework: any
+  environment: orchestrated
+references: []
+statement: 'A service deployed under an orchestrator exposes liveness and readiness as
+  distinct signals with distinct semantics. Liveness answers "is this process irrecoverably
+  broken and in need of a restart": it reflects only conditions a restart can fix (a deadlocked
+  process, an unrecoverable internal state) and does not reflect the health of external
+  dependencies, because restarting an instance cannot fix a downstream outage and doing
+  so en masse causes a restart storm. Readiness answers "can this instance serve traffic
+  right now": it reflects whether the instance has completed startup and whether its critical
+  dependencies are reachable, so the orchestrator removes an instance from rotation when
+  it cannot serve and returns it when it can. Where the platform provides a startup signal,
+  slow initialization uses it rather than loosening liveness. The rule requires the two
+  signals exist, are separate, and carry these semantics; the metrics and alerts derived
+  from them are governed by the observability concern, not here.'
+rationale: 'The orchestrator makes two different decisions from health signals (restart
+  this instance, route traffic to this instance) and they require opposite responses to
+  a dependency outage. If a shared dependency goes down, every instance should stop receiving
+  traffic for the affected paths (readiness false) but none should be restarted (liveness
+  true), because restarting them cannot help and restarting all of them at once removes
+  whatever degraded capacity remained. Wiring dependency health into liveness inverts
+  this: a dependency blip triggers a fleet-wide restart that converts a recoverable degradation
+  into a self-inflicted outage. The substrate places this at L2 because what counts as
+  a restart-worthy condition versus a route-away condition, and which dependencies readiness
+  should reflect, are judgments about the service''s role that a tool cannot make. The
+  boundary with observability is deliberate and stated: this rule governs the probe contract
+  and its control-plane effect; the dashboards and alerts on probe state are observability.alerting-discipline
+  and observability.dashboard-discipline.'

@@ -1,0 +1,53 @@
+id: dependency-management.provenance
+name: Direct dependencies are obtained from substrate-recognized registries; provenance
+  is verified via integrity hashes, signatures, or attestations where the ecosystem supports
+  them
+layer: semantic
+characteristic: compatibility
+severity: medium
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-20'
+  entered_stable: '2026-05-22'
+  authored_by: Myoung Hong
+sources:
+- title: OWASP SCVS V3 Software Bill of Materials and V4 Software Component Integrity
+  url: https://owasp.org/www-project-software-component-verification-standard/
+- title: SLSA v1.0 supply-chain levels (the broader framework that supply-chain concern
+    will operationalize when scoped; dependency-management.provenance is the dependency-management slice of
+    provenance verification)
+  url: https://slsa.dev/spec/v1.0/levels
+cwe:
+- CWE-829
+- CWE-494
+applies_to:
+  language: any
+  framework: any
+  environment: any-with-external-dependencies
+references: []
+statement: Each direct dependency is obtained from a registry the substrate or the consumer's
+  profile identifies as trusted. The integrity hash recorded in the lockfile is verified
+  at install time against the artifact actually downloaded. Where the ecosystem provides
+  a stronger provenance signal (signed releases, attestations, in-toto layouts), the substrate-recommended
+  posture is to verify the signal during CI and reject artifacts that fail verification.
+  Dependency-confusion mitigation is in scope. Where the project uses a private registry
+  for internal packages, the build's resolution path prevents the public registry from
+  serving an internal package name. Mechanisms include scoped packages on npm with explicit
+  registry mapping; configured-source preference on pip with --index-url and --extra-index-url
+  discipline; private feed prioritization on NuGet, Maven, and similar.
+rationale: 'Three attack vectors motivate this rule. Typosquatting: an attacker publishes
+  a package with a name similar to a popular package (requests vs reqests, lodash vs lodahs).
+  Developers misspell; installation succeeds; the attacker''s code runs at install time
+  and in the application. Dependency confusion: an attacker publishes a package in a public
+  registry with the same name as a private package the consumer uses internally. Misconfigured
+  package managers prefer the public version (because it has a higher version number,
+  or because the public registry is listed first). The attacker''s code substitutes for
+  trusted internal code. Registry compromise or maintainer takeover: a popular package''s
+  maintainer credentials are stolen or social-engineered, or the maintainer transfers
+  control to a hostile actor (event-stream incident). The attacker ships a new version
+  with malicious code. Pin verification combined with integrity hashes detects that the
+  artifact bytes changed unexpectedly. The mitigations are ecosystem-specific. The substrate
+  writes the rule in semantic terms (verify provenance using the strongest mechanism the
+  ecosystem offers) and the review-checklist binding walks reviewers through the ecosystem
+  details.'

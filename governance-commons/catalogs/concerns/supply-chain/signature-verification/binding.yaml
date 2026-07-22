@@ -1,0 +1,4 @@
+binding_status: capability-bound
+rule: supply-chain.signature-verification
+gate: provenance-verify
+tool: cosign

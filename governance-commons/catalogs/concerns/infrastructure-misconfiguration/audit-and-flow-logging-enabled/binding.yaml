@@ -1,0 +1,3 @@
+binding_status: capability-bound
+rule: infrastructure-misconfiguration.audit-and-flow-logging-enabled
+gate: iac-scan

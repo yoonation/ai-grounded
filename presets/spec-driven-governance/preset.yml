@@ -1,0 +1,58 @@
+schema_version: "1.0"
+preset:
+  id: "spec-driven-governance"
+  name: "Spec-Driven Governance Framework"
+  version: "1.1.0"
+  description: |
+    Vendored preset for the spec-driven governance template repo.
+    Ships the 7-article constitution (v1.2.0), the governance-aware
+    spec template, and the framework command overrides for
+    /speckit-specify, /speckit-clarify, /speckit-plan, and
+    /speckit-implement (the Write→Edit cosmetic fix; plan-time
+    rename-integrity and data-model normalization gates;
+    implement-time capability index, discovery agent, constitution
+    injection, and duplication gate).
+
+    Portable to any spec-kit-compatible AI tool (Cursor, Codex,
+    Continue, Cline, Claude Code). Designed for use with the
+    framework's eleven Claude Code sub-agents and pre-commit hooks
+    for Article VI loop-closure verification, but those agents are
+    NOT required. Templates and command fixes apply on their own
+    regardless of the AI tool in use.
+  author: "Myoung Hong"
+  repository: "https://github.com/yoonation/ai-grounded"
+  license: "Apache-2.0"
+requires:
+  speckit_version: ">=0.8.11,<2.0"
+provides:
+  templates:
+    - type: "template"
+      name: "constitution-template"
+      file: "templates/constitution-template.md"
+      description: "7-article governance constitution (v1.2.0)"
+      replaces: "constitution-template"
+    - type: "template"
+      name: "spec-template"
+      file: "templates/spec-template.md"
+      description: "Governance-aware spec template with prioritized user stories, threat modeling, evaluations, backward-compat, operational handoff"
+      replaces: "spec-template"
+    - type: "command"
+      name: "speckit.specify"
+      file: "commands/speckit.specify.md"
+      description: "Spec creation command with Write→Edit cosmetic fix at step 6 of the Outline"
+      replaces: "speckit.specify"
+    - type: "command"
+      name: "speckit.clarify"
+      file: "commands/speckit.clarify.md"
+      description: "Spec clarification command with Write→Edit cosmetic fix at step 7 of the Outline"
+      replaces: "speckit.clarify"
+    - type: "command"
+      name: "speckit.plan"
+      file: "commands/speckit.plan.md"
+      description: "Planning command with rename-integrity verification and the data-model normalization gate"
+      replaces: "speckit.plan"
+    - type: "command"
+      name: "speckit.implement"
+      file: "commands/speckit.implement.md"
+      description: "Implementation command with capability index, discovery-agent reuse survey, duplication gate, and constitution hard-constraint injection"
+      replaces: "speckit.implement"

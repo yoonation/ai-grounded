@@ -1,0 +1,3 @@
+binding_status: capability-bound
+rule: configuration-management.no-hardcoded-config
+gate: sast

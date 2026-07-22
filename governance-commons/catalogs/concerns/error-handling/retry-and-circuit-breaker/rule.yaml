@@ -1,0 +1,35 @@
+id: error-handling.retry-and-circuit-breaker
+name: Retry logic is bounded with backoff, and cross-process calls are protected by timeouts
+  and circuit-breaker patterns where appropriate
+layer: semantic
+characteristic: reliability
+severity: high
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-24'
+  entered_stable: '2026-05-26'
+  authored_by: Myoung Hong
+sources:
+- title: OWASP ASVS v5.0.0 V7.4 (Handling of dependency failures)
+  url: https://github.com/OWASP/ASVS/blob/v5.0.0/5.0/en/0x15-V7-Error-Logging.md
+cwe:
+- CWE-754
+applies_to:
+  environment: any-with-network-or-rpc-calls
+references: []
+statement: 'Every cross-process call (HTTP to downstream service, database query, message
+  queue publish, cache fetch, RPC call) has a defined timeout shorter than the caller''s
+  own timeout. Retry logic on transient failures is bounded: a maximum attempt count (substrate-recommended:
+  3 for idempotent calls, 1 for non-idempotent), exponential backoff between attempts
+  (substrate-recommended: base 100ms doubling per attempt), and jitter applied to spread
+  retry storms (substrate-recommended: AWS-pattern equal jitter). Calls to services with
+  known degradation modes are protected by circuit-breakers (open after consecutive failures,
+  half-open trial after backoff, closed when trial succeeds). The retry, timeout, and
+  circuit-breaker parameters are documented per call site or per service-class binding.'
+rationale: Bounded retry, timeouts, and circuit-breakers are the substrate's resilience
+  floor. Without them, the application amplifies downstream degradation into outage. The
+  rule is L2 because the specific bounds (timeout duration, retry count, circuit-breaker
+  threshold) depend on the application's SLO budget, the dependency's known characteristics,
+  and the call's idempotency properties; these are review surfaces, not statically checkable
+  patterns.

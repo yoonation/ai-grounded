@@ -1,0 +1,504 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Myoung Hong
+
+
+# Pydantic library context for AI tools.
+#
+# Pydantic v2 was released in mid-2023. The v1 to v2 migration was
+# substantial; many APIs renamed or restructured. Significant amounts
+# of training data predate v2, causing AI tools to produce v1 code
+# in v2 codebases.
+#
+# Maintenance cadence: quarterly (stable major version)
+
+library:
+  name: pydantic
+  ecosystem: python
+  current_version: "2.10.x"
+  last_reviewed: "2026-05-12"
+  review_cadence: quarterly
+  primary_docs: https://docs.pydantic.dev/latest/
+
+# ============================================================
+# Major version differences
+# ============================================================
+
+major_version_changes:
+  - from: "v1.x"
+    to: "v2.0"
+    summary: >
+      Major rewrite. Core moved to Rust (pydantic-core). Many API
+      changes. v1 compatibility shim available temporarily via
+      pydantic.v1 but being phased out.
+
+  - from: "v2.0"
+    to: "v2.x"
+    summary: >
+      Incremental enhancements. New features like
+      computed_field, model_config refinements, JSON schema improvements.
+
+# ============================================================
+# Current imports (v2)
+# ============================================================
+
+current_imports:
+  - module: pydantic
+    exports:
+      - BaseModel
+      - Field
+      - field_validator
+      - model_validator
+      - computed_field
+      - ConfigDict
+      - ValidationError
+      - AliasChoices
+      - AliasPath
+    notes: >
+      Top-level imports. ConfigDict replaces v1's class Config.
+      field_validator and model_validator replace v1 validator and
+      root_validator.
+
+  - module: pydantic.types
+    exports:
+      - EmailStr
+      - HttpUrl
+      - SecretStr
+      - PositiveInt
+      - NonNegativeInt
+      - constr
+      - conint
+      - confloat
+    notes: >
+      Constrained types and special types. Same module path as v1
+      but some types removed/renamed.
+
+  - module: pydantic
+    exports:
+      - TypeAdapter
+    notes: >
+      TypeAdapter replaces v1's parse_obj_as. Use for validating
+      arbitrary types (not just BaseModel subclasses).
+
+# ============================================================
+# Deprecations - v1 patterns that AI will produce
+# ============================================================
+
+deprecations:
+  - api: "class Config: ... # nested config class"
+    deprecated_in: "2.0"
+    removed_in: null
+    replacement: "model_config = ConfigDict(...)"
+    migration: |
+      v1: class MyModel(BaseModel):
+              class Config:
+                  orm_mode = True
+                  populate_by_name = True
+
+      v2: class MyModel(BaseModel):
+              model_config = ConfigDict(
+                  from_attributes=True,  # renamed from orm_mode
+                  populate_by_name=True
+              )
+
+  - api: "@validator decorator"
+    deprecated_in: "2.0"
+    removed_in: null
+    replacement: "@field_validator"
+    migration: |
+      v1: from pydantic import validator
+          @validator("field_name")
+          def check_field(cls, v): ...
+
+      v2: from pydantic import field_validator
+          @field_validator("field_name")
+          @classmethod
+          def check_field(cls, v): ...
+
+  - api: "@root_validator"
+    deprecated_in: "2.0"
+    removed_in: null
+    replacement: "@model_validator"
+    migration: |
+      v1: @root_validator(pre=False)
+          def check(cls, values): ...
+
+      v2: @model_validator(mode="after")
+          def check(self): ...
+          # 'self' is the model instance; modify and return
+
+  - api: ".dict() method"
+    deprecated_in: "2.0"
+    removed_in: null
+    replacement: ".model_dump()"
+    migration: |
+      v1: instance.dict()
+      v2: instance.model_dump()
+
+  - api: ".json() method"
+    deprecated_in: "2.0"
+    removed_in: null
+    replacement: ".model_dump_json()"
+    migration: |
+      v1: instance.json()
+      v2: instance.model_dump_json()
+
+  - api: ".parse_obj(data)"
+    deprecated_in: "2.0"
+    removed_in: null
+    replacement: ".model_validate(data)"
+    migration: |
+      v1: Model.parse_obj({"x": 1})
+      v2: Model.model_validate({"x": 1})
+
+  - api: ".parse_raw(json_str)"
+    deprecated_in: "2.0"
+    removed_in: null
+    replacement: ".model_validate_json(json_str)"
+
+  - api: ".construct(**kwargs)"
+    deprecated_in: "2.0"
+    removed_in: null
+    replacement: ".model_construct(**kwargs)"
+    migration: >
+      Use for skipping validation when constructing from trusted data.
+
+  - api: ".copy(update={...})"
+    deprecated_in: "2.0"
+    removed_in: null
+    replacement: ".model_copy(update={...})"
+
+  - api: ".schema() and .schema_json()"
+    deprecated_in: "2.0"
+    removed_in: null
+    replacement: ".model_json_schema()"
+    migration: >
+      Generates JSON schema. Note: one method now, generating dict
+      schema. Use json.dumps() for JSON string.
+
+  - api: "parse_obj_as(Type, value)"
+    deprecated_in: "2.0"
+    removed_in: null
+    replacement: "TypeAdapter(Type).validate_python(value)"
+    migration: |
+      v1: from pydantic import parse_obj_as
+          parse_obj_as(List[int], [1, 2, 3])
+
+      v2: from pydantic import TypeAdapter
+          TypeAdapter(List[int]).validate_python([1, 2, 3])
+
+  - api: "orm_mode = True (in Config)"
+    deprecated_in: "2.0"
+    removed_in: null
+    replacement: "from_attributes=True"
+    migration: >
+      Renamed for clarity. Enables creating instances from objects
+      with attributes (e.g., SQLAlchemy models).
+
+# ============================================================
+# Current API: core patterns
+# ============================================================
+
+current_api:
+  - name: "Basic model definition"
+    description: >
+      Define typed data models with validation.
+    example: |
+      from pydantic import BaseModel, Field
+
+      class User(BaseModel):
+          name: str
+          age: int = Field(ge=0, le=150)
+          email: str | None = None
+
+      user = User(name="Alice", age=30)
+    notes: >
+      Type annotations are required for fields. Field() provides
+      additional constraints (ge, le, min_length, etc.) and metadata.
+
+  - name: "ConfigDict for model behavior"
+    description: >
+      Configure model behavior with model_config = ConfigDict(...).
+    example: |
+      from pydantic import BaseModel, ConfigDict
+
+      class User(BaseModel):
+          model_config = ConfigDict(
+              from_attributes=True,        # was orm_mode
+              populate_by_name=True,       # accept either alias or field name
+              str_strip_whitespace=True,   # strip whitespace on str fields
+              validate_assignment=True,    # validate on attribute set
+              extra="forbid"               # reject unknown fields
+          )
+
+          name: str
+          age: int
+    notes: >
+      Common configs: from_attributes (was orm_mode),
+      populate_by_name (accept field name or alias), extra
+      ("ignore" | "allow" | "forbid"), str_strip_whitespace,
+      validate_assignment.
+
+  - name: "Field validators"
+    description: >
+      Validate or transform individual fields.
+    example: |
+      from pydantic import BaseModel, field_validator
+
+      class User(BaseModel):
+          name: str
+          email: str
+
+          @field_validator("name")
+          @classmethod
+          def name_must_not_be_empty(cls, v: str) -> str:
+              if not v.strip():
+                  raise ValueError("name cannot be empty")
+              return v.strip()
+
+          @field_validator("email")
+          @classmethod
+          def email_must_contain_at(cls, v: str) -> str:
+              if "@" not in v:
+                  raise ValueError("invalid email")
+              return v.lower()
+    notes: >
+      Validators receive the validated value. Return the (possibly
+      transformed) value or raise ValueError. The @classmethod
+      decorator is required (Pydantic v2 enforces this).
+
+  - name: "Model validators"
+    description: >
+      Validate the whole model after individual fields are validated.
+    example: |
+      from pydantic import BaseModel, model_validator
+
+      class DateRange(BaseModel):
+          start: int
+          end: int
+
+          @model_validator(mode="after")
+          def check_range(self):
+              if self.end < self.start:
+                  raise ValueError("end must be >= start")
+              return self
+    notes: >
+      mode="after" runs after individual field validation (operates
+      on the model instance). mode="before" runs before (operates
+      on raw input dict).
+
+  - name: "Computed fields"
+    description: >
+      Define fields that are computed from other fields.
+    example: |
+      from pydantic import BaseModel, computed_field
+
+      class Rectangle(BaseModel):
+          width: float
+          height: float
+
+          @computed_field
+          @property
+          def area(self) -> float:
+              return self.width * self.height
+
+      r = Rectangle(width=3, height=4)
+      r.area  # 12.0
+      r.model_dump()  # {"width": 3.0, "height": 4.0, "area": 12.0}
+    notes: >
+      Computed fields appear in model_dump() output. Use for
+      derived values that should serialize.
+
+  - name: "Type adapters for non-model types"
+    description: >
+      Validate arbitrary types (lists, unions, etc.) without
+      wrapping in a model.
+    example: |
+      from pydantic import TypeAdapter
+
+      adapter = TypeAdapter(list[int])
+      result = adapter.validate_python(["1", "2", "3"])
+      # result = [1, 2, 3]  (with coercion)
+
+      # JSON
+      result_json = adapter.validate_json('[1, 2, 3]')
+    notes: >
+      Replaces v1's parse_obj_as. Useful for API responses where
+      the shape is a list or union rather than a model.
+
+  - name: "Custom serialization"
+    description: >
+      Control how fields serialize to dict/JSON.
+    example: |
+      from datetime import datetime
+      from pydantic import BaseModel, field_serializer
+
+      class Event(BaseModel):
+          name: str
+          timestamp: datetime
+
+          @field_serializer("timestamp")
+          def serialize_ts(self, ts: datetime) -> str:
+              return ts.isoformat()
+    notes: >
+      field_serializer controls how a specific field serializes.
+      model_serializer (separate decorator) controls the whole model.
+
+  - name: "Field aliases"
+    description: >
+      Accept input under a different name than the field's attribute.
+    example: |
+      from pydantic import BaseModel, ConfigDict, Field, AliasChoices
+
+      class User(BaseModel):
+          model_config = ConfigDict(populate_by_name=True)
+          full_name: str = Field(
+              validation_alias=AliasChoices("name", "fullName", "full_name"),
+              serialization_alias="fullName"
+          )
+
+      # Accepts: {"name": "Alice"}, {"fullName": "Alice"}, {"full_name": "Alice"}
+      # Serializes as: {"fullName": "Alice"}
+    notes: >
+      validation_alias for input names, serialization_alias for
+      output. AliasChoices for accepting multiple input names.
+
+  - name: "Discriminated unions"
+    description: >
+      Tag-based union dispatch for polymorphic data.
+    example: |
+      from typing import Literal, Union
+      from pydantic import BaseModel, Field
+
+      class Cat(BaseModel):
+          pet_type: Literal["cat"]
+          meow_volume: int
+
+      class Dog(BaseModel):
+          pet_type: Literal["dog"]
+          bark_volume: int
+
+      class Owner(BaseModel):
+          pet: Union[Cat, Dog] = Field(discriminator="pet_type")
+
+      owner = Owner.model_validate({
+          "pet": {"pet_type": "cat", "meow_volume": 5}
+      })
+    notes: >
+      The discriminator field selects which model variant to use.
+      Faster and clearer error messages than non-discriminated unions.
+
+# ============================================================
+# Common hallucination patterns
+# ============================================================
+
+common_hallucinations:
+  - pattern: "class Config: orm_mode = True"
+    problem: >
+      v1 syntax. v2 uses model_config = ConfigDict(...).
+    correct: |
+      model_config = ConfigDict(from_attributes=True)
+
+  - pattern: "@validator('field_name')"
+    problem: >
+      v1 validator decorator. v2 uses field_validator.
+    correct: |
+      @field_validator('field_name')
+      @classmethod
+      def check(cls, v): ...
+
+  - pattern: "instance.dict()"
+    problem: >
+      v1 method name. Removed/deprecated in v2.
+    correct: "instance.model_dump()"
+
+  - pattern: "Model.parse_obj(data)"
+    problem: >
+      v1 method name. v2 uses model_validate.
+    correct: "Model.model_validate(data)"
+
+  - pattern: "from pydantic import parse_obj_as"
+    problem: >
+      Removed in v2. Use TypeAdapter.
+    correct: |
+      from pydantic import TypeAdapter
+      TypeAdapter(MyType).validate_python(data)
+
+  - pattern: "@root_validator(pre=False)"
+    problem: >
+      v1 root_validator. v2 uses model_validator.
+    correct: |
+      @model_validator(mode="after")
+      def check(self): ...
+
+  - pattern: "AnyHttpUrl, AnyStr, etc with v1 behavior"
+    problem: >
+      Some URL types changed. v2 HttpUrl coerces and returns a
+      special URL type, not str.
+    correct: >
+      Use HttpUrl for URL validation. Note the returned value is
+      not a plain str (use str(url) if you need that).
+
+  - pattern: "from pydantic import BaseSettings"
+    problem: >
+      BaseSettings moved to a separate package in v2.
+    correct: |
+      pip install pydantic-settings
+      from pydantic_settings import BaseSettings
+
+  - pattern: "@validator with allow_reuse=True"
+    problem: >
+      v1 parameter. v2 doesn't need it (validators are properly
+      handled).
+    correct: "@field_validator('field') - no allow_reuse parameter"
+
+  - pattern: "Config.fields = {...}"
+    problem: >
+      v1 field-level config in Config class. v2 uses Field() directly.
+    correct: |
+      class Model(BaseModel):
+          name: str = Field(description="User's name", alias="user_name")
+
+  - pattern: "GenericModel for generic types"
+    problem: >
+      v1 GenericModel was a separate base class. v2 supports generics
+      on BaseModel directly via PEP 695 / TypeVar.
+    correct: |
+      from typing import TypeVar, Generic
+      from pydantic import BaseModel
+
+      T = TypeVar("T")
+
+      class Container(BaseModel, Generic[T]):
+          value: T
+
+# ============================================================
+# Migration helpers
+# ============================================================
+
+migration_tooling:
+  - tool: "bump-pydantic"
+    description: >
+      CLI tool from Pydantic team that auto-migrates v1 code to v2.
+      Handles most renames but not semantic changes.
+    install: "pip install bump-pydantic"
+    usage: "bump-pydantic <directory>"
+
+  - tool: "pydantic.v1 compatibility shim"
+    description: >
+      Temporary v1 API access from within pydantic v2. Allows
+      gradual migration.
+    usage: "from pydantic.v1 import BaseModel  # legacy v1 BaseModel"
+    notes: >
+      Discouraged for new code. Use only during migration. Plan to
+      remove all pydantic.v1 imports.
+
+# ============================================================
+# References
+# ============================================================
+
+references:
+  - https://docs.pydantic.dev/latest/
+  - https://docs.pydantic.dev/latest/migration/
+  - https://docs.pydantic.dev/latest/concepts/models/
+  - https://docs.pydantic.dev/latest/concepts/validators/
+  - https://github.com/pydantic/pydantic

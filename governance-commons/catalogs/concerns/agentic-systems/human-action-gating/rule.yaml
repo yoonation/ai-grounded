@@ -1,0 +1,37 @@
+id: agentic-systems.human-action-gating
+name: Consequential agent actions pass through an implemented human-in-the-loop gate
+layer: semantic
+characteristic: safety
+severity: high
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-06-03'
+  entered_stable: '2026-06-04'
+  authored_by: Myoung Hong
+sources:
+- title: OWASP Agentic Security Initiative, agentic threats and mitigations (human-in-the-loop
+    control of consequential agent actions, referenced as a concept)
+  url: https://genai.owasp.org/resource/agentic-ai-threats-and-mitigations/
+- title: EU AI Act Regulation 2024/1689 (Article 14 human oversight, referenced as a concept)
+    as the system-level basis the agent gate operationalizes
+  url: https://eur-lex.europa.eu/eli/reg/2024/1689/oj
+applies_to:
+  language: any
+  framework: any
+  environment: any
+references: []
+statement: Actions the agentic-systems.human-action-gating-policy policy classifies as gate-warranting halt and require
+  explicit, meaningful human approval before they take effect, the gate cannot be silently
+  bypassed by the agent or a delegated sub-agent, and the approving human is shown the
+  action, its target, and its rationale. The definition of the gated classes is the agentic-systems.human-action-gating-policy
+  policy and the system-level oversight model is responsible-ai's responsible-ai.human-oversight, cross-referenced
+  here; this rule owns that the gate is genuinely implemented.
+rationale: Bounds limit how much damage a wrong action does, but for the highest-consequence
+  class the right limit is that a human decides before it happens; the gate is the last
+  line for an autonomous loop. Its failure modes are not firing on an action that warranted
+  it, being bypassable through another tool or a sub-agent, or being a rubber stamp with
+  no context. The substrate makes this an L2 implementation rule paired with the agentic-systems.human-action-gating-policy
+  policy that defines which actions are gated, and it draws the seam to responsible-ai,
+  which owns the system-level oversight model and the decision-level recourse this gate
+  operationalizes for an action.

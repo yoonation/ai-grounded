@@ -1,0 +1,40 @@
+id: responsible-ai.explanation-and-recourse
+name: A significant automated decision affecting a person provides an explanation and
+  a route to human review or contestation
+layer: semantic
+characteristic: safety
+severity: high
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-06-02'
+  entered_stable: '2026-06-04'
+  authored_by: Myoung Hong
+sources:
+- title: EU AI Act Regulation 2024/1689 (Article 14 human oversight and the explanation
+    and recourse expectations for high-risk systems, referenced as a concept)
+  url: https://eur-lex.europa.eu/eli/reg/2024/1689/oj
+- title: NIST AI Risk Management Framework (the GOVERN and MAP functions, accountability
+    and contestability of AI decisions, referenced as a concept)
+  url: https://www.nist.gov/itl/ai-risk-management-framework
+applies_to:
+  language: any
+  framework: any
+  environment: any
+references: []
+statement: A significant automated decision affecting a person (one with a material effect
+  on that person) provides an explanation meaningful to the affected person, naming the
+  principal factors, and a route to human review or contestation that is reachable and
+  acted upon. The disclosure of responsible-ai.ai-disclosure-marker is present so the person knows the decision
+  was automated. The oversight mode the decision class requires is decided in responsible-ai.human-oversight;
+  the human gate on a consequential agent action is owned by agentic-systems. The explanation
+  and recourse are reviewed when a new person-affecting decision is automated.
+rationale: 'A decision a person cannot understand and cannot challenge is a decision that
+  has placed itself beyond accountability, and when that decision materially affects the
+  person the loss of recourse is the harm. A meaningful explanation (the factors that
+  drove the outcome, in terms the person can act on, not the raw weights) and a reachable
+  contestation route are what return the person to the loop. The substrate scopes the
+  rule to significant, person-affecting decisions to avoid demanding explanation of trivial
+  automation, keeps it at L2 because the significance and the meaningfulness are judgments,
+  and draws the seam to agentic-systems clearly: this concern governs the explanation
+  and contestability of a decision, the agent concern governs the human gate on an action.'

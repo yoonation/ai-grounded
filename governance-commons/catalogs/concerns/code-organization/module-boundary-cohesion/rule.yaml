@@ -1,0 +1,45 @@
+id: code-organization.module-boundary-cohesion
+name: Modules and packages group code by cohesive responsibility, so that each module
+  has a single clear reason to change
+layer: semantic
+characteristic: maintainability
+severity: medium
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-31'
+  entered_stable: '2026-06-01'
+  authored_by: Myoung Hong
+sources:
+- title: The Single Responsibility Principle (a module should have one reason to change;
+    concept referenced, originated by Robert C. Martin)
+  url: https://en.wikipedia.org/wiki/Single-responsibility_principle
+- title: Cohesion in software (the degree to which a module's elements belong together)
+    and its inverse relationship with coupling
+  url: https://en.wikipedia.org/wiki/Cohesion_(computer_science)
+applies_to:
+  language: any
+  framework: any
+  environment: any
+references: []
+statement: 'Modules, packages, and namespaces group code by cohesive responsibility so
+  that the elements of a module change together and for the same reason, and so that a
+  module can be named for what it does rather than for the kind of thing it holds. A reviewer
+  can state, in one sentence and without "and", what each module is responsible for. The
+  substrate treats two patterns as findings to investigate: the grab-bag module (utils,
+  common, helpers, misc, shared) that holds unrelated code united only by not belonging
+  elsewhere, and the smeared responsibility (a single concept whose implementation is
+  scattered across many modules so that one logical change touches all of them). The rule
+  does not mandate a particular module granularity; it requires that whatever granularity
+  is chosen tracks cohesive responsibility.'
+rationale: 'Cohesion and coupling are the two halves of one idea: code that changes together
+  should live together, and code that changes independently should be separable. The Single
+  Responsibility Principle and the Common Closure Principle both express the same operational
+  test, which the substrate adopts: a module should have one reason to change. When boundaries
+  follow responsibility, the system exhibits the property teams actually want, that the
+  size of a change in the code tracks the size of the change in requirements. When boundaries
+  follow incidental categories (everything that is a "service", everything that is a "model",
+  a junk drawer of utilities), a small requirement change scatters across the codebase.
+  The rule is semantic because only a human who understands the domain can say whether
+  two things share a reason to change; a tool can flag a suspiciously central module or
+  an over-large one, but it cannot read the domain.'

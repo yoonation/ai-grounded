@@ -1,0 +1,54 @@
+id: secrets-management.no-secrets-in-source
+name: Secret values do not appear as string literals in source code, configuration files
+  committed to version control, or build artifacts
+layer: mechanical
+characteristic: security
+severity: critical
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-20'
+  entered_stable: '2026-05-22'
+  authored_by: Myoung Hong
+sources:
+- title: OWASP Secrets Management Cheat Sheet
+  url: https://cheatsheetseries.owasp.org/cheatsheets/Secrets_Management_Cheat_Sheet.html
+- title: 'OWASP ASVS v5.0.0 V13 Configuration (Secret Management section: secrets must
+    not be included in application source code or build artifacts)'
+  url: https://github.com/OWASP/ASVS/blob/v5.0.0/5.0/en/0x22-V13-Configuration.md
+- title: CWE-798 Use of Hard-coded Credentials
+  url: https://cwe.mitre.org/data/definitions/798.html
+- title: CWE-321 Use of Hard-coded Cryptographic Key
+  url: https://cwe.mitre.org/data/definitions/321.html
+cwe:
+- CWE-798
+- CWE-321
+- CWE-312
+- CWE-540
+applies_to:
+  language: any
+  framework: any
+  environment: any
+references: []
+statement: The application's source repository, configuration files committed to version
+  control, container image layers, and build outputs do not contain secret values as string
+  literals. Secrets in scope include API keys, encryption keys, signing keys, database
+  passwords, service-account credentials, OAuth client secrets, webhook signing tokens,
+  JWT signing keys, private keys, session cookies for service accounts, and any string
+  whose disclosure grants access to a protected resource. The same rule applies to placeholder
+  values that resemble real secrets (e.g., test-environment keys); placeholders are stored
+  using the same mechanisms as production secrets, not committed.
+rationale: 'Version control history is irreversible and broadly replicated. Once a secret
+  reaches the history of any git repository, it propagates to every clone, every fork,
+  every CI cache, every container image that bakes the repo, and every package-registry
+  artifact that ships built code. Rewriting history reduces the public surface but does
+  not retroactively un-compromise the secret; once any actor has observed it, rotation
+  is mandatory. Build outputs (container images, packaged binaries, deployment archives)
+  are also distributed broadly and often retained beyond the secret''s intended lifetime.
+  A secret baked into a container image shipped to a public registry is published; a secret
+  in a published npm package is published. Configuration files committed to repos are
+  a common accidental disclosure vector. Files such as .env.local, settings.yaml, configmap.yaml,
+  and .vscode/launch.json frequently carry development secrets that are then promoted
+  to repo state by editor or workflow defaults. The substrate-recommended mitigation is
+  mechanical: secret values never appear in any committed file regardless of purpose or
+  apparent risk profile.'

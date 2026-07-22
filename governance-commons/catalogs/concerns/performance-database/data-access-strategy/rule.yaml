@@ -1,0 +1,39 @@
+id: performance-database.data-access-strategy
+name: 'The application has a documented data-access performance strategy: a recorded decision
+  covering workload characterization, indexing posture, connection topology, transaction
+  and consistency policy, pagination and bulk-IO conventions, and read-scaling, reviewed
+  on a stated cadence'
+layer: judgmental
+characteristic: performance-efficiency
+severity: high
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-31'
+  entered_stable: '2026-06-01'
+  authored_by: Myoung Hong
+applies_to:
+  language: any
+  framework: any
+  environment: any
+references: []
+statement: 'The application maintains a documented data-access performance strategy, recorded
+  as an Architecture Decision Record, that makes explicit the decisions the L1 and L2
+  rules implement locally: a characterization of the workload and its hot access patterns;
+  the indexing posture and how it balances read access against write cost; the connection
+  topology including pool sizing and any external pooler; the transaction and consistency
+  policy including isolation defaults and how cross-service atomicity is handled; the
+  pagination and bulk-IO conventions; and the read-scaling model including whether replicas
+  are used and how lag is tolerated. The ADR records the drivers and trade-offs of each
+  sub-decision and is revisited on the stated cadence.'
+rationale: Performance decisions interact, and the interactions are where systems fail.
+  Indexing cannot be decided without the write workload; pool sizing cannot be decided
+  without the deployment model; read replicas cannot be added without a consistency policy.
+  When these are decided locally and implicitly, no one owns the interactions, and the
+  system accretes choices that individually look reasonable and collectively do not cohere,
+  a state that becomes visible only at the scale where it is expensive to unwind. A recorded
+  strategy forces the interactions into view at decision time, gives new contributors
+  the context to make local choices that fit the whole, and creates the artifact that
+  a scale-change review can update rather than rediscover. The substrate requires the
+  record, not a particular strategy, because the right strategy is workload-specific;
+  what is universal is that it be explicit.

@@ -1,0 +1,45 @@
+id: privacy.processor-and-transfer-safeguards
+name: Personal data shared with processors is bound by a data-processing agreement and
+  instruction-only use, and cross-border transfers rely on a recognized transfer mechanism
+layer: semantic
+characteristic: security
+severity: medium
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-06-03'
+  entered_stable: '2026-06-04'
+  authored_by: Myoung Hong
+sources:
+- title: EU GDPR Regulation 2016/679 (Article 28 processor obligations and Articles 44
+    through 49 transfers to third countries, referenced as a concept)
+  url: https://eur-lex.europa.eu/eli/reg/2016/679/oj
+- title: ISO/IEC 27701 privacy information management (the obligations on controllers
+    sharing personal data with processors, referenced as a concept)
+  url: https://www.iso.org/standard/71670.html
+applies_to:
+  language: any
+  framework: any
+  environment: any
+references: []
+statement: Personal data shared with a processor acting on the application's behalf is
+  bound by a data-processing agreement that limits the processor to documented instructions,
+  and personal data transferred outside the home jurisdiction relies on a recognized transfer
+  mechanism. Sub-processors are disclosed, and onward sharing inherits the same safeguards.
+  This rule is verified by review of the agreements and the data-flow configuration rather
+  than by a test, because the obligations are contractual and organizational. Where the
+  shared data carries a sensitivity class its handling is owned by data-classification,
+  and a third-party code dependency rather than a data processor is owned by supply-chain;
+  this rule cross-references both. The review is triggered when a new processor or cross-border
+  data flow is introduced.
+rationale: 'The boundary of a system is not the boundary of its personal-data responsibility:
+  the moment data leaves for a processor or another jurisdiction, the safeguards that
+  keep it lawful become contractual and configurational rather than coded, and the controller
+  stays accountable. The failure is sharing by default, a vendor integration wired up
+  without an agreement, a region chosen for latency without a transfer mechanism, an onward
+  processor nobody disclosed. The substrate keeps this an L2 review and deliberately gives
+  it no test template, because the obligations live in signed agreements and data-flow
+  topology that no assertion in application source can prove; this is the same honesty
+  the substrate applies wherever verification is review-and-evidence rather than test.
+  It cross-references data-classification for the class-specific handling and supply-chain
+  for code dependencies rather than restating them.'

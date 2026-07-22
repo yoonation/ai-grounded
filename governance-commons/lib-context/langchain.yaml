@@ -1,0 +1,404 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Myoung Hong
+
+
+# LangChain library context for AI tools.
+#
+# LangChain has gone through significant API churn. AI tools trained
+# on older snapshots frequently produce code using deprecated patterns
+# from v0.0.x and v0.1.x. This file documents the current v0.3+ API.
+#
+# Maintenance cadence: monthly (high release velocity)
+
+library:
+  name: langchain
+  ecosystem: python
+  current_version: "0.3.x"
+  last_reviewed: "2026-05-12"
+  review_cadence: monthly
+  primary_docs: https://python.langchain.com/docs
+
+# ============================================================
+# Major version differences (critical for hallucination prevention)
+# ============================================================
+
+major_version_changes:
+  - from: "v0.0.x"
+    to: "v0.1.x"
+    summary: >
+      Package split. Core abstractions moved to langchain-core.
+      Provider integrations moved to separate packages
+      (langchain-openai, langchain-anthropic, etc).
+
+  - from: "v0.1.x"
+    to: "v0.2.x"
+    summary: >
+      LangChain Expression Language (LCEL) became the canonical
+      pattern. Chain classes deprecated in favor of LCEL pipes.
+
+  - from: "v0.2.x"
+    to: "v0.3.x"
+    summary: >
+      Pydantic v2 required throughout. v1 compatibility removed.
+      Many providers moved to langchain-community.
+
+# ============================================================
+# Current import patterns (v0.3+)
+# ============================================================
+
+current_imports:
+  - module: langchain_core.messages
+    exports:
+      - HumanMessage
+      - AIMessage
+      - SystemMessage
+      - ToolMessage
+      - FunctionMessage
+    notes: >
+      Messages are pydantic models. Use AIMessage for assistant
+      responses, ToolMessage for tool results.
+
+  - module: langchain_core.prompts
+    exports:
+      - ChatPromptTemplate
+      - PromptTemplate
+      - MessagesPlaceholder
+    notes: >
+      ChatPromptTemplate is the standard for chat models.
+      Use from_messages or from_template factory methods.
+
+  - module: langchain_core.output_parsers
+    exports:
+      - StrOutputParser
+      - JsonOutputParser
+      - PydanticOutputParser
+    notes: >
+      Pipe these as the final step of an LCEL chain to coerce
+      model outputs to specific types.
+
+  - module: langchain_core.runnables
+    exports:
+      - RunnableLambda
+      - RunnablePassthrough
+      - RunnableParallel
+      - RunnableBranch
+    notes: >
+      LCEL primitives. RunnablePassthrough.assign for adding fields
+      to dict-shaped state. RunnableParallel for fan-out.
+
+  - module: langchain_openai
+    exports:
+      - ChatOpenAI
+      - OpenAI
+      - OpenAIEmbeddings
+    notes: >
+      Provider package, separate from langchain core. Install with
+      pip install langchain-openai.
+
+  - module: langchain_anthropic
+    exports:
+      - ChatAnthropic
+    notes: >
+      Provider package. pip install langchain-anthropic.
+
+  - module: langchain.agents
+    exports:
+      - create_tool_calling_agent
+      - AgentExecutor
+    notes: >
+      For agent patterns. Note: many LangChain users have migrated
+      to LangGraph for agent orchestration. See lib-context/langgraph.yaml.
+
+# ============================================================
+# Deprecations - patterns AI will produce but shouldn't
+# ============================================================
+
+deprecations:
+  - api: "from langchain.chat_models import ChatOpenAI"
+    deprecated_in: "0.1.0"
+    removed_in: "0.2.0"
+    replacement: "from langchain_openai import ChatOpenAI"
+    migration: >
+      Provider classes moved to dedicated packages. Install the
+      provider package separately.
+
+  - api: "LLMChain"
+    deprecated_in: "0.2.0"
+    removed_in: null
+    replacement: "LCEL pipe chain: prompt | llm | parser"
+    migration: >
+      Replace LLMChain(llm=llm, prompt=prompt) with:
+      chain = prompt | llm | StrOutputParser()
+      chain.invoke({"input": "..."})
+
+  - api: "ConversationChain"
+    deprecated_in: "0.2.0"
+    removed_in: null
+    replacement: "RunnableWithMessageHistory or LangGraph"
+    migration: >
+      For simple cases, use RunnableWithMessageHistory wrapping an
+      LCEL chain. For complex agent state, use LangGraph.
+
+  - api: "ConversationBufferMemory and related memory classes"
+    deprecated_in: "0.2.0"
+    removed_in: null
+    replacement: "BaseChatMessageHistory implementations"
+    migration: >
+      Use InMemoryChatMessageHistory or backend-specific
+      implementations (RedisChatMessageHistory, etc.) with
+      RunnableWithMessageHistory.
+
+  - api: "AgentType enum (initialize_agent function)"
+    deprecated_in: "0.1.0"
+    removed_in: null
+    replacement: "create_tool_calling_agent or LangGraph"
+    migration: >
+      initialize_agent and AgentType.ZERO_SHOT_REACT_DESCRIPTION etc
+      are legacy. Use create_tool_calling_agent + AgentExecutor for
+      simple cases, LangGraph for complex agent state.
+
+  - api: "PydanticOutputParser with pydantic.BaseModel from v1"
+    deprecated_in: "0.3.0"
+    removed_in: "0.3.0"
+    replacement: "Pydantic v2 BaseModel"
+    migration: >
+      LangChain v0.3+ requires pydantic v2 throughout. v1 BaseModel
+      subclasses won't work with output parsers.
+
+# ============================================================
+# Current API: LCEL basics
+# ============================================================
+
+current_api:
+  - name: "Basic LCEL chain"
+    signature: "prompt | llm | parser"
+    description: >
+      The canonical chain pattern. Compose runnables with the pipe
+      operator. Each step's output becomes the next step's input.
+    example: |
+      from langchain_core.prompts import ChatPromptTemplate
+      from langchain_core.output_parsers import StrOutputParser
+      from langchain_openai import ChatOpenAI
+
+      prompt = ChatPromptTemplate.from_messages([
+          ("system", "You are a helpful assistant."),
+          ("user", "{question}")
+      ])
+      llm = ChatOpenAI(model="gpt-4o")
+      parser = StrOutputParser()
+
+      chain = prompt | llm | parser
+      result = chain.invoke({"question": "What is 2+2?"})
+    notes: >
+      invoke for single calls, batch for parallel, stream for
+      streaming, ainvoke/abatch/astream for async.
+
+  - name: "RunnablePassthrough.assign"
+    signature: "RunnablePassthrough.assign(field=runnable)"
+    description: >
+      Add fields to a dict-shaped state by running additional
+      runnables and merging their outputs.
+    example: |
+      from langchain_core.runnables import RunnablePassthrough
+
+      chain = RunnablePassthrough.assign(
+          context=retriever
+      ) | prompt | llm | parser
+
+      # invoke with {"question": "..."} produces:
+      # {"question": "...", "context": <retriever output>}
+    notes: >
+      Replaces manual dict construction. The dict-shaped state is
+      passed through and augmented.
+
+  - name: "Tool calling with ChatOpenAI / ChatAnthropic"
+    signature: "llm.bind_tools([tool1, tool2, ...])"
+    description: >
+      Bind tools to a chat model. The bound model produces
+      AIMessage with tool_calls field when it decides to call tools.
+    example: |
+      from langchain_core.tools import tool
+
+      @tool
+      def get_weather(location: str) -> str:
+          \"\"\"Get current weather for a location.\"\"\"
+          return f"Weather in {location}: 72F sunny"
+
+      llm_with_tools = llm.bind_tools([get_weather])
+      response = llm_with_tools.invoke("What's the weather in Phoenix?")
+      # response.tool_calls contains the tool invocations the model wants
+    notes: >
+      The @tool decorator converts a function to a BaseTool. Type
+      annotations and docstring become the tool's schema.
+
+  - name: "Structured output"
+    signature: "llm.with_structured_output(schema)"
+    description: >
+      Constrain model output to a specific Pydantic v2 schema.
+    example: |
+      from pydantic import BaseModel, Field
+
+      class Answer(BaseModel):
+          answer: str = Field(description="The answer")
+          confidence: float = Field(ge=0.0, le=1.0)
+
+      structured_llm = llm.with_structured_output(Answer)
+      result: Answer = structured_llm.invoke("What is 2+2?")
+      # result is an Answer instance, not a string
+    notes: >
+      Uses provider-native structured output (function calling, JSON
+      mode). Replaces manual PydanticOutputParser + format_instructions
+      for providers that support it natively.
+
+  - name: "Streaming"
+    signature: "chain.stream(input) or chain.astream(input)"
+    description: >
+      Stream chunks as the model produces them.
+    example: |
+      for chunk in chain.stream({"question": "Tell me a story"}):
+          print(chunk, end="", flush=True)
+
+      # Async equivalent:
+      async for chunk in chain.astream({"question": "Tell me a story"}):
+          print(chunk, end="", flush=True)
+    notes: >
+      Most LCEL chains support stream/astream automatically by
+      forwarding chunks through the pipe.
+
+  - name: "Embeddings + Vector store retrieval"
+    signature: "vectorstore.as_retriever()"
+    description: >
+      Convert a vector store to a runnable retriever for RAG chains.
+    example: |
+      from langchain_openai import OpenAIEmbeddings
+      from langchain_community.vectorstores import FAISS
+
+      embeddings = OpenAIEmbeddings()
+      vectorstore = FAISS.from_texts(["doc1", "doc2"], embeddings)
+      retriever = vectorstore.as_retriever()
+
+      rag_chain = (
+          {"context": retriever, "question": RunnablePassthrough()}
+          | prompt
+          | llm
+          | parser
+      )
+    notes: >
+      Vector store classes are in langchain-community (not langchain-core).
+      pip install langchain-community for vector store integrations.
+
+# ============================================================
+# Common hallucination patterns
+# ============================================================
+
+common_hallucinations:
+  - pattern: "from langchain.llms import OpenAI"
+    problem: >
+      langchain.llms.OpenAI is the legacy completions API, often
+      hallucinated when the user wants chat completions. Also the
+      import path is wrong since v0.1 (provider packages split).
+    correct: |
+      from langchain_openai import ChatOpenAI
+      llm = ChatOpenAI(model="gpt-4o")
+
+  - pattern: "LLMChain(llm=llm, prompt=prompt)"
+    problem: >
+      LLMChain is deprecated since v0.2. AI tools still produce it
+      because it's heavily represented in older code.
+    correct: "chain = prompt | llm | StrOutputParser()"
+
+  - pattern: "initialize_agent(tools, llm, agent=AgentType.ZERO_SHOT_REACT_DESCRIPTION)"
+    problem: >
+      Legacy agent initialization. Not removed but actively deprecated.
+    correct: |
+      from langchain.agents import create_tool_calling_agent, AgentExecutor
+      agent = create_tool_calling_agent(llm, tools, prompt)
+      executor = AgentExecutor(agent=agent, tools=tools)
+
+  - pattern: "memory=ConversationBufferMemory()"
+    problem: >
+      Legacy memory class. Deprecated since v0.2.
+    correct: |
+      Use RunnableWithMessageHistory with InMemoryChatMessageHistory
+      or a backend-specific history class.
+
+  - pattern: "class MyModel(BaseModel): ... # pydantic v1 syntax"
+    problem: >
+      LangChain v0.3+ requires pydantic v2. Code using v1's
+      class Config, .dict() method, validator decorator (instead of
+      field_validator), etc. won't integrate.
+    correct: |
+      Use pydantic v2 patterns: model_config, model_dump(),
+      field_validator. See lib-context/pydantic.yaml.
+
+  - pattern: "from langchain.text_splitter import RecursiveCharacterTextSplitter"
+    problem: >
+      Module path changed. langchain.text_splitter moved.
+    correct: "from langchain_text_splitters import RecursiveCharacterTextSplitter"
+
+  - pattern: "llm.predict(text) or llm.predict_messages(messages)"
+    problem: >
+      predict and predict_messages are deprecated. Use invoke uniformly.
+    correct: "llm.invoke(messages)  # or llm.invoke(text) for string input"
+
+  - pattern: "ConversationalRetrievalChain.from_llm(llm, retriever)"
+    problem: >
+      Pre-built chain classes are deprecated. Compose with LCEL.
+    correct: |
+      Build the chain explicitly:
+      retrieval_chain = (
+          RunnablePassthrough.assign(context=retriever)
+          | prompt
+          | llm
+          | parser
+      )
+
+# ============================================================
+# Notable provider package versions
+# ============================================================
+
+provider_packages:
+  langchain-openai: "0.2.x"
+  langchain-anthropic: "0.3.x"
+  langchain-google-genai: "2.x"
+  langchain-aws: "0.2.x"
+  langchain-community: "0.3.x"
+
+  notes: |
+    Provider packages version independently from langchain-core.
+    Install the specific provider package needed; don't depend on
+    langchain pulling them in transitively.
+
+# ============================================================
+# LangChain vs LangGraph
+# ============================================================
+
+langchain_vs_langgraph:
+  use_langchain_for:
+    - Simple LCEL chains (prompt | llm | parser)
+    - RAG pipelines
+    - Tool-calling with a few tools
+    - Single-turn or simple multi-turn conversations
+
+  use_langgraph_for:
+    - Multi-agent systems
+    - Complex state machines
+    - Cyclic graphs (agent that calls itself)
+    - Human-in-the-loop workflows requiring pause/resume
+    - Production agents with persistence requirements
+
+  notes: >
+    LangGraph is built on LangChain Runnable interface. The two
+    compose: LangGraph nodes can be LCEL chains.
+    See lib-context/langgraph.yaml.
+
+# ============================================================
+# References
+# ============================================================
+
+references:
+  - https://python.langchain.com/docs/introduction
+  - https://python.langchain.com/docs/concepts
+  - https://python.langchain.com/docs/versions/v0_3
+  - https://python.langchain.com/api_reference
+  - https://github.com/langchain-ai/langchain

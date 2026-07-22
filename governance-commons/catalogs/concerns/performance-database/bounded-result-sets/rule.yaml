@@ -1,0 +1,40 @@
+id: performance-database.bounded-result-sets
+name: Queries that return a collection carry an explicit row bound (a LIMIT or a pagination
+  clause); unbounded full-table or full-result fetches are prohibited on the request path
+layer: mechanical
+characteristic: performance-efficiency
+severity: high
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-31'
+  entered_stable: '2026-06-01'
+  authored_by: Myoung Hong
+sources:
+- title: Postgres LIMIT and OFFSET documentation (bounding the rows a query returns)
+  url: https://www.postgresql.org/docs/current/queries-limit.html
+- title: Django QuerySet limiting (slicing as the bound on a collection query)
+  url: https://docs.djangoproject.com/en/stable/topics/db/queries/#limiting-querysets
+applies_to:
+  language: any
+  framework: any
+  environment: any
+references: []
+statement: 'Every query that can return more than one row on the OLTP request path carries
+  an explicit row bound: a LIMIT or pagination clause that caps the rows returned, or
+  a streaming cursor whose consumer processes rows without accumulating the full set in
+  memory. Single-row lookups by primary key or unique constraint are exempt. The rule
+  applies whether the query is expressed in the ORM, a query builder, or raw SQL. The
+  bound''s value is profile-and workload-tuned; the rule requires that a bound exist,
+  not a particular page size.'
+rationale: 'An unbounded query couples the cost of a request to the size of the data,
+  which is the coupling that turns a healthy system into an unhealthy one as it grows.
+  The cost is paid three times: the database scans and possibly sorts a large row set,
+  the network transfers it, and the application allocates memory to hold and deserialize
+  it. Any of the three can be the failure point, and because the query looks correct (it
+  returns the right rows), the defect survives review until production data makes it fatal.
+  A bound forces an explicit pagination contract, which is the correct shape for any collection
+  an API returns. The substrate treats the bound as a mechanical floor because its absence
+  is statically visible and its addition is trivial, while its absence in production is
+  a memory exhaustion or a database stall. The complementary L2 rule performance-database.keyset-pagination governs
+  whether the pagination is keyset rather than offset for deep navigation.'

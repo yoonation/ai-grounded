@@ -1,0 +1,3 @@
+binding_status: capability-bound
+rule: feature-flags.fail-static-default
+gate: lint

@@ -1,0 +1,3 @@
+binding_status: capability-bound
+rule: code-organization.cyclomatic-complexity
+gate: lint

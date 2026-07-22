@@ -1,0 +1,60 @@
+id: infrastructure-misconfiguration.no-unrestricted-ingress
+name: Network security rules do not declare unrestricted ingress (0.0.0.0/0, ::/0) to
+  sensitive ports
+layer: mechanical
+characteristic: security
+severity: critical
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-31'
+  entered_stable: '2026-06-01'
+  authored_by: Myoung Hong
+sources:
+- title: CIS AWS Foundations Benchmark v3.0.0 (Section 5 Networking, security-group ingress
+    rules)
+  url: https://www.cisecurity.org/benchmark/amazon_web_services
+- title: CIS Azure Foundations Benchmark v2.1.0 (Section 6 Networking, network security
+    group rules)
+  url: https://www.cisecurity.org/benchmark/azure
+- title: CIS GCP Foundation Benchmark v2.0.0 (Section 3 Networking, firewall-rule restrictions)
+  url: https://www.cisecurity.org/benchmark/google_cloud_computing_platform
+- title: NIST SP 800-53 Rev. 5 SC-7 Boundary Protection
+  url: https://csrc.nist.gov/projects/cprt/catalog#/cprt/framework/version/SP_800_53_5_1_1/home
+- title: CWE-284 Improper Access Control
+  url: https://cwe.mitre.org/data/definitions/284.html
+cwe:
+- CWE-284
+- CWE-668
+- CWE-749
+applies_to:
+  language: any-iac
+  framework: terraform-cloudformation-pulumi-kubernetes-arm-bicep
+  environment: any-cloud-network-security-construct
+references: []
+statement: 'IaC declarations of network security constructs (AWS security groups and security-group
+  rules, AWS Network Firewall rule groups, AWS WAF rules; Azure network security groups
+  and NSG rules, Azure Firewall rules; GCP firewall rules; Kubernetes NetworkPolicy ingress
+  rules; cloud-provider load-balancer listener rules) do not declare ingress from 0.0.0.0/0
+  or ::/0 to the substrate''s sensitive-port list. The sensitive-port list at this substrate
+  version: SSH (22), RDP (3389), Telnet (23), VNC (5900), Kubernetes API (6443), Kubelet
+  (10250), etcd (2379, 2380), Docker daemon (2375, 2376), Redis (6379), Memcached (11211),
+  MongoDB (27017, 27018, 27019), MySQL / MariaDB (3306), PostgreSQL (5432), Microsoft
+  SQL Server (1433), Oracle Database (1521, 1830), Cassandra (7000, 7001, 7199, 9042,
+  9160), Elasticsearch / OpenSearch (9200, 9300), Kibana (5601), RabbitMQ management (15672),
+  and the cloud-administrative endpoints (AWS IMDS replacement reachability via 169.254.169.254
+  is out of L1 scope but is an L2 concern; the cloud control-plane is not directly IaC-declarable).
+  Consumers extend the sensitive-port list via profile annotation when their application
+  stack uses additional administrative protocols. The rule applies symmetrically to IPv4
+  (0.0.0.0/0) and IPv6 (::/0).'
+rationale: 'The substrate''s design choice is to make "internet-exposed administrative
+  access" a bright-line failure rather than a review-time judgment. The pattern across
+  published incident reports is consistent: a security group is opened to 0.0.0.0/0 for
+  a debugging session and not closed; a copy-paste from a tutorial leaves 0.0.0.0/0 on
+  a production resource; a new database is provisioned without explicit network restrictions
+  because the consumer relied on the cloud provider''s default-deny posture that the consumer''s
+  IaC scaffold overrode. The substrate treats all three patterns identically: the IaC
+  declares 0.0.0.0/0 to a sensitive port, or it does not. The cost of the rule is one
+  line of IaC restricting the CIDR; the cost of omission is that the resource is internet-attackable
+  from provisioning forward, and most incident-response paths begin with discovery of
+  the open port via Shodan or Censys.'

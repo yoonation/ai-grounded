@@ -1,0 +1,40 @@
+id: testing-strategy.no-empty-test-body
+name: Test functions contain at least one assertion or expectation invocation
+layer: mechanical
+characteristic: functional-suitability
+severity: high
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-25'
+  entered_stable: '2026-05-26'
+  authored_by: Myoung Hong
+sources:
+- title: OWASP ASVS v5.0.0 V14.1 (test execution evidence requires substantive verification)
+  url: https://github.com/OWASP/ASVS/blob/v5.0.0/5.0/en/0x22-V14-Config.md
+- title: CWE-1006 Bad Coding Practices
+  url: https://cwe.mitre.org/data/definitions/1006.html
+cwe:
+- CWE-1006
+applies_to:
+  language: any
+  framework: any-testing-framework
+  environment: any
+references: []
+statement: Every test function (a function recognized by the project's test framework
+  as a test, including pytest functions matching the test_* pattern, Jest test() and it()
+  callbacks, JUnit @Test methods, Go Test* functions, RSpec describe/it blocks) contains
+  at least one assertion invocation that verifies behavior. Acceptable forms include framework
+  assertions (assert, assertEqual, assertThat, expect().toEqual, should.equal), library
+  matchers (Hamcrest, AssertJ, Chai), and custom assertion helpers that ultimately invoke
+  a framework assertion. Test functions whose body is empty, contains only setup code,
+  or only invokes the system under test without verifying the result are forbidden.
+rationale: 'Empty test bodies (or assertion-free test bodies) are tests that cannot fail.
+  They produce green signal regardless of the system''s actual behavior; they contribute
+  to coverage metrics while providing no verification. The pattern arises three ways:
+  from "I''ll write the assertions later" placeholders that never get filled in, from
+  copy-paste of scaffolding without filling in the body, and from refactoring that removes
+  the assertion but leaves the test in place. The rule operates at L1 because the absence
+  of any assertion call is statically detectable via AST analysis. Whether the assertions
+  are meaningful (test the right thing, distinguish behavior changes, exercise edge cases)
+  is L2 review territory.'

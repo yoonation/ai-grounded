@@ -1,0 +1,43 @@
+id: monitoring-alerting.pipeline-liveness-and-runbook-reachability
+name: The alerting pipeline is itself monitored by a heartbeat that pages if it stops,
+  and runbook links referenced by paging alerts resolve to a reachable document
+layer: semantic
+characteristic: reliability
+severity: medium
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-06-03'
+  entered_stable: '2026-06-04'
+  authored_by: Myoung Hong
+sources:
+- title: Prometheus Alerting Best Practices (the DeadMansSwitch heartbeat alert that verifies
+    the pipeline is alive, referenced as a concept)
+  url: https://prometheus.io/docs/practices/alerting/
+- title: Google SRE Book Chapter 6 Practical Alerting (monitoring the monitoring system,
+    referenced as a concept)
+  url: https://sre.google/sre-book/practical-alerting/
+applies_to:
+  language: any
+  framework: any
+  environment: any
+references: []
+statement: 'The alerting pipeline is monitored by a heartbeat (a dead-man''s-switch):
+  an alert that fires continuously under normal operation and pages a destination external
+  to the pipeline precisely when it stops arriving, so a pipeline failure is itself an
+  alert rather than silence. Runbook links referenced by paging alerts (the runbook_url
+  annotation observability.alerting-discipline requires) resolve to a reachable document. The rule owns the runtime
+  reachability that observability.alerting-discipline (annotation present) and monitoring-alerting.alert-route-resolves-to-receiver (route defined) establish
+  statically. A pipeline with no heartbeat, or a paging alert whose runbook link does
+  not resolve, is the finding.'
+rationale: 'Every other rule in this concern assumes the alerting pipeline is running.
+  When that assumption fails, the failure is silent by construction: no alerts fire because
+  the thing that fires alerts is down, and an operator reading a quiet dashboard concludes
+  all is well. The dead-man''s-switch inverts the default: a heartbeat that is always
+  supposed to be firing means its absence is the signal, and routing that absence to a
+  destination outside the failed pipeline (a separate provider, a hosted check) closes
+  the recursion. The rule also makes the runbook annotation observability.alerting-discipline requires actually
+  pay off by testing that the link resolves, since a runbook_url pointing at a deleted
+  page is hygiene that helps no one at three in the morning. It is medium severity as
+  a backstop but high in consequence, and it owns the runtime reachability the static
+  rules cannot prove.'

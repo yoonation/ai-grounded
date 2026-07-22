@@ -1,0 +1,61 @@
+id: infrastructure-misconfiguration.data-resource-encryption-at-rest
+name: Data-bearing resources declare encryption at rest in IaC
+layer: mechanical
+characteristic: security
+severity: high
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-31'
+  entered_stable: '2026-06-01'
+  authored_by: Myoung Hong
+sources:
+- title: CIS Amazon Web Services Foundations Benchmark v3.0.0 (Sections 2.1, 2.2, 2.3
+    storage and database encryption at rest)
+  url: https://www.cisecurity.org/benchmark/amazon_web_services
+- title: CIS Microsoft Azure Foundations Benchmark v2.1.0 (Section 3 Storage Account,
+    Section 4 Database encryption)
+  url: https://www.cisecurity.org/benchmark/azure
+- title: CIS Google Cloud Platform Foundation Benchmark v2.0.0 (Section 4 Compute, Section
+    6 Database encryption)
+  url: https://www.cisecurity.org/benchmark/google_cloud_computing_platform
+- title: NIST SP 800-53 Rev. 5 SC-28 Protection of Information at Rest
+  url: https://csrc.nist.gov/projects/cprt/catalog#/cprt/framework/version/SP_800_53_5_1_1/home
+- title: CWE-311 Missing Encryption of Sensitive Data
+  url: https://cwe.mitre.org/data/definitions/311.html
+cwe:
+- CWE-311
+- CWE-312
+applies_to:
+  language: any-iac
+  framework: terraform-cloudformation-pulumi-kubernetes-arm-bicep
+  environment: any-cloud-data-bearing-resource
+references: []
+statement: Every IaC declaration of a data-bearing resource carries an explicit encryption-at-rest
+  configuration. Data-bearing resources include object stores (S3 buckets, Azure Storage
+  containers, GCS buckets), block storage (EBS volumes, Azure Managed Disks, GCP Persistent
+  Disks), relational and NoSQL databases (RDS, Aurora, Azure SQL, Cosmos DB, DynamoDB,
+  Cloud SQL, Bigtable, Spanner, Redshift), caches that may persist (ElastiCache, Azure
+  Cache for Redis with persistence enabled, Memorystore with snapshots), file systems
+  (EFS, FSx, Azure Files, Filestore), search indexes (OpenSearch, Azure Cognitive Search),
+  queues and streams that retain payload (Kinesis, Event Hubs, Pub/Sub retained, SNS,
+  SQS, MSK, Confluent on cloud), and Kubernetes PersistentVolume resources backed by any
+  of the preceding. The encryption configuration is declared via the resource's encryption
+  attribute (for example, server_side_encryption_configuration on aws_s3_bucket, kms_key_id
+  on aws_ebs_volume, encryption block on azurerm_storage_account, encryption_key on google_storage_bucket);
+  the attribute's value selects provider-managed keys or customer-managed keys per the
+  profile's tilt. Resources for which the provider defaults to encrypted-at-rest at the
+  cloud-account level (AWS account default encryption for EBS as of 2023, Azure platform-managed-key
+  defaults) still carry the explicit attribute in IaC because the substrate's mechanical
+  detection cannot assume a cloud-account default it cannot see, and explicit declarations
+  document intent at the source.
+rationale: Encryption at rest is the smallest control with the largest blast-radius reduction.
+  The cost of declaring it is one line of IaC and (where customer-managed keys are selected)
+  a key-management decision that the L2 rule infrastructure-misconfiguration.key-management-design covers separately. The cost of
+  omitting it is that any later failure (a misconfigured bucket policy, a leaked credential,
+  a regulatory audit) converts directly to a data-exposure event rather than to a near-miss.
+  The CIS Benchmarks for AWS, Azure, and GCP all treat encryption at rest as a baseline
+  control for every data-bearing resource type. The substrate makes the requirement mechanical
+  (the attribute must appear in IaC source) rather than relying on cloud-account defaults
+  (which can change provider-side and which cannot be inspected by static analysis) and
+  rather than relying on review-time judgment (which is error-prone at scale).

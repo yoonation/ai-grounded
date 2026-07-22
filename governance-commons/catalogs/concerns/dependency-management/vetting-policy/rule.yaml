@@ -1,0 +1,47 @@
+id: dependency-management.vetting-policy
+name: The project's dependency vetting policy (criteria for accepting new direct dependencies)
+  is explicitly decided and documented via the substrate's MADR framework
+layer: judgmental
+characteristic: compatibility
+severity: high
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-20'
+  entered_stable: '2026-05-22'
+  authored_by: Myoung Hong
+sources:
+- title: OWASP SCVS V2 Software Bill of Materials and V6 Vulnerability Management (component
+    selection context)
+  url: https://owasp.org/www-project-software-component-verification-standard/
+- title: OpenSSF Scorecard (substrate-recommended scoring framework that informs vetting
+    criteria)
+  url: https://github.com/ossf/scorecard
+- title: NIST SP 800-218 SSDF v1.1 (PW.4.4 use components from trusted sources)
+  url: https://csrc.nist.gov/publications/detail/sp/800-218/final
+applies_to:
+  language: any
+  framework: any
+  environment: any
+references: []
+statement: 'The project''s repository contains an architectural decision record (typical
+  substrate-recommended location: /docs/decisions/ADR-XXX-dependency-vetting-policy.md)
+  authored against the substrate''s framework at decision-frameworks/dependency-vetting-policy.madr.
+  md. The ADR documents the project''s criteria for accepting a new direct dependency,
+  the evidence expected at intake, the lifecycle expectations once a dependency is accepted,
+  and the review cadence for the policy itself. The ADR is reviewed against the substrate''s
+  L3 review checklist at the co-located checklist.md
+  before being merged. Once merged, the policy is consulted at every direct dependency
+  intake; PRs that introduce direct dependencies reference the policy in the PR description.'
+rationale: 'Every direct dependency is a commitment. Beyond the immediate functional value,
+  the dependency carries ongoing cost: integration maintenance, transitive surface expansion,
+  security tracking, license compliance, eventual upgrade or replacement. The cumulative
+  cost across many dependencies is the project''s maintenance burden in the future. Intake-time
+  vetting is the cheapest place to manage that cost. A dependency rejected at intake never
+  accumulates the costs above. A dependency accepted without examination accumulates them
+  silently. The substrate''s L3 rule forces the criteria to be explicit so the team can
+  evaluate dependencies consistently against them, and so that turnover in the team does
+  not lose the institutional reasoning. The substrate provides analysis of common criteria
+  (license, maintenance health, security posture, transitive footprint, alternatives evaluation)
+  in the framework. The consumer chooses which criteria apply in their context and at
+  what weight.'

@@ -1,0 +1,3 @@
+binding_status: capability-bound
+rule: documentation.public-api-documented
+gate: lint

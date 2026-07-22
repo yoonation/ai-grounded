@@ -1,0 +1,65 @@
+id: cost-model-selection.cost-attribution-tags
+name: Every billable infrastructure resource declared in IaC carries the substrate-required
+  cost-attribution tag set
+layer: mechanical
+characteristic: performance-efficiency
+severity: high
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-21'
+  entered_stable: '2026-05-22'
+  authored_by: Myoung Hong
+sources:
+- title: 'FinOps Foundation Framework: Allocation principle (the practice of attributing
+    cloud spend to its business consumers; tag-based allocation is the substrate-recommended
+    primary mechanism)'
+  url: https://www.finops.org/framework/principles/
+- title: 'AWS Well-Architected Framework Cost Optimization Pillar: COST02-BP04 implement
+    groups and roles (tag governance), COST03-BP02 add organization information to cost
+    and usage'
+  url: https://docs.aws.amazon.com/wellarchitected/latest/cost-optimization-pillar/welcome.html
+- title: 'Azure Well-Architected Framework Cost Optimization pillar: Tagging guidance
+    and allocation discipline'
+  url: https://learn.microsoft.com/en-us/azure/well-architected/cost-optimization/
+- title: 'Google Cloud Architecture Framework Cost Optimization pillar: Labels and resource
+    hierarchy for cost attribution'
+  url: https://cloud.google.com/architecture/framework/cost-optimization
+cwe:
+- CWE-1059
+applies_to:
+  language: any-iac
+  framework: any-with-cloud-billable-resources
+  environment: any-cloud-deployed
+references: []
+statement: 'Every infrastructure resource declared in the consumer''s infrastructure-as-code
+  (IaC) that incurs cloud or vendor cost carries the substrate-required cost-attribution
+  tag set. The substrate-recommended floor is four tags: cost-center (which financial
+  cost center the spend attributes to), environment (production, staging, development,
+  or the consumer''s environment vocabulary), service (which service in the consumer''s
+  service catalog the resource supports), and owner (which team or individual is accountable
+  for the spend). Consumers extend the required set with additional tags appropriate to
+  their cost program (tenant for multi-tenant deployments, project for grant-funded work,
+  compliance-regime for regulated workloads). The tag block is present in the resource
+  declaration at IaC author time. The CI pipeline rejects IaC changes that introduce billable
+  resources without the tag block. Provider-side tag enforcement (AWS Service Control
+  Policies, Azure Policy, GCP Organization Policy, OPA Gatekeeper for Kubernetes) is the
+  substrate-recommended belt-and-braces complement; the rule''s mechanical L1 detection
+  runs at the IaC source regardless of whether the provider-side gate exists.'
+rationale: 'Tag presence at the resource declaration is the only point in the resource
+  lifecycle at which attribution is cheap. After provisioning, retroactive tagging requires
+  either an inventory crawl (covering every resource and matching it back to its IaC source
+  of truth) or live re-tagging via provider APIs against running resources, both of which
+  produce gaps where the resource was created outside IaC, was destroyed before re-tagging,
+  or was created during the retrofit window. The cumulative cost of untagged resources
+  compounds: in mature consumer cost programs, the largest remediation effort is typically
+  retroactive attribution rather than ongoing tag governance. Untagged resources also
+  break the cost-anomaly signal. A 20 percent month-over-month increase in untagged spend
+  is uninvestigable: the operator does not know which service, team, or tenant is consuming
+  the increment. Tagged resources convert the same anomaly into a service-level question
+  that the consumer''s pipeline can answer. The rule is mechanical because it does not
+  depend on judgment about the tag values, only on the presence of the tag block. Whether
+  cost-center "CC-1234" resolves to a real cost center is L2; whether the tag block is
+  present at all is L1. The L1 boundary is well-suited to static analysis because the
+  question is positional (is there a tags block at this position in the resource declaration?)
+  rather than semantic (does the tag block reference correct values?).'

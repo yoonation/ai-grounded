@@ -1,0 +1,69 @@
+#!/bin/sh
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Myoung Hong
+#
+# gate-meta:
+#   order: 50
+#   name: schema
+#   posture: report-only
+#   skip: SKIP_SCHEMA
+#   strict: SCHEMA_STRICT
+#   summary: Validate staged manifest and feature-concerns against their JSON Schemas.
+# end-gate-meta
+#
+# Commit-time schema-enforcement gate. Chained by the .githooks/pre-commit
+# dispatcher after the quality gate. Validates staged structured instances against
+# the schemas the framework already ships: project-manifest.yaml against
+# project-manifest.schema.json, and specs/*/feature-concerns.yaml against
+# feature-concerns.schema.json.
+#
+# Why it exists: the schemas were shipped and agents are instructed to conform, but
+# nothing verified the actual instances. A malformed manifest or feature-concerns
+# silently breaks the tools that read it. This wires the existing validators into
+# the loop.
+#
+# Report-only by default: surfaces nonconformance and exits 0. SCHEMA_STRICT=1 makes
+# a nonconforming instance block. SKIP_SCHEMA=1 bypasses. Graceful no-op when the
+# validator (jsonschema) or YAML parser (PyYAML) is absent. Same posture as 30-sast
+# and 40-quality; not fail-closed like 10-gitleaks.
+#
+# Uses uv to supply jsonschema + pyyaml without requiring them in the base env.
+
+[ "$SKIP_SCHEMA" = "1" ] && { echo "schema: skipped (SKIP_SCHEMA=1)."; exit 0; }
+
+REPO_ROOT=$(git rev-parse --show-toplevel 2>/dev/null) || exit 0
+cd "$REPO_ROOT" || exit 0
+
+[ -f tooling/schema/check.py ] || { echo "schema: tooling/schema/check.py absent; skipped."; exit 0; }
+
+# Staged added/modified manifest or feature-concerns instances only.
+FILES=$(git diff --cached --name-only --diff-filter=AM \
+  | grep -E '(^project-manifest\.yaml$|/feature-concerns\.yaml$|^feature-concerns\.yaml$)')
+if [ -z "$FILES" ]; then
+  echo "schema: no staged manifest/feature-concerns instances; nothing to validate."
+  exit 0
+fi
+
+# Prefer uv (supplies jsonschema + pyyaml); fall back to bare python3 (check.py
+# degrades gracefully to a no-op if the libraries are not importable).
+if command -v uv >/dev/null 2>&1; then
+  RUN="uv run --with jsonschema --with pyyaml python3"
+else
+  RUN="python3"
+fi
+
+if [ "$SCHEMA_STRICT" = "1" ]; then
+  # shellcheck disable=SC2086
+  $RUN tooling/schema/check.py $FILES --repo-root . --strict --text
+  RC=$?
+  if [ "$RC" != "0" ]; then
+    echo "schema: STRICT - a nonconforming instance blocks the commit (SCHEMA_STRICT=1)."
+    echo "        Fix the instance, or bypass with SKIP_SCHEMA=1 git commit ..."
+    exit 1
+  fi
+else
+  # shellcheck disable=SC2086
+  $RUN tooling/schema/check.py $FILES --repo-root . --text
+  echo "schema: report-only - nonconformance above (if any) is not blocking (set SCHEMA_STRICT=1 to enforce)."
+fi
+exit 0

@@ -1,0 +1,48 @@
+id: logging.integrity
+name: Security-relevant logs are protected with integrity controls that detect or prevent
+  tampering
+layer: semantic
+characteristic: maintainability
+severity: high
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-20'
+  entered_stable: '2026-05-22'
+  authored_by: Myoung Hong
+sources:
+- title: NIST SP 800-53 Rev 5 AU-9 Protection of Audit Information; AU-10 Non-Repudiation
+  url: https://csrc.nist.gov/publications/detail/sp/800-53/rev-5/final
+- title: NIST SP 800-92 Section 4.4 (log file integrity protection)
+  url: https://csrc.nist.gov/publications/detail/sp/800-92/final
+- title: PCI DSS v4.0.1 Requirement 10.3 (audit log integrity protection)
+  url: https://docs-prv.pcisecuritystandards.org/PCI%20DSS/Standard/PCI-DSS-v4_0_1.pdf
+applies_to:
+  language: any
+  framework: any
+  environment: any-handling-security-events
+references: []
+statement: 'Logs carrying security-relevant events are protected against tampering by
+  one or more of the substrate-recognized integrity mechanisms: append-only or write-once
+  log stores (cloud-native log services with immutability configured, object-lock storage
+  with governance or compliance retention), per-record or per-segment hash chains with
+  periodic publication of the chain head to an external attestation service, shipping
+  to a centralized SIEM with administrative isolation from application teams, signed log
+  records produced by a trusted shipper. The chosen mechanism is documented in the logging
+  architecture ADR (logging.architecture) and is verifiable: the substrate''s review checklist asks
+  reviewers to confirm the mechanism is configured, not merely intended.'
+rationale: 'The threat model for log integrity is concrete: an attacker who compromises
+  an application host attempts to remove evidence of compromise from local logs before
+  exfiltration is noticed; an insider with application administrative access edits or
+  deletes logs that would document their actions; a compromise of the log aggregator itself
+  permits retroactive log modification. Each of these is a documented attack pattern.
+  The substrate accepts several mechanisms because the appropriate choice depends on threat
+  model and operational maturity. Append-only cloud storage with object-lock is the lowest-operational-overhead
+  option (the consumer''s aggregator does the work) and is suitable when the aggregator
+  is administratively isolated. Hash chains with external publication (rfc6962-style or
+  similar) provide cryptographic attestation but require more infrastructure. SIEM centralization
+  with isolation provides defense-in-depth when the application team has different privileges
+  than the security team. Signed records provide per-record provenance and survive aggregator
+  compromise. The rule is explicit that the mechanism is configured, not merely available.
+  Many aggregators support immutability flags but ship with the flag unset; the review
+  checklist verifies the actual configuration matches the policy.'

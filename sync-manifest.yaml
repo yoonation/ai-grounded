@@ -1,0 +1,125 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Myoung Hong
+#
+# sync-manifest.yaml - per-path ownership for the one-way template-to-consumer
+# flow. Read by tooling/sync/sync.py (update a consumer from this template)
+# and tooling/eject/eject.py (export a consumer's application as a standalone
+# tree). This file lives in the template repo only; consumers do not need a
+# copy because both tools read it from the --template path at run time.
+#
+# Direction is strictly one way: template to consumer. The sync tool never
+# writes to the template. The template is the sole source of truth for every
+# path classified framework or substrate below; the consumer is the sole
+# source of truth for scaffold content after first delivery, for every path
+# the template does not ship, and for any path the consumer lists in its
+# .template-sync/overrides.yml register.
+#
+# Classes, in resolution order (first match wins):
+#
+#   substrate  Replaced as a whole tree, never file-merged. Consumer-side
+#              extras under these globs are deleted on sync (backed up
+#              first). Matches the frozen-substrate contract in
+#              governance-commons/CHARTER.md Article III.
+#
+#   scaffold   Shell files the template delivers once and the consumer then
+#              owns and fills. Created if missing, NEVER overwritten. A
+#              template-side change to a scaffold file is reported so the
+#              consumer can adopt it manually if wanted.
+#
+#   framework  Template-owned, overwritten on sync (three-way merged when a
+#              recorded base exists and both sides changed; backed up before
+#              any overwrite). A consumer file matching a framework glob
+#              that the template does not ship is reported as an orphan,
+#              never deleted. Any template path not matching substrate or
+#              scaffold is framework by default; the globs below exist only
+#              where a directory legitimately mixes template-owned and
+#              consumer-owned files and the framework side must be named
+#              precisely (docs/, scripts/, .github/, .claude/skills/).
+#
+# Paths never listed anywhere and absent from the template tree are
+# consumer application files; both tools leave them alone (sync) or carry
+# them (eject).
+
+manifest-version: "1.0.0"
+
+substrate:
+  - "governance-commons/**"
+
+scaffold:
+  - "CLAUDE.md"
+  - "README.md"
+  - "NORTH-STAR.md"
+  - "PROJECT-LOG.md"
+  - "project-manifest.yaml"
+  - "docs/ARCHITECTURE.md"
+  - ".specify/memory/constitution.md"
+  - ".claude/CLAUDE.extra.md"
+  - ".gitignore"
+  - ".gitleaks.toml"
+  - ".mise.toml"
+  - ".claudeignore"
+  - ".editorconfig"
+  - ".mcp.json"
+
+# Directories that mix template-owned and consumer-owned files: the
+# framework side is enumerated so consumer files in the same directory are
+# never mistaken for template orphans. Directories wholly template-owned
+# (tooling/, .githooks/, presets/, .specify/extensions/, .claude/agents/,
+# .claude/hooks/, .claude/commands/, .claude/docs/) need no entry; the
+# default rule covers them.
+framework-explicit:
+  - "docs/AI-COMPATIBILITY.md"
+  - "docs/BEST-PRACTICES.md"
+  - "docs/ENHANCEMENT-ROADMAP.md"
+  - "docs/ERROR-AND-DRIFT-MODEL.md"
+  - "docs/FIT.md"
+  - "docs/FOUNDATIONS.md"
+  - "docs/GATES.md"
+  - "docs/MCP-SERVERS.md"
+  - "docs/RETROFIT.md"
+  - "docs/SPEC.md"
+  - "docs/agentic-design-patterns-reference.md"
+  - "docs/decisions/ADR-001-disk-truth-read-evidence-gate.md"
+  - "scripts/README.md"
+  - "scripts/bootstrap.sh"
+  - ".github/scripts/README.md"
+  - ".github/workflows/README.md"
+  - ".claude/skills/speckit-*/**"
+  - ".specify/templates/**"
+
+# Eject: what the standalone export of a consumer keeps and drops beyond the
+# class rules (keep = application files plus scaffold, drop = framework plus
+# substrate). Entries here are consumer-relative globs.
+eject:
+  # Scaffold files that only make sense inside the governed repo; dropped
+  # from the standalone export even though the consumer owns them.
+  exclude:
+    - "CLAUDE.md"
+    - ".claude/**"
+    - ".claudeignore"
+    - ".mcp.json"
+    - "project-manifest.yaml"
+    - "NORTH-STAR.md"
+    - ".specify/**"
+    - ".template-sync/**"
+    - "specs/**"
+    - "scripts/validate-all.sh"
+    - "scripts/validate-catalogs.sh"
+    - "scripts/validate-threats.sh"
+    - "scripts/validate-profiles.sh"
+    - "scripts/validate-decision-frameworks.sh"
+    - "scripts/validate-l2-bindings.sh"
+    - "scripts/validate-static-analysis-bindings.sh"
+    - "tests/integration/secret-scanner.test.ts"
+  # Files allowed to mention framework paths in the exported tree (comment
+  # or prose references only; the reference scan skips these).
+  allow-references:
+    - "src/llm/pricing.ts"
+    - "src/capture/structuring/structure.ts"
+    - "src/capture/structuring/README.md"
+    - "tests/integration/persona-questionnaire-p2.test.ts"
+    - "README.md"
+    - "PROJECT-LOG.md"
+    - "docs/**"
+    - ".gitignore"
+    - ".gitleaks.toml"

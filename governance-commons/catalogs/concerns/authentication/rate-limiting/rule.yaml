@@ -1,0 +1,47 @@
+id: authentication.rate-limiting
+name: Authentication endpoints implement rate limiting that prevents credential stuffing
+  and brute force attacks
+layer: semantic
+characteristic: security
+severity: high
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-18'
+  entered_stable: '2026-05-18'
+  authored_by: Myoung Hong
+sources:
+- title: OWASP ASVS v5.0.0 V6 (Authentication) rate limiting requirements
+  url: https://github.com/OWASP/ASVS/blob/v5.0.0/5.0/en/0x15-V6-Authentication.md
+- title: OWASP ASVS v5.0.0 V11 (Business Logic) anti-automation requirements
+  url: https://github.com/OWASP/ASVS/blob/v5.0.0/5.0/en/0x19-V11-BussLogic.md
+- title: CWE-307 Improper Restriction of Excessive Authentication Attempts
+  url: https://cwe.mitre.org/data/definitions/307.html
+- title: CWE-799 Improper Control of Interaction Frequency
+  url: https://cwe.mitre.org/data/definitions/799.html
+cwe:
+- CWE-307
+- CWE-799
+- CWE-770
+applies_to:
+  language: any
+  framework: any
+  environment: network-accessible-authentication
+references: []
+statement: Authentication endpoints (login, password reset, MFA challenge, token endpoints,
+  account recovery) implement rate limiting that constrains the rate at which requests
+  are accepted. Rate limiting operates at both per-source (typically per-IP) and per-target
+  (per-account or per-credential) granularities. The limits are tuned to the application's
+  threat model with the substrate-recommended starting points described in the guidance
+  section. The rate-limit response is uniform with respect to authentication outcome (does
+  not signal whether credentials would have been correct).
+rationale: 'Rate limiting is the substrate''s primary defense against credential stuffing
+  and brute force attacks. Credential stuffing tests breached credential pairs against
+  the application at scale; without rate limiting an attacker can test millions of pairs
+  quickly and identify the small percentage that succeed. Brute force tests passwords
+  against known accounts; without rate limiting weak passwords fall within minutes. Rate
+  limiting is Layer 2 rather than Layer 1 because detection requires semantic understanding:
+  which endpoints are authentication endpoints (framework-specific routing knowledge),
+  whether the rate-limit configuration is appropriate (judgment about application risk
+  profile), and whether all auth paths are covered (cross-endpoint review). Semgrep cannot
+  reliably make these determinations.'

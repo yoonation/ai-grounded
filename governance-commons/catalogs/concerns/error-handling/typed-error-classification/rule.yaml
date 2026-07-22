@@ -1,0 +1,41 @@
+id: error-handling.typed-error-classification
+name: Errors distinguish domain (user-actionable) from infrastructure (operational) at
+  the type level rather than via string matching
+layer: semantic
+characteristic: reliability
+severity: high
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-24'
+  entered_stable: '2026-05-26'
+  authored_by: Myoung Hong
+sources:
+- title: OWASP ASVS v5.0.0 V7.4 (Consistent error handling)
+  url: https://github.com/OWASP/ASVS/blob/v5.0.0/5.0/en/0x15-V7-Error-Logging.md
+- title: CWE-703 Improper Check or Handling of Exceptional Conditions
+  url: https://cwe.mitre.org/data/definitions/703.html
+cwe:
+- CWE-703
+applies_to:
+  environment: any
+references: []
+statement: The application declares a typed error hierarchy that distinguishes domain
+  errors (user-actionable outcomes representing valid business outcomes that are not "success")
+  from infrastructure errors (operational failures requiring engineer intervention). Domain
+  errors carry information the client uses to recover (the conflict that caused the duplicate
+  key, the field that violates the constraint, the state machine transition that was rejected).
+  Infrastructure errors carry information the operator uses to recover (the downstream
+  service, the configuration value, the resource that was unavailable). Error routing
+  (HTTP status mapping, retry logic, alerting) uses the type discriminator rather than
+  string matching against the message field. The type discriminator may be a class hierarchy
+  (typed exceptions), a tagged union (Result types in Rust, Either in functional languages),
+  or a sentinel + type assertion (Go errors.Is/As against sentinel and typed values).
+rationale: 'Typed error classification is the substrate''s foundation for everything downstream.
+  Status code mapping, retry logic, circuit-breaker decisions, alerting thresholds, and
+  observability classification all depend on knowing whether an error is domain or infrastructure.
+  String matching the message field is the antipattern: it works until someone updates
+  the error message and every downstream classifier silently misclassifies the error.
+  The rule is L2 because the choice of error hierarchy is a structural decision specific
+  to the application''s domain. Reviewers verify the hierarchy exists, is documented,
+  and is used consistently; the substrate does not prescribe a specific hierarchy.'

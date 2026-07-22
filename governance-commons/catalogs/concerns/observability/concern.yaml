@@ -1,0 +1,10 @@
+id: observability
+name: Observability
+characteristic: maintainability
+status: stable
+summary: >
+  How systems are made inspectable: a metric naming convention and bounded
+  label cardinality, dashboards organized by an established methodology,
+  OpenTelemetry semantic-convention coverage and trace-context
+  propagation, actionable deduplicated alerting, an SLO and error-budget
+  policy, and exclusion of sensitive data from telemetry.

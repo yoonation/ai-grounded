@@ -1,0 +1,348 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Myoung Hong
+
+
+# OWASP Agentic Skills Top 10 (AST10) for 2026
+# Threat taxonomy for the agentic SKILL layer: the reusable, named
+# behaviors (skills, plugins, packaged workflows) an agent loads and
+# invokes, distinct from the model layer (LLM Top 10) and the
+# orchestration layer (Agentic ASI Top 10).
+#
+# Mental model: the model layer is how the agent reasons; the
+# orchestration layer is how the agent acts; the skill layer is the
+# packaged behavior the agent loads to act with. AST10 covers the
+# trust, provenance, permissioning, isolation, and governance of those
+# packaged behaviors.
+#
+# This catalog is newer and faster-moving than the LLM and ASI
+# taxonomies; review against upstream more frequently. Threat
+# descriptions, vectors, and mitigations are substrate-original
+# paraphrase; no verbatim text from upstream appears here.
+#
+# This catalog is the source taxonomy for the
+# mappings/owasp-ast-to-concerns.oscal.yaml mapping, which binds these
+# threats principally to the agentic-systems concern (agentic-systems.tool-and-skill-trust-policy tool
+# and skill trust policy) and to supply-chain.
+
+metadata:
+  catalog_id: owasp-agentic-skills-top10
+  catalog_name: OWASP Agentic Skills Top 10
+  schema_version: 1.0.0
+  last_reviewed: 2026-06-03
+  upstream_source: https://owasp.org/www-project-agentic-skills-top-10/
+  upstream_version: "1.0-2026"
+  upstream_license: CC-BY-SA-4.0
+  next_review_due: 2026-09-01   # 90 days - newly launched, faster review
+  maintainer: <set-during-init>
+  review_protocol: governance-commons/MAINTENANCE.md
+  applies_to:
+    - build_time   # skills are installed and loaded into the dev/agent environment
+    - runtime      # skills are invoked when the agent acts in production
+
+threats:
+
+  - id: AST01
+    name: Malicious Skills
+    short_description: >
+      A skill is intentionally crafted to harm: it carries hidden
+      behavior (credential theft, data exfiltration, backdoor
+      instructions) behind a legitimate-looking function, and runs with
+      the agent's authority once loaded.
+    categories: [malicious-code, skill-integrity]
+    severity: critical
+    applies_to: [build_time, runtime]
+    common_vectors:
+      - A skill whose markdown or manifest instructs the agent to read
+        and exfiltrate local secrets (SSH keys, tokens, wallet files)
+      - Hidden instructions written into agent identity or memory files
+        for session-persistent backdooring
+      - A registry flooded with malicious skills sharing a common
+        command-and-control endpoint
+      - Natural-language instruction payloads that code-signature
+        scanners do not detect
+    mitigations:
+      - Admit only skills from verified publishers; vet before loading
+      - Cryptographic signing of skills with a content hash over the
+        package, verified at load
+      - Registry-side scanning (behavioral, not pattern-only) at publish
+        and install
+      - Treat the agent runtime as untrusted-code execution; sandbox it
+      - A documented tool and skill trust policy with a revocation path
+    references:
+      - https://owasp.org/www-project-agentic-skills-top-10/
+    related_threats: [ASI02, ASI01, LLM03]
+    related_compliance:
+      - EU-AI-ACT-Art-15
+      - NIST-AI-RMF-MANAGE-2.1
+      - SOC2-CC6.8
+
+  - id: AST02
+    name: Supply Chain Compromise
+    short_description: >
+      The path a skill travels from author to agent is compromised: a
+      registry is poisoned, a dependency is substituted, or a
+      repository configuration file executes at load. The skill the
+      agent runs is not the skill that was reviewed.
+    categories: [supply-chain, provenance]
+    severity: critical
+    applies_to: [build_time, runtime]
+    common_vectors:
+      - A skill registry systematically poisoned so top results are
+        malware
+      - Repository-controlled configuration that executes shell on
+        project open, before any trust prompt
+      - A nested skill dependency swapped for a malicious version
+      - Typosquatting or brand impersonation of a trusted publisher
+    mitigations:
+      - Registry transparency and provenance tracking (signed
+        provenance, transparency logs)
+      - Verify signatures and content hashes along the whole path
+      - Require explicit user trust confirmation before any
+        repository-controlled configuration executes
+      - Pin skills and their dependencies to immutable hashes
+      - SBOM and attestation discipline for skill artifacts
+    references:
+      - https://owasp.org/www-project-agentic-skills-top-10/
+    related_threats: [AST01, AST07, LLM03]
+    related_compliance:
+      - SOC2-CC7.1
+      - NIST-AI-RMF-MANAGE-2.1
+      - EU-AI-ACT-Art-15
+
+  - id: AST03
+    name: Over-Privileged Skills
+    short_description: >
+      A skill requests or holds more authority than its function needs:
+      broad file, network, or shell access, or write access to identity
+      and memory files, so a benign-looking skill can do far more than
+      its stated purpose.
+    categories: [least-privilege, authorization]
+    severity: high
+    applies_to: [build_time, runtime]
+    common_vectors:
+      - A skill that declares blanket network egress rather than a
+        domain allow-list
+      - A skill granted write access to identity or memory files it does
+        not need
+      - Over-broad file-system read scope that exposes credentials
+      - A skill that inherits the agent's ambient authority with no
+        declared scope of its own
+    mitigations:
+      - Least-privilege permission manifests; request only what the
+        skill needs
+      - Schema validation of the permission manifest at load
+      - Default-deny network egress with an explicit allow-list
+      - Protect identity and memory files behind an explicit grant
+    references:
+      - https://owasp.org/www-project-agentic-skills-top-10/
+    related_threats: [ASI02, AST01]
+    related_compliance:
+      - SOC2-CC6.3
+      - NIST-AI-RMF-MANAGE-2.1
+      - EU-AI-ACT-Art-14
+
+  - id: AST04
+    name: Insecure Metadata
+    short_description: >
+      A skill's declared metadata (its description, permissions, risk
+      tier, author) understates or misrepresents what the skill does, so
+      review and automated policy decisions are made on false
+      information.
+    categories: [metadata-integrity, transparency]
+    severity: high
+    applies_to: [build_time]
+    common_vectors:
+      - A skill whose description omits its true side effects
+      - Understated or absent permission declarations
+      - A spoofed author identity or fake publisher
+      - A risk tier declared lower than the skill's actual behavior
+    mitigations:
+      - Static analysis and linting of the skill manifest
+      - Require a complete, machine-checkable permission manifest
+      - Bind metadata to a verifiable author identity
+      - Cross-check declared permissions against observed behavior in
+        vetting
+    references:
+      - https://owasp.org/www-project-agentic-skills-top-10/
+    related_threats: [AST03, AST01]
+    related_compliance:
+      - EU-AI-ACT-Art-13
+      - NIST-AI-RMF-MAP-3.4
+      - SOC2-CC2.1
+
+  - id: AST05
+    name: Unsafe Deserialization
+    short_description: >
+      A skill's configuration or payload is parsed by an unsafe loader,
+      so a crafted skill file can trigger code execution or object
+      injection at load time through dangerous deserialization tags or
+      constructs.
+    categories: [deserialization, code-execution]
+    severity: high
+    applies_to: [build_time, runtime]
+    common_vectors:
+      - YAML or pickle loaders that execute tags or construct arbitrary
+        objects from a skill file
+      - A skill manifest that smuggles a payload through a permissive
+        parser
+      - Configuration parsed before any sandbox or validation step
+    mitigations:
+      - Use safe parsers; disable dangerous tags and arbitrary object
+        construction by default
+      - Validate skill files against a schema before any execution
+      - Load and parse skills in a sandbox
+      - Treat skill files as untrusted input, never as trusted code
+    references:
+      - https://owasp.org/www-project-agentic-skills-top-10/
+    related_threats: [AST01, LLM01]
+    related_compliance:
+      - SOC2-CC7.1
+      - NIST-AI-RMF-MANAGE-2.1
+
+  - id: AST06
+    name: Weak Isolation
+    short_description: >
+      A skill executes with insufficient isolation from the host: in the
+      agent's own process, with host file-system and network access and
+      persistent credentials, so a compromised skill compromises the
+      host.
+    categories: [isolation, sandboxing]
+    severity: high
+    applies_to: [runtime]
+    common_vectors:
+      - Skills run in host mode rather than a container or sandbox
+      - Agent processes with no network egress restriction
+      - Persistent host credentials available to every loaded skill
+      - Publicly exposed agent instances with insecure defaults
+    mitigations:
+      - Make container or sandbox isolation the default for skill
+        execution; host mode is explicit opt-in
+      - Network egress restriction on agent processes
+      - Scope credentials to the task; do not expose host credentials to
+        skills
+      - Monitor skill file-system and network activity
+    references:
+      - https://owasp.org/www-project-agentic-skills-top-10/
+    related_threats: [ASI02, AST01]
+    related_compliance:
+      - SOC2-CC6.1
+      - NIST-AI-RMF-MANAGE-2.1
+      - EU-AI-ACT-Art-15
+
+  - id: AST07
+    name: Update Drift
+    short_description: >
+      A skill changes after it was reviewed: an automatic or
+      unpinned update, or a mutable registry reference, swaps the
+      vetted version for one that was not, reintroducing risk silently.
+    categories: [versioning, supply-chain]
+    severity: medium
+    applies_to: [build_time, runtime]
+    common_vectors:
+      - Skills pinned to a version range or a mutable tag rather than a
+        hash
+      - Automatic updates that pull an unvetted new version
+      - Patch-lag exploitation between disclosure and update
+      - A registry reference that resolves to different content over
+        time
+    mitigations:
+      - Pin skills and dependencies to immutable hashes, not ranges
+      - Verify the content hash on every load
+      - Re-vet on update rather than trusting the prior review
+      - Track disclosed vulnerabilities against the pinned set
+    references:
+      - https://owasp.org/www-project-agentic-skills-top-10/
+    related_threats: [AST02, AST01]
+    related_compliance:
+      - SOC2-CC7.1
+      - NIST-AI-RMF-MANAGE-2.1
+
+  - id: AST08
+    name: Poor Scanning
+    short_description: >
+      Skill vetting relies on a scanner that misses the threats that
+      matter: pattern-matching tools catch code signatures but not the
+      natural-language instruction manipulation that drives most
+      skill-layer attacks, giving false assurance.
+    categories: [detection, assurance]
+    severity: medium
+    applies_to: [build_time]
+    common_vectors:
+      - A pattern-matching scanner bypassed by natural-language
+        injection in a skill file
+      - Treating a single scanner pass as sufficient assurance
+      - Scanning at publish but not at install, or vice versa
+      - A scanner that is itself malicious or over-trusted
+    mitigations:
+      - Combine semantic and behavioral analysis with pattern matching
+      - Scan at both publish time and install time
+      - Treat scanning as one layer, not the whole control
+      - Be explicit about what the scanner cannot detect
+    references:
+      - https://owasp.org/www-project-agentic-skills-top-10/
+    related_threats: [AST01, AST04]
+    related_compliance:
+      - NIST-AI-RMF-MEASURE-2.7
+      - SOC2-CC4.1
+
+  - id: AST09
+    name: No Governance
+    short_description: >
+      Skills are installed and run with no inventory, no approval
+      workflow, no audit logging, and no agentic identity controls, so
+      no one knows which skills are deployed, who approved them, or what
+      they have done.
+    categories: [governance, accountability]
+    severity: medium
+    applies_to: [build_time, runtime]
+    common_vectors:
+      - Shadow skill deployment with no central inventory
+      - Skills installed with no approval workflow
+      - No audit log of skill actions (file, shell, network, memory)
+      - Exposed agent instances with no security-operations visibility
+    mitigations:
+      - Maintain an inventory of deployed skills across platforms
+      - Approval workflow for skill installation
+      - Comprehensive audit logging of skill actions
+      - Agentic identity controls and an incident-response procedure
+    references:
+      - https://owasp.org/www-project-agentic-skills-top-10/
+    related_threats: [ASI08, ASI09, AST02]
+    related_compliance:
+      - EU-AI-ACT-Art-14
+      - NIST-AI-RMF-GOVERN-1.1
+      - ISO-42001-A.6
+      - SOC2-CC2.2
+
+  - id: AST10
+    name: Cross-Platform Reuse
+    short_description: >
+      A skill is ported between agent platforms whose formats carry
+      different security metadata, so a port can silently drop or
+      weaken permission, signing, or risk-tier information, and a
+      malicious skill can be reused across registries.
+    categories: [portability, metadata-loss]
+    severity: medium
+    applies_to: [build_time]
+    common_vectors:
+      - A port that loses permission or signing metadata the source
+        format carried
+      - Risk-tier or provenance information not represented in the
+        target format
+      - The same malicious skill republished across multiple registries
+      - Per-platform vetting skipped because the skill was already
+        trusted elsewhere
+    mitigations:
+      - A universal skill format that carries security metadata across
+        platforms
+      - Re-vet and re-sign on each platform rather than trusting a prior
+        platform's review
+      - Detect metadata loss when porting
+      - Maintain provenance across the port
+    references:
+      - https://owasp.org/www-project-agentic-skills-top-10/
+    related_threats: [AST02, AST04, AST07]
+    related_compliance:
+      - NIST-AI-RMF-MAP-3.4
+      - ISO-42001-A.6
+      - SOC2-CC2.1

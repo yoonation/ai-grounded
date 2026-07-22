@@ -1,0 +1,53 @@
+id: authorization.centralized-deny-by-default-policy
+name: Authorization policy is centralized, deny-by-default, and expressed in a form that
+  can be unit tested independently of business logic
+layer: semantic
+characteristic: security
+severity: high
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-22'
+  entered_stable: '2026-05-26'
+  authored_by: Myoung Hong
+sources:
+- title: OWASP ASVS v5.0.0 V8.3.1 (Authorization enforced at trusted service layer)
+  url: https://github.com/OWASP/ASVS/blob/v5.0.0/5.0/en/0x17-V8-Authorization.md
+- title: NIST SP 800-53 AC-3 Access Enforcement and AC-25 Reference Monitor
+  url: https://csrc.nist.gov/projects/cprt/catalog#/cprt/framework/version/SP_800_53_5_1_1/home
+- title: CWE-732 Incorrect Permission Assignment for Critical Resource
+  url: https://cwe.mitre.org/data/definitions/732.html
+cwe:
+- CWE-732
+- CWE-284
+- CWE-697
+applies_to:
+  language: any
+  framework: any
+  environment: any-with-authorization
+references: []
+statement: 'Authorization decisions in the application flow through a centralized policy
+  point. The policy point is a named authorization function, a policy engine (Cedar, OPA
+  Rego, Casbin), or a framework-native authorization abstraction (Django Guardian, Spring
+  Security, Ruby Pundit, Laravel Gates and Policies) that consults a managed policy expressed
+  as data rather than as business code. The default decision for any unspecified case
+  is deny: when the policy does not explicitly grant the requested action to the principal,
+  the policy point returns deny rather than allow. The policy is expressed in a form that
+  can be unit tested independently of business logic: tests load the policy and assert
+  specific principal-action-resource combinations evaluate to expected decisions, without
+  exercising the business handlers that the policy gates.'
+rationale: 'Centralization: when authorization logic lives in one place (one function,
+  one engine, one policy file set), policy state is auditable from that artifact. When
+  authorization logic is scattered across business code (the authorization.no-hardcoded-role-strings mechanical anti-pattern),
+  determining what the application currently permits requires grepping the codebase and
+  manually reconciling overlapping comparisons. Deny-by-default: the failure mode for
+  unspecified cases is critical to the policy''s safety property. Allow-by-default means
+  every new action implicitly grants access to every principal until an explicit deny
+  is added; the failure mode is silent expansion of access. Deny-by-default means every
+  new action is initially inaccessible until an explicit allow is added; the failure mode
+  is loud (the feature does not work) and is corrected at feature work time. Testability:
+  policy that is data can be loaded into a test harness, evaluated against test cases,
+  and asserted against expected outputs. Policy that is business code can only be tested
+  by exercising the business handlers it gates, conflating policy bugs with business-logic
+  bugs. Separable policy testing surfaces policy issues independently and supports test-driven
+  development of policy changes.'

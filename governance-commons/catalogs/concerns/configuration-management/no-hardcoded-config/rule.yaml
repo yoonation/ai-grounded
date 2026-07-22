@@ -1,0 +1,51 @@
+id: configuration-management.no-hardcoded-config
+name: Environment-varying non-secret configuration is read from a configuration source,
+  not inlined as a literal in source code
+layer: mechanical
+characteristic: flexibility
+severity: high
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-06-04'
+  entered_stable: '2026-06-06'
+  authored_by: Myoung Hong
+sources:
+- title: 'The Twelve-Factor App, Factor III (Config): store configuration that varies
+    between deploys in the environment, strictly separated from code'
+  url: https://12factor.net/config
+- title: 'OWASP Top 10 A05:2021 Security Misconfiguration: hardcoded environment-specific
+    values are a recurring misconfiguration source'
+  url: https://owasp.org/Top10/A05_2021-Security_Misconfiguration/
+- title: 'OWASP Application Security Verification Standard, Configuration verification
+    requirements (V14): configuration is externalized and environment-specific values
+    are not embedded in source'
+  url: https://owasp.org/www-project-application-security-verification-standard/
+cwe:
+- CWE-547
+applies_to:
+  language: any
+  framework: any
+  environment: any
+references: []
+statement: Every value that varies between deployment environments and is not a secret
+  is read by the application from a configuration source (environment variables, a configuration
+  file loaded at startup, or a configuration service), not written as a literal in business
+  logic. This covers service hostnames and base URLs, network ports bound for outbound
+  or inbound connections, timeouts and retry budgets, connection pool sizes, region and
+  zone identifiers, non-secret connection parameters, log levels, and the default values
+  of behavioral toggles. Reads are concentrated in a designated configuration module rather
+  than scattered as raw environment lookups across business logic; the designated module
+  is the surface the startup validation of configuration-management.startup-validation operates on. Genuinely invariant
+  constants (values that are the same in every environment by design) are not configuration
+  and are not in scope.
+rationale: 'A value inlined in code can only change through a code change, review, build,
+  and deploy. That coupling is the opposite of the property configuration exists to provide:
+  the ability to run the same build in different environments by varying inputs. The most
+  damaging instances are endpoints and timeouts hardcoded against a current dependency;
+  when the dependency moves or the timeout proves wrong under load, the remediation is
+  a code change under incident pressure rather than a configuration update. The rule is
+  mechanical because the question is positional: is there an environment-varying literal
+  at this call site outside the configuration module? Whether the value, once externalized,
+  is correct and validated is the higher-layer concern; whether it is externalized at
+  all is L1.'

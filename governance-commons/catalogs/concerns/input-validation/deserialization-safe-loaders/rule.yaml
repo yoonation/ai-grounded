@@ -1,0 +1,39 @@
+id: input-validation.deserialization-safe-loaders
+name: Configuration files, ML models, and other structured data loaded by the application
+  are loaded with safe loaders and schema-validated against their declared schema
+layer: semantic
+characteristic: security
+severity: high
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-23'
+  entered_stable: '2026-05-26'
+  authored_by: Myoung Hong
+sources:
+- title: OWASP ASVS v5.0.0 V5.5.2 (Deserialized data is validated against schema and contents)
+  url: https://github.com/OWASP/ASVS/blob/v5.0.0/5.0/en/0x13-V5-Validation-Sanitization-Encoding.md
+- title: OWASP Top 10 2021 A08:2021 Software and Data Integrity Failures
+  url: https://owasp.org/Top10/A08_2021-Software_and_Data_Integrity_Failures/
+cwe:
+- CWE-502
+- CWE-915
+applies_to:
+  environment: any-loading-structured-data
+references: []
+statement: 'Structured data loaded from disk, network, or external source (configuration
+  files, ML model artifacts, cached schema files, fixture data, serialized state) is loaded
+  with the format''s safe loader and validated against a schema that rejects unexpected
+  shapes. Specifically: YAML files use yaml.safe_load (Python) or equivalent; JSON files
+  use schema-driven parsers with explicit schema validation; ML model files (pickle in
+  PyTorch, Keras HDF5, ONNX) are accompanied by signature verification or, where signature
+  verification is not available, are downloaded from a substrate-author-trusted source
+  over an authenticated channel. Configuration files include an explicit version field;
+  the loader validates version compatibility before accepting the data.'
+rationale: 'The L1 rule (input-validation.no-unsafe-deserialization) catches the most common deserialization call sites.
+  The L2 rule extends to the design pattern: "data we load" is a trust surface even when
+  the file is local. Configuration directories are often writeable by deployment tooling
+  that itself receives user input (CI templates, supply-chain pipelines); ML model artifacts
+  are downloaded from registries that may be compromised. Substrate-required practice
+  is to treat all loaded data as cross-boundary and apply safe-loader + schema-validation
+  discipline uniformly.'

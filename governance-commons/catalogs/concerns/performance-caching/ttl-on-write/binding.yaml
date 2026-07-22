@@ -1,0 +1,3 @@
+binding_status: capability-bound
+rule: performance-caching.ttl-on-write
+gate: sast

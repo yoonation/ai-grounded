@@ -1,0 +1,27 @@
+#!/bin/sh
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Myoung Hong
+#
+# gate-meta:
+#   order: 20
+#   name: consultation-audit
+#   posture: fail-closed
+#   skip: SKIP_CONSULTATION_AUDIT
+#   strict: CONSULTATION_AUDIT_STRICT
+#   summary: Every dispatched agent consulted its assigned concern catalogs; blocks on a coverage gap.
+# end-gate-meta
+#
+# Consultation audit gate. Chained by the .githooks/pre-commit dispatcher after
+# the loop-closure gate. Checks that every agent the dispatcher dispatched
+# under a plan consulted its assigned concern catalogs (coverage check against
+# emitted consultation-evidence). Read-only; blocks on a coverage gap.
+#
+# Bypass: SKIP_CONSULTATION_AUDIT=1 git commit ...
+# Strict (missing evidence also blocks): CONSULTATION_AUDIT_STRICT=1
+#
+# See .claude/hooks/verify_consultation.py for the audit logic.
+
+REPO_ROOT=$(git rev-parse --show-toplevel 2>/dev/null) || exit 0
+cd "$REPO_ROOT" || exit 0
+[ -f .claude/hooks/verify_consultation.py ] || exit 0
+exec python3 .claude/hooks/verify_consultation.py

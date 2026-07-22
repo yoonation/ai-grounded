@@ -1,0 +1,11 @@
+id: responsible-ai
+name: Responsible AI
+characteristic: safety
+status: stable
+summary: >
+  How AI systems are governed for safety and accountability: a documented
+  responsible-AI policy, a justified fairness objective and fitness
+  evaluation, a human-oversight model, AI-output disclosure and
+  output-safety controls, explanation and recourse for automated
+  decisions, model documentation and provenance, data governance, drift
+  monitoring, and decision record-keeping.

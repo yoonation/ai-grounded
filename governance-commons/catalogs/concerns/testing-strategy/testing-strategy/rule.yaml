@@ -1,0 +1,37 @@
+id: testing-strategy.testing-strategy
+name: The application has an explicit, documented testing strategy decision before substantive
+  test-suite implementation begins
+layer: judgmental
+characteristic: functional-suitability
+severity: high
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-05-25'
+  entered_stable: '2026-05-26'
+  authored_by: Myoung Hong
+sources:
+- title: OWASP ASVS v5.0.0 V14 (Architecture, Design, and Threat Modeling Requirements
+    including testing strategy decisions)
+  url: https://github.com/OWASP/ASVS/blob/v5.0.0/5.0/en/0x22-V14-Config.md
+applies_to:
+  environment: any
+references: []
+statement: The application has an Architecture Decision Record (ADR) at a discoverable
+  location (substrate-recommended /docs/decisions/ADR-XXX-testing-strategy. md) that documents
+  the application's testing strategy. The ADR addresses the substrate-framework decision
+  drivers (pyramid shape choice, per-tier coverage targets, CI gate composition, flakiness
+  handling policy, test environment management, performance budget for the test suite,
+  mutation testing inclusion, property-based testing inclusion, determinism enforcement).
+  The ADR references the substrate's decision-framework MADR at governance-commons/decision-frameworks/testing-strategy.madr.md.
+  The ADR has Status Accepted (or Superseded by a successor ADR); Status Proposed indefinitely
+  is not acceptable for an application in production.
+rationale: 'Testing strategy is a cross-cutting concern that spans every module and every
+  change. Without an explicit decision, modules diverge: one team writes heavy unit tests
+  with no integration, another team writes only end-to-end tests, another team has no
+  tests at all; coverage targets vary by team; CI gates vary by build pipeline. The accumulated
+  divergence is hard to reconcile after the fact. The substrate''s L3 rule forces the
+  decision early so the divergence does not accumulate. The ADR is the substrate''s contract:
+  the application commits to a strategy; subsequent contributors implement against the
+  strategy; the substrate''s L1 and L2 rules apply with the strategy''s specific choices
+  made concrete.'

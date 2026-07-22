@@ -1,0 +1,459 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Myoung Hong
+
+
+# terraform-provider-aws library context for AI tools.
+#
+# The Terraform AWS provider evolves with AWS services. Many resource
+# arguments have changed over the provider's lifetime; AI tools often
+# produce older argument names that no longer work.
+#
+# Maintenance cadence: quarterly (AWS provider tracks AWS service changes)
+
+library:
+  name: terraform-provider-aws
+  ecosystem: terraform
+  current_version: "5.85.x"
+  last_reviewed: "2026-05-12"
+  review_cadence: quarterly
+  primary_docs: https://registry.terraform.io/providers/hashicorp/aws/latest/docs
+
+# ============================================================
+# Provider configuration
+# ============================================================
+
+provider_config:
+  required_version: ">= 1.10"   # Terraform CLI version
+  provider_block: |
+    terraform {
+      required_version = ">= 1.10"
+
+      required_providers {
+        aws = {
+          source  = "hashicorp/aws"
+          version = "~> 5.85"
+        }
+      }
+    }
+
+    provider "aws" {
+      region = "us-east-1"
+
+      default_tags {
+        tags = {
+          Environment = "production"
+          ManagedBy   = "terraform"
+        }
+      }
+    }
+  notes: |
+    Use ~> for pessimistic constraints (allows patch updates only).
+    default_tags applies to all resources that support tagging.
+    Available since provider 3.38; many examples don't show it.
+
+# ============================================================
+# Major version changes
+# ============================================================
+
+major_version_changes:
+  - from: "v4.x"
+    to: "v5.0"
+    summary: >
+      Default tags refinement. Many resource updates required for
+      EKS, IAM, S3. Some resource arguments renamed.
+
+  - from: "v5.0"
+    to: "v5.85"
+    summary: >
+      Continuous updates for new AWS services (Bedrock, SageMaker
+      AI, etc). Generative AI resources became first-class.
+
+# ============================================================
+# Commonly used resources (current arguments)
+# ============================================================
+
+current_resources:
+  - resource: "aws_s3_bucket"
+    description: "S3 bucket. Many sub-resources for configuration."
+    example: |
+      resource "aws_s3_bucket" "data" {
+        bucket = "my-data-bucket-${random_id.suffix.hex}"
+      }
+
+      resource "aws_s3_bucket_versioning" "data" {
+        bucket = aws_s3_bucket.data.id
+        versioning_configuration {
+          status = "Enabled"
+        }
+      }
+
+      resource "aws_s3_bucket_server_side_encryption_configuration" "data" {
+        bucket = aws_s3_bucket.data.id
+        rule {
+          apply_server_side_encryption_by_default {
+            sse_algorithm     = "aws:kms"
+            kms_master_key_id = aws_kms_key.s3.arn
+          }
+          bucket_key_enabled = true
+        }
+      }
+
+      resource "aws_s3_bucket_public_access_block" "data" {
+        bucket                  = aws_s3_bucket.data.id
+        block_public_acls       = true
+        block_public_policy     = true
+        ignore_public_acls      = true
+        restrict_public_buckets = true
+      }
+    notes: >
+      Since v4, S3 bucket configuration is split across many separate
+      resources. The old monolithic aws_s3_bucket with inline versioning,
+      acl, etc. is removed.
+
+  - resource: "aws_kms_key"
+    description: "KMS key with key policy."
+    example: |
+      resource "aws_kms_key" "s3" {
+        description             = "S3 encryption key"
+        deletion_window_in_days = 30
+        enable_key_rotation     = true
+
+        policy = jsonencode({
+          Version = "2012-10-17"
+          Statement = [
+            {
+              Effect    = "Allow"
+              Principal = { AWS = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root" }
+              Action    = "kms:*"
+              Resource  = "*"
+            }
+          ]
+        })
+      }
+
+      resource "aws_kms_alias" "s3" {
+        name          = "alias/s3-encryption"
+        target_key_id = aws_kms_key.s3.key_id
+      }
+
+  - resource: "aws_iam_role"
+    description: "IAM role with assume role policy."
+    example: |
+      resource "aws_iam_role" "lambda" {
+        name = "lambda-execution-role"
+
+        assume_role_policy = jsonencode({
+          Version = "2012-10-17"
+          Statement = [
+            {
+              Effect    = "Allow"
+              Principal = { Service = "lambda.amazonaws.com" }
+              Action    = "sts:AssumeRole"
+            }
+          ]
+        })
+      }
+
+      resource "aws_iam_role_policy_attachment" "lambda_basic" {
+        role       = aws_iam_role.lambda.name
+        policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+      }
+    notes: >
+      Prefer aws_iam_role_policy_attachment over inline policies for
+      AWS-managed policies. For custom policies, use aws_iam_policy +
+      aws_iam_role_policy_attachment, not inline_policy.
+
+  - resource: "aws_lambda_function"
+    description: "Lambda function with current best practices."
+    example: |
+      resource "aws_lambda_function" "processor" {
+        function_name = "data-processor"
+        role          = aws_iam_role.lambda.arn
+
+        # Either filename or s3_bucket+s3_key
+        filename         = data.archive_file.lambda.output_path
+        source_code_hash = data.archive_file.lambda.output_base64sha256
+
+        runtime = "python3.12"
+        handler = "main.handler"
+        timeout = 60
+
+        environment {
+          variables = {
+            LOG_LEVEL = "INFO"
+          }
+        }
+
+        # Recommended for production
+        reserved_concurrent_executions = 100
+        memory_size                    = 512
+
+        tracing_config {
+          mode = "Active"
+        }
+      }
+    notes: >
+      Specify reserved_concurrent_executions to prevent runaway
+      scaling. Use lambda_alias + lambda_function_url for stable URLs.
+
+  - resource: "aws_eks_cluster"
+    description: "EKS cluster (v5 simplified shape)."
+    example: |
+      resource "aws_eks_cluster" "main" {
+        name     = "my-cluster"
+        role_arn = aws_iam_role.eks_cluster.arn
+        version  = "1.31"
+
+        vpc_config {
+          subnet_ids              = [aws_subnet.private_a.id, aws_subnet.private_b.id]
+          endpoint_private_access = true
+          endpoint_public_access  = false
+        }
+
+        # Access entries replaced aws-auth configmap in 1.30+
+        access_config {
+          authentication_mode = "API"
+          bootstrap_cluster_creator_admin_permissions = false
+        }
+      }
+
+      resource "aws_eks_access_entry" "admin" {
+        cluster_name  = aws_eks_cluster.main.name
+        principal_arn = aws_iam_role.cluster_admin.arn
+        type          = "STANDARD"
+      }
+
+      resource "aws_eks_access_policy_association" "admin" {
+        cluster_name  = aws_eks_cluster.main.name
+        principal_arn = aws_iam_role.cluster_admin.arn
+        policy_arn    = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSClusterAdminPolicy"
+        access_scope {
+          type = "cluster"
+        }
+      }
+    notes: >
+      EKS 1.30+ uses access entries instead of aws-auth ConfigMap.
+      AI may still produce aws-auth ConfigMap kubernetes_config_map
+      patterns; those are legacy.
+
+  - resource: "aws_vpc and networking"
+    description: "Modern VPC pattern with NAT gateways and security groups."
+    example: |
+      resource "aws_vpc" "main" {
+        cidr_block           = "10.0.0.0/16"
+        enable_dns_hostnames = true
+        enable_dns_support   = true
+      }
+
+      resource "aws_subnet" "private_a" {
+        vpc_id            = aws_vpc.main.id
+        cidr_block        = "10.0.1.0/24"
+        availability_zone = "us-east-1a"
+      }
+
+      resource "aws_security_group" "app" {
+        name_prefix = "app-"
+        vpc_id      = aws_vpc.main.id
+
+        # Use aws_vpc_security_group_ingress_rule (separate resource)
+        # for individual rules rather than inline ingress {} blocks
+      }
+
+      resource "aws_vpc_security_group_ingress_rule" "app_https" {
+        security_group_id = aws_security_group.app.id
+        cidr_ipv4         = "0.0.0.0/0"
+        from_port         = 443
+        to_port           = 443
+        ip_protocol       = "tcp"
+      }
+    notes: >
+      Since v5.0, separate aws_vpc_security_group_ingress_rule and
+      aws_vpc_security_group_egress_rule resources are preferred over
+      inline rule blocks. Old inline syntax still works but generates
+      warnings.
+
+  - resource: "aws_bedrock_*"
+    description: "Bedrock resources for AI services."
+    example: |
+      resource "aws_bedrock_guardrail" "compliance" {
+        name        = "pii-guardrail"
+        description = "Block PII in model interactions"
+
+        blocked_input_messaging   = "Input contains restricted information."
+        blocked_outputs_messaging = "Output contains restricted information."
+
+        sensitive_information_policy_config {
+          pii_entities_config {
+            action = "BLOCK"
+            type   = "EMAIL"
+          }
+          pii_entities_config {
+            action = "BLOCK"
+            type   = "PHONE"
+          }
+        }
+      }
+
+      resource "aws_bedrock_model_invocation_logging_configuration" "main" {
+        logging_config {
+          cloudwatch_config {
+            log_group_name = aws_cloudwatch_log_group.bedrock.name
+            role_arn       = aws_iam_role.bedrock_logging.arn
+          }
+          embedding_data_delivery_enabled = false
+          image_data_delivery_enabled     = false
+          text_data_delivery_enabled      = true
+        }
+      }
+    notes: >
+      Bedrock resources became first-class in v5. AI tools may not
+      know these exist; use them for governance/AI infrastructure.
+
+# ============================================================
+# Common hallucination patterns
+# ============================================================
+
+common_hallucinations:
+  - pattern: |
+      resource "aws_s3_bucket" "x" {
+        versioning {
+          enabled = true
+        }
+        ...
+      }
+    problem: >
+      Inline versioning, lifecycle, etc. blocks were removed in
+      provider v4. Each is now a separate resource.
+    correct: |
+      Use aws_s3_bucket_versioning, aws_s3_bucket_lifecycle_configuration,
+      etc. as separate resources.
+
+  - pattern: |
+      resource "aws_security_group" "x" {
+        ingress {
+          ...
+        }
+      }
+    problem: >
+      Inline ingress/egress blocks still work but trigger warnings in
+      v5+. Separate resources are preferred.
+    correct: |
+      Use aws_vpc_security_group_ingress_rule (one resource per rule).
+
+  - pattern: "aws_lambda_function with no source_code_hash"
+    problem: >
+      Without source_code_hash, Terraform can't detect changes to
+      the code. Plans incorrectly show no change after code updates.
+    correct: |
+      source_code_hash = data.archive_file.lambda.output_base64sha256
+      # or
+      source_code_hash = filebase64sha256("path/to/code.zip")
+
+  - pattern: "aws_iam_role with inline_policy = ..."
+    problem: >
+      inline_policy was deprecated. Use aws_iam_role_policy as a
+      separate resource.
+    correct: |
+      resource "aws_iam_role_policy" "lambda_inline" {
+        role   = aws_iam_role.lambda.id
+        policy = jsonencode({...})
+      }
+
+  - pattern: |
+      resource "aws_eks_cluster" "x" {
+        # ...
+        kubernetes_network_config {
+          # ...
+        }
+      }
+      # Then using kubernetes_config_map for aws-auth
+    problem: >
+      aws-auth ConfigMap is legacy. Modern EKS uses access entries.
+    correct: |
+      Use aws_eks_access_entry and aws_eks_access_policy_association
+      resources.
+
+  - pattern: "provider version = '~> 4.0'"
+    problem: >
+      Version constraint pinning to an old major. AI tools may produce
+      this from older tutorials. v5 has been stable since 2023.
+    correct: |
+      version = "~> 5.85"  # or latest 5.x at time of write
+
+  - pattern: |
+      data "aws_ami" "ubuntu" {
+        most_recent = true
+        owners      = ["099720109477"]  # Canonical
+        filter {
+          name   = "name"
+          values = ["ubuntu-focal-20.04-amd64-server-*"]
+        }
+      }
+    problem: >
+      Pinning to Ubuntu 20.04 (focal) which is approaching EOL.
+      AI tools default to older AMIs they've seen frequently.
+    correct: |
+      Use ubuntu-jammy-22.04 or ubuntu-noble-24.04 (current LTS).
+      Or use SSM Parameter Store for Ubuntu/Amazon Linux AMI lookups.
+
+  - pattern: "aws_route53_zone in same module as resources using it"
+    problem: >
+      Coupling DNS zones with consumer resources causes ordering and
+      teardown problems. Zones typically belong in a separate state.
+    correct: |
+      Use data "aws_route53_zone" with name = "example.com" in
+      consumer modules; manage the zone resource in a dedicated
+      DNS module.
+
+  - pattern: "Using count for resource conditionals"
+    problem: >
+      count = condition ? 1 : 0 creates resources at index [0].
+      Refactoring later requires moved blocks. Prefer for_each
+      when iterating, or modules with explicit enabled = false.
+    correct: |
+      For conditional creation:
+      count = var.enabled ? 1 : 0
+      For iteration:
+      for_each = toset(var.names)
+
+# ============================================================
+# State management notes
+# ============================================================
+
+state_notes:
+  - topic: "Remote state backend"
+    detail: |
+      Use S3+DynamoDB or Terraform Cloud for shared state. Local
+      state is acceptable only for personal experimentation.
+
+      terraform {
+        backend "s3" {
+          bucket         = "my-terraform-state"
+          key            = "prod/main.tfstate"
+          region         = "us-east-1"
+          dynamodb_table = "terraform-locks"
+          encrypt        = true
+        }
+      }
+
+  - topic: "State file contents"
+    detail: |
+      Treat state files as sensitive: they contain resource attributes
+      including some secret values (passwords, keys). Encrypt at rest.
+      Use access controls; restrict to terraform-apply principals.
+
+  - topic: "Drift detection"
+    detail: |
+      Run terraform plan periodically to detect manual changes.
+      Plans showing unexpected changes indicate someone modified
+      resources outside Terraform.
+
+# ============================================================
+# References
+# ============================================================
+
+references:
+  - https://registry.terraform.io/providers/hashicorp/aws/latest/docs
+  - https://github.com/hashicorp/terraform-provider-aws
+  - https://github.com/hashicorp/terraform-provider-aws/blob/main/CHANGELOG.md
+  - https://developer.hashicorp.com/terraform/language

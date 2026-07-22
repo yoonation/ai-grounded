@@ -1,0 +1,10 @@
+id: backup-recovery
+name: Backup Recovery
+characteristic: reliability
+status: stable
+summary: >
+  How data is protected against loss and proven restorable: backup
+  coverage matched to the protection inventory, explicit non-zero
+  retention, defined recovery objectives, scheduled restore tests, guards
+  on irreversible bulk-destruction operations, and a recorded
+  backup-and-recovery strategy.

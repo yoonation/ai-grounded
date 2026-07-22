@@ -1,0 +1,55 @@
+#!/bin/sh
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Myoung Hong
+#
+# gate-meta:
+#   order: 70
+#   name: spec-consistency
+#   posture: report-only
+#   skip: SKIP_SPEC_CONSISTENCY
+#   strict: SPEC_CONSISTENCY_STRICT
+#   summary: Flag a spec that gives one enumerated noun two different counts (the six-vs-seven drift).
+# end-gate-meta
+#
+# Commit-time spec-internal consistency gate (IMP-1b). Chained by the
+# .githooks/pre-commit dispatcher after the manifest gate. Runs the enumeration
+# consistency scanner over staged spec.md files: it flags a spec that asserts the
+# same enumerated noun with more than one cardinality (the F7/F10 "six dimensions"
+# vs "seven dimensions" class that recurred across feature-003 and was caught only
+# by operator vigilance).
+#
+# Report-only by default: surfaces candidate conflicts and exits 0.
+# SPEC_CONSISTENCY_STRICT=1 makes a conflict block. SKIP_SPEC_CONSISTENCY=1 bypasses.
+# Graceful no-op when the scanner is absent or no spec is staged. The scanner is a
+# high-precision heuristic and stdlib-only (no extra dependency); its findings are
+# advisory candidates for review, not proof.
+set -u
+
+[ "${SKIP_SPEC_CONSISTENCY:-}" = "1" ] && { echo "spec-consistency: skipped (SKIP_SPEC_CONSISTENCY=1)."; exit 0; }
+
+REPO_ROOT=$(git rev-parse --show-toplevel 2>/dev/null) || exit 0
+cd "$REPO_ROOT" || exit 0
+
+[ -f tooling/spec-consistency/check.py ] || { echo "spec-consistency: tooling/spec-consistency/check.py absent; skipped."; exit 0; }
+
+FILES=$(git diff --cached --name-only --diff-filter=AM | grep -E '(/spec\.md$|^spec\.md$)')
+if [ -z "$FILES" ]; then
+  echo "spec-consistency: no staged spec.md; nothing to check."
+  exit 0
+fi
+
+if [ "${SPEC_CONSISTENCY_STRICT:-}" = "1" ]; then
+  # shellcheck disable=SC2086
+  python3 tooling/spec-consistency/check.py $FILES --repo-root . --strict --text
+  RC=$?
+  if [ "$RC" != "0" ]; then
+    echo "spec-consistency: STRICT - a spec disagrees with itself about an enumeration count (SPEC_CONSISTENCY_STRICT=1)."
+    echo "                 Reconcile the spec, or bypass with SKIP_SPEC_CONSISTENCY=1 git commit ..."
+    exit 1
+  fi
+else
+  # shellcheck disable=SC2086
+  python3 tooling/spec-consistency/check.py $FILES --repo-root . --text
+  echo "spec-consistency: report-only - candidate conflicts above (if any) are advisory (set SPEC_CONSISTENCY_STRICT=1 to enforce)."
+fi
+exit 0

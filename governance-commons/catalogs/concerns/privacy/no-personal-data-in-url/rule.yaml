@@ -1,0 +1,41 @@
+id: privacy.no-personal-data-in-url
+name: Personal data is not placed in URL path segments or query strings, where it leaks
+  into logs, history, and referrer headers
+layer: semantic
+characteristic: security
+severity: medium
+status: stable
+provenance:
+  ai_assistance: drafted
+  entered_draft: '2026-06-03'
+  entered_stable: '2026-06-04'
+  authored_by: Myoung Hong
+sources:
+- title: EU GDPR Regulation 2016/679 (Article 5(1)(f) integrity and confidentiality and
+    Article 25 data protection by design, the requirement that personal data not be exposed
+    by default, referenced as a concept)
+  url: https://eur-lex.europa.eu/eli/reg/2016/679/oj
+- title: OWASP guidance on sensitive data exposure (personal data in URLs is logged and
+    cached along the request path, referenced as a concept)
+  url: https://owasp.org/www-project-top-ten/
+applies_to:
+  language: any
+  framework: any
+  environment: any
+references: []
+statement: Personal data is not placed in URL path segments or query strings on requests
+  the application constructs, and server routes do not define personal-data identifiers
+  as path parameters. Personal values travel in the request body or are resolved from
+  a server-side session-keyed lookup, and any identifier that must appear in a URL is
+  an opaque surrogate that is not itself personal data. The appearance of a personal value
+  in a URL is the finding; whether a given value is personal in a borderline case is confirmed
+  in review.
+rationale: 'A URL is the most-copied string in a request: it is written to access logs
+  at every hop, stored in browser history, attached to the Referer header sent to whatever
+  the page links to, and retained by proxies and analytics. Personal data placed there
+  is exfiltrated by the ordinary operation of the web, with no attacker and no further
+  mistake. The substrate makes this a mechanical floor because the leak is statically
+  visible at the point of URL construction and is almost always an avoidable convenience,
+  while the question of which borderline values count as personal is a judgment. The rule
+  is the URL-specific complement to the generic logging and classification rules, and
+  it cross-references them rather than re-deriving the no-personal-data-in-logs principle.'

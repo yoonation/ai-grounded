@@ -1,0 +1,72 @@
+{
+  "profile": {
+    "uuid": "c4e8a1b9-3d5f-4a6c-8e2b-9f7d1a3c5b8e",
+    "metadata": {
+      "title": "Federal Bridge Profile",
+      "last-modified": "2026-05-12T00:00:00Z",
+      "version": "0.1.0",
+      "oscal-version": "1.2.1",
+      "remarks": "Profile for FedRAMP-adjacent work where AI components are involved. Built on NIST's official 800-53 Rev 5 MODERATE baseline, with AI-specific additions from the same catalog. Designed for engineers targeting roles at federal-adjacent organizations (USAA, defense contractors, government cloud providers) where compliance posture matters but full FedRAMP ATO is not the immediate goal. This profile imports the official NIST MODERATE baseline and is NOT FedRAMP-specific; FedRAMP publishes its own profile that further tailors the NIST baseline (FedRAMP Moderate) which adds FedRAMP-specific parameters. Use this profile to practice federal-grade discipline; transition to the official FedRAMP profile when pursuing actual ATO work.",
+      "parties": [
+        {
+          "uuid": "b2c3d4e5-f6a7-489a-9bcd-ef0123456789",
+          "type": "person",
+          "name": "Profile Maintainer",
+          "remarks": "Set to actual maintainer name during project init."
+        }
+      ]
+    },
+    "imports": [
+      {
+        "href": "trestle://profiles/nist-800-53-rev5-moderate-baseline/profile.json",
+        "include-all": {}
+      },
+      {
+        "href": "trestle://catalogs/nist-800-53-rev5/catalog.json",
+        "include-controls": [
+          {
+            "with-ids": [
+              "sa-8",
+              "sa-15",
+              "sr-3",
+              "sr-4",
+              "sr-11",
+              "si-4",
+              "si-7"
+            ]
+          }
+        ]
+      }
+    ],
+    "merge": {
+      "as-is": true
+    },
+    "modify": {
+      "alters": [],
+      "set-parameters": []
+    },
+    "back-matter": {
+      "resources": [
+        {
+          "uuid": "d4e5f6a7-b8c9-4012-9def-345678901234",
+          "title": "Profile composition",
+          "description": "This profile is composed of: (1) NIST's official 800-53 Rev 5 MODERATE baseline imported via include-all, providing FedRAMP-shaped coverage authored by NIST; (2) Additional AI-specific controls from 800-53 selected for their relevance to AI security architecture (SA-8 system architecture, SA-15 development process, SR-3/SR-4/SR-11 supply chain, SI-4 system monitoring, SI-7 software integrity). The intent is 'NIST Moderate plus AI-relevant additions' as a learning and practice profile.",
+          "props": [
+            {
+              "name": "based-on",
+              "value": "NIST SP 800-53 Rev 5 MODERATE baseline (official NIST profile)"
+            },
+            {
+              "name": "not-equivalent-to",
+              "value": "FedRAMP Moderate (which adds FedRAMP-specific parameters and selections)"
+            },
+            {
+              "name": "upgrade-path-to-fedramp",
+              "value": "Import official FedRAMP Moderate baseline from fedramp.gov when pursuing actual FedRAMP ATO. FedRAMP publishes its profiles in OSCAL format at https://github.com/GSA/fedramp-automation"
+            }
+          ]
+        }
+      ]
+    }
+  }
+}
