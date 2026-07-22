@@ -2,11 +2,22 @@
 <!-- Copyright 2026 Myoung Hong -->
 
 
-# AI Grounded
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/assets/ai-grounded-logo-dark.svg">
+    <img alt="AI Grounded" src="docs/assets/ai-grounded-logo-light.svg" width="380">
+  </picture>
+</p>
 
-[![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
-[![PRs welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
-[![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg)](CODE_OF_CONDUCT.md)
+<p align="center"><strong>Spec-driven AI governance for production code.</strong></p>
+
+<p align="center">
+  <a href="LICENSE"><img alt="License: Apache 2.0" src="https://img.shields.io/badge/License-Apache_2.0-blue.svg"></a>
+  <a href="CONTRIBUTING.md"><img alt="PRs welcome" src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg"></a>
+  <a href="CODE_OF_CONDUCT.md"><img alt="Contributor Covenant" src="https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg"></a>
+</p>
+
+# AI Grounded
 
 A spec-driven development template that combines GitHub spec-kit, a
 7-article project constitution, twelve specialized AI sub-agents (eleven review agents organized

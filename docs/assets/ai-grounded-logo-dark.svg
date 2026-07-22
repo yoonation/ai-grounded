@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 72" width="320" height="72" role="img" aria-label="AI Grounded">
+  <defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#26324A"/><stop offset="1" stop-color="#151E30"/></linearGradient></defs>
+  <g transform="translate(8,4)">
+    <rect x="0" y="0" width="64" height="64" rx="15" fill="url(#g)"/>
+    <circle cx="32" cy="14" r="4.5" fill="#38BDF8"/>
+    <g stroke="#EEF3F9" stroke-width="4" stroke-linecap="round" fill="none"><path d="M32 18.5V38"/><path d="M18 38H46"/><path d="M23 45H41"/><path d="M28 52H36"/></g>
+  </g>
+  <text x="88" y="46" font-family="Segoe UI, system-ui, -apple-system, Helvetica, Arial, sans-serif" font-size="33" font-weight="700" letter-spacing="-0.5"><tspan fill="#38BDF8">AI</tspan><tspan fill="#E7ECF3"> Grounded</tspan></text>
+</svg>

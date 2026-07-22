@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 640" width="1280" height="640" role="img" aria-label="AI Grounded">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#111C2E"/><stop offset="1" stop-color="#0A0F1A"/></linearGradient>
+    <linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#26324A"/><stop offset="1" stop-color="#151E30"/></linearGradient>
+  </defs>
+  <rect width="1280" height="640" fill="url(#bg)"/>
+  <rect x="0" y="0" width="1280" height="6" fill="#38BDF8"/>
+  <g transform="translate(150,232) scale(2.9)">
+    <rect x="0" y="0" width="64" height="64" rx="15" fill="url(#g)"/>
+    <circle cx="32" cy="14" r="4.5" fill="#38BDF8"/>
+    <g stroke="#EEF3F9" stroke-width="4" stroke-linecap="round" fill="none"><path d="M32 18.5V38"/><path d="M18 38H46"/><path d="M23 45H41"/><path d="M28 52H36"/></g>
+  </g>
+  <text x="392" y="300" font-family="Segoe UI, system-ui, Helvetica, Arial, sans-serif" font-size="96" font-weight="700" letter-spacing="-2"><tspan fill="#38BDF8">AI</tspan><tspan fill="#F1F5F9"> Grounded</tspan></text>
+  <text x="396" y="350" font-family="Segoe UI, system-ui, Helvetica, Arial, sans-serif" font-size="30" fill="#9FB0C4">Spec-driven AI governance for production code.</text>
+  <text x="396" y="390" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="18" letter-spacing="0.5" fill="#5C6B82">Apache-2.0 &#183; twelve AI review agents &#183; OSCAL governance substrate</text>
+  <text x="150" y="590" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="18" fill="#4E5D74">github.com/yoonation/ai-grounded</text>
+</svg>
