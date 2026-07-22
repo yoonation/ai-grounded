@@ -1,14 +1,15 @@
-# GitHub Actions Workflows
+# GitHub Actions workflows
 
-Placeholder directory. Add workflows when publishing the project to GitHub.
+## `ci.yml`
 
-## Workflows to Consider
-- Automated PR review using Claude Code
-- Monthly documentation sync
-- Weekly code quality review
-- Dependency audit with security scanning
-- Template sync (pull upstream template updates into projects)
+Runs on every pull request and on pushes to `main`. It mirrors the local
+pre-commit gate chain so contributions are checked automatically:
 
-## Reference
-See FUTURE.md "Evaluate Before Sharing Template With Peers" section
-for source links and implementation guides.
+- **tests** — the Python test suites under `tooling/**`, `governance-commons/tooling/**`, and `.claude/hooks/**`
+- **validators** — `tooling/gates/describe.py --check --strict` (the gate inventory matches `docs/GATES.md`), plus advisory manifest/schema checks
+- **lint** — `ruff` on all Python, `shellcheck` on framework-authored shell
+- **secrets** — gitleaks, using `.gitleaks.toml`
+- **dco** — every PR commit carries a `Signed-off-by` line (`git commit -s`)
+
+Actions are version-pinned (no `@latest`/`@main`); `renovate.json` keeps them
+current and digest-pins them over time.

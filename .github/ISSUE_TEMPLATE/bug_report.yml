@@ -1,0 +1,45 @@
+name: Bug report
+description: Something in the framework, tooling, or docs isn't working as documented.
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: Thanks for taking the time to file a clear report. For questions or ideas, use Discussions instead.
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened
+      description: What you did, and what went wrong.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps to reproduce
+      description: Commands, the gate or agent involved, and any output.
+      render: shell
+  - type: input
+    id: version
+    attributes:
+      label: Version / commit
+      description: Output of `git rev-parse --short HEAD`, or a release tag.
+  - type: input
+    id: env
+    attributes:
+      label: Environment
+      description: OS, and the tool involved (Claude Code, spec-kit, a specific gate).
+  - type: checkboxes
+    id: preflight
+    attributes:
+      label: Before filing
+      options:
+        - label: I searched existing issues and didn't find a duplicate.
+          required: true
+        - label: This is a defect, not a question (questions go to Discussions).
+          required: true
