@@ -1,0 +1,36 @@
+name: Feature request
+description: Propose a change or addition to the framework or substrate.
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: >
+        The framework is intentionally bounded (see `FUTURE.md` for the considered-and-rejected
+        ledger). Proposals that re-open a settled decision will be pointed there. For anything
+        larger than a small fix, open this issue first so we can agree on shape before you build.
+  - type: textarea
+    id: problem
+    attributes:
+      label: The problem
+      description: What's missing or painful today? What can't you do?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed change
+      description: What you'd add or change, and roughly how it fits the existing agents/gates/substrate.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Other approaches and why they're weaker.
+  - type: checkboxes
+    id: scope
+    attributes:
+      label: Scope check
+      options:
+        - label: I checked `FUTURE.md` and `docs/FIT.md` — this isn't already tracked or out of scope.
+          required: true
