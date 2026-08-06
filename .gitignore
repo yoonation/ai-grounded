@@ -51,6 +51,10 @@ coverage/
 .cache/
 *.log
 
+# Local temporary dependency installs created while exercising Codex hooks
+pip/
+.codex-tmp-pyyaml/
+
 # MDD artifacts (if used)
 .mdd/
 

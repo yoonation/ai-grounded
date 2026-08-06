@@ -38,6 +38,8 @@ from pathlib import Path
 
 _H1 = re.compile(r"^# ", re.M)
 _PLACEHOLDER = re.compile(r"__SPECKIT_COMMAND_([A-Z0-9_]+)__")
+_SKILL_COMMAND = re.compile(r"(?<![\w-])[$/]?(speckit-[a-z0-9-]+)")
+_CODEX_AGENT = re.compile(r"the `([a-z][a-z-]+)` Codex agent")
 
 
 def normalize(text: str) -> str:
@@ -45,7 +47,9 @@ def normalize(text: str) -> str:
     compare equal when only those transforms differ."""
     text = text.replace("\u2014", "-").replace("\u2013", "-")
     text = _PLACEHOLDER.sub(
-        lambda m: "/speckit-" + m.group(1).lower().replace("_", "-"), text)
+        lambda m: "speckit-" + m.group(1).lower().replace("_", "-"), text)
+    text = _SKILL_COMMAND.sub(lambda m: m.group(1), text)
+    text = _CODEX_AGENT.sub(lambda m: "@" + m.group(1), text)
     return text
 
 
@@ -64,14 +68,15 @@ def skill_dir_for(command_file: Path) -> str:
 
 
 def discover_pairs(repo_root: Path):
-    """Every extension command file paired with its rendered skill path."""
+    """Every extension command file paired with Claude and Codex renders."""
     pairs = []
     ext_root = repo_root / ".specify" / "extensions"
     if not ext_root.is_dir():
         return pairs
     for cmd in sorted(ext_root.glob("*/commands/*.md")):
-        skill = repo_root / ".claude" / "skills" / skill_dir_for(cmd) / "SKILL.md"
-        pairs.append((cmd, skill))
+        for target in (".claude/skills", ".agents/skills"):
+            skill = repo_root / target / skill_dir_for(cmd) / "SKILL.md"
+            pairs.append((cmd, skill))
     return pairs
 
 

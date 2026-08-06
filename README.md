@@ -75,15 +75,12 @@ mise install
 #    loop-closure hook via core.hooksPath, and smoke-tests it.
 ./scripts/bootstrap.sh
 
-# 5. Confirm spec-kit sees Claude Code
+# 5. Confirm spec-kit sees the installed delivery integrations
 specify check
 
-# 6. Verify the twelve sub-agents are discoverable
-# (in a Claude Code session at the project root)
-/agents
-
-# 7. Start your first feature
-# (in Claude Code) /speckit-specify Create a feature that does X
+# 6. Start your first feature in the delivery you chose
+# Claude Code: /speckit-specify Create a feature that does X
+# Codex:       $speckit-specify Create a feature that does X
 ```
 
 `./scripts/bootstrap.sh` is the canonical setup step: it is the only step
@@ -138,6 +135,11 @@ milestone-to-milestone and a duplicated inventory here would go stale.
 - `decisions/` - ADRs (one per significant decision)
 
 ### The twelve sub-agents
+
+Claude Code consumes the role definitions directly. Codex consumes matching
+`.codex/agents/*.toml` adapters, which load the canonical prompts from
+`.claude/agents/` and default to a read-only sandbox. See
+[docs/CODEX.md](docs/CODEX.md) for local setup and model mapping.
 
 Each agent has a specific cognitive role and explicit coordination
 relationships with the others. Coordination protocol is documented in

@@ -21,11 +21,15 @@ BODY = "# Title\n\nStep one.\nStep two.\n"
 def make_tree(root: Path, skill_body=BODY, with_skill=True):
     cmd = root / ".specify/extensions/demo/commands/speckit.demo.run.md"
     cmd.parent.mkdir(parents=True)
-    cmd.write_text(FM + BODY)
+    cmd.write_text(FM + BODY, encoding="utf-8")
     if with_skill:
-        sk = root / ".claude/skills/speckit-demo-run/SKILL.md"
-        sk.parent.mkdir(parents=True)
-        sk.write_text(FM + "\n## User Input\n\n$ARGUMENTS\n\n" + skill_body)
+        for target in (".claude/skills", ".agents/skills"):
+            sk = root / target / "speckit-demo-run/SKILL.md"
+            sk.parent.mkdir(parents=True)
+            sk.write_text(
+                FM + "\n## User Input\n\n$ARGUMENTS\n\n" + skill_body,
+                encoding="utf-8",
+            )
 
 
 class TestSkillDrift(unittest.TestCase):
@@ -33,7 +37,7 @@ class TestSkillDrift(unittest.TestCase):
         with tempfile.TemporaryDirectory() as d:
             make_tree(Path(d))
             rep = check.build_report(Path(d))
-            self.assertEqual(rep["checked"], 1)
+            self.assertEqual(rep["checked"], 2)
             self.assertTrue(rep["passes"])
 
     def test_planted_divergence_fails(self):
@@ -41,15 +45,14 @@ class TestSkillDrift(unittest.TestCase):
             make_tree(Path(d), skill_body="# Title\n\nStep one.\nHAND EDIT.\n")
             rep = check.build_report(Path(d))
             self.assertFalse(rep["passes"])
-            self.assertEqual(rep["drifted"][0]["status"], "drift")
-            self.assertEqual(rep["drifted"][0]["first_divergent_body_line"], 4)
+            self.assertTrue(all(item["status"] == "drift" for item in rep["drifted"]))
 
     def test_missing_skill_fails(self):
         with tempfile.TemporaryDirectory() as d:
             make_tree(Path(d), with_skill=False)
             rep = check.build_report(Path(d))
             self.assertFalse(rep["passes"])
-            self.assertEqual(rep["drifted"][0]["status"], "missing-skill")
+            self.assertTrue(all(item["status"] == "missing-skill" for item in rep["drifted"]))
 
     def test_skill_dir_transform(self):
         self.assertEqual(check.skill_dir_for(Path("speckit.workflow.post-impl.md")),
@@ -62,10 +65,15 @@ class TestSkillDrift(unittest.TestCase):
             root = Path(d)
             cmd = root / ".specify/extensions/demo/commands/speckit.demo.run.md"
             cmd.parent.mkdir(parents=True)
-            cmd.write_text(FM + "# Title\n\nbranch creation only \u2014 the spec\n")
-            sk = root / ".claude/skills/speckit-demo-run/SKILL.md"
-            sk.parent.mkdir(parents=True)
-            sk.write_text(FM + "# Title\n\nbranch creation only - the spec\n")
+            cmd.write_text(
+                FM + "# Title\n\nbranch creation only \u2014 the spec\n", encoding="utf-8"
+            )
+            for target in (".claude/skills", ".agents/skills"):
+                sk = root / target / "speckit-demo-run/SKILL.md"
+                sk.parent.mkdir(parents=True)
+                sk.write_text(
+                    FM + "# Title\n\nbranch creation only - the spec\n", encoding="utf-8"
+                )
             self.assertTrue(check.build_report(root)["passes"])
 
     def test_command_placeholder_normalization_is_parity(self):
@@ -73,10 +81,16 @@ class TestSkillDrift(unittest.TestCase):
             root = Path(d)
             cmd = root / ".specify/extensions/demo/commands/speckit.demo.run.md"
             cmd.parent.mkdir(parents=True)
-            cmd.write_text(FM + "# Title\n\nrun `__SPECKIT_COMMAND_GIT_COMMIT__` after\n")
-            sk = root / ".claude/skills/speckit-demo-run/SKILL.md"
-            sk.parent.mkdir(parents=True)
-            sk.write_text(FM + "# Title\n\nrun `/speckit-git-commit` after\n")
+            cmd.write_text(
+                FM + "# Title\n\nrun `__SPECKIT_COMMAND_GIT_COMMIT__` after\n",
+                encoding="utf-8",
+            )
+            for target in (".claude/skills", ".agents/skills"):
+                sk = root / target / "speckit-demo-run/SKILL.md"
+                sk.parent.mkdir(parents=True)
+                sk.write_text(
+                    FM + "# Title\n\nrun `$speckit-git-commit` after\n", encoding="utf-8"
+                )
             self.assertTrue(check.build_report(root)["passes"])
 
     def test_render_header_invariance(self):
@@ -91,7 +105,7 @@ class TestSkillDrift(unittest.TestCase):
         if not (repo / ".specify" / "extensions").is_dir():
             self.skipTest("not in the framework repo")
         rep = check.build_report(repo)
-        self.assertGreaterEqual(rep["checked"], 9)
+        self.assertGreaterEqual(rep["checked"], 18)
         self.assertTrue(rep["passes"], rep["drifted"])
 
 

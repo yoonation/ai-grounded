@@ -96,6 +96,8 @@ eject:
   exclude:
     - "CLAUDE.md"
     - ".claude/**"
+    - ".codex/**"
+    - ".agents/**"
     - ".claudeignore"
     - ".mcp.json"
     - "project-manifest.yaml"

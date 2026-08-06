@@ -16,7 +16,7 @@ If you have not installed the foundation tools yet, read
 ```
 1. Install spec-kit CLI (one-time per machine)
 2. Install Python CLI tools (one-time per machine)
-3. Authenticate Claude Code
+3. Authenticate Claude Code or Codex
 4. Clone the template
 5. Install pinned runtimes
 6. Verify the framework
@@ -139,6 +139,27 @@ claude login  # accept the API credit option this time
 Set a spending cap in Console > Billing > Limits before doing anything
 substantial.
 
+### Path C: Codex local
+
+Use Codex for the first-class local delivery adapter. Authenticate with the
+interactive login flow, then install Codex alongside the template's Claude
+integration after cloning:
+
+```bash
+npm install -g @openai/codex@latest
+codex login
+specify integration install codex
+specify integration list
+```
+
+Codex 0.146.1 or newer is required. After bootstrap, verify the local adapter
+with `python tooling/codex/capabilities.py --repo-root .`.
+
+Start Codex from the repository root, trust the project-local `.codex/`
+configuration, and review its lifecycle hooks with `/hooks`. Use
+`$speckit-specify` and the other `$speckit-*` skills; see `docs/CODEX.md` for
+the checkpoint workflow and isolation warning policy.
+
 ## Step 4: Clone the template
 
 ```bash
@@ -211,8 +232,8 @@ cd ~/lab/$PROJECT_NAME
 ./scripts/bootstrap.sh
 ```
 
-This step confirms the twelve sub-agents, the spec-kit skills, and the
-governance substrate are all in place.
+This step confirms the canonical agent prompts, both delivery adapters, the
+spec-kit skills, and the governance substrate are all in place.
 
 ```bash
 cd ~/lab/$PROJECT_NAME
@@ -236,6 +257,16 @@ ls .claude/skills/ | grep speckit
 # Expected workflow extension (4): speckit-workflow-post-spec,
 #           speckit-workflow-post-plan, speckit-workflow-post-impl,
 #           speckit-workflow-pre-commit
+
+# Codex adapter and framework extension skills
+ls .codex/agents/ | wc -l
+# Expected: 12 TOML role adapters
+ls .agents/skills/ | grep speckit
+# Expected: the five git and four workflow extension skills
+python tooling/codex/generate_agents.py --check
+python tooling/codex/generate_config.py --repo-root . --check
+python tooling/codex/capabilities.py --repo-root .
+python tooling/skill-drift/check.py --repo-root . --strict --text
 
 # Spec-kit infrastructure present
 ls .specify/memory/

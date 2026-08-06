@@ -72,6 +72,7 @@ class Dispatch(unittest.TestCase):
         plan = {"profile": "regulated-ai"}
         agents = [ag("staff-engineer"), ag("threat-modeler", ["concerns/authentication"])]
         ev = dispatch.routing_event(plan, "C1", agents)
+        self.assertTrue(ev["ts"].endswith("+00:00"))
         self.assertEqual(ev["event"], "routing-decision")
         self.assertEqual(ev["routing"], "plan")
         self.assertEqual(ev["profile"], "regulated-ai")

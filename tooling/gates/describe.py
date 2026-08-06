@@ -39,7 +39,7 @@ Usage:
     python3 tooling/gates/describe.py                       # print Markdown inventory
     python3 tooling/gates/describe.py --json
     python3 tooling/gates/describe.py --check [--strict]    # validate headers + drift
-    python3 tooling/gates/describe.py > docs/GATES.md       # regenerate the committed doc
+    python3 tooling/gates/describe.py --write                # regenerate the committed UTF-8 doc
 """
 
 from __future__ import annotations
@@ -208,6 +208,8 @@ def main(argv=None) -> int:
     p.add_argument("--json", action="store_true")
     p.add_argument("--check", action="store_true")
     p.add_argument("--strict", action="store_true")
+    p.add_argument("--write", action="store_true",
+                   help="Write the generated Markdown inventory as UTF-8 to docs/GATES.md.")
     args = p.parse_args(argv)
     repo_root = Path(args.repo_root)
 
@@ -229,6 +231,11 @@ def main(argv=None) -> int:
         return 1 if (args.strict and not rep["ok"]) else 0
 
     out = generate(repo_root)
+    if args.write:
+        if args.json:
+            p.error("--write cannot be combined with --json")
+        (repo_root / DOC_PATH).write_text(out, encoding="utf-8")
+        return 0
     if args.json:
         gates = discover_gates(repo_root / ".githooks" / "pre-commit.d")
         tools = discover_tools(repo_root / "tooling")

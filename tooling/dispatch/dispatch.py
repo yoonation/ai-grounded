@@ -36,6 +36,7 @@ Usage:
 from __future__ import annotations
 
 import argparse
+from datetime import datetime, timezone
 import json
 import sys
 from pathlib import Path
@@ -92,6 +93,7 @@ def dispatch(plan_agents, checkpoint, wave_table=None):
 def routing_event(plan, checkpoint, plan_agents):
     """The plan-sourced routing-decision event payload (assignments for the audit)."""
     return {
+        "ts": datetime.now(timezone.utc).isoformat(),
         "agent": "dispatcher",
         "event": "routing-decision",
         "checkpoint": checkpoint,

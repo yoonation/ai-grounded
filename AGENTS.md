@@ -5,11 +5,10 @@
 # AGENTS.md
 
 Cross-tool agent contract for this project. Tool-agnostic; complements
-`CLAUDE.md` (Claude Code-specific guidance). AI coding tools that honor the
-AGENTS.md convention should read this file when operating in this repository.
-If you are Claude Code, prefer `CLAUDE.md` - the two are consistent, and
-CLAUDE.md carries the Claude-specific tool-selection and persistence detail
-that this file abstracts.
+`CLAUDE.md` (Claude Code-specific guidance) and `docs/CODEX.md` (Codex-local
+guidance). AI coding tools that honor the AGENTS.md convention should read this
+file when operating in this repository. Claude Code should prefer `CLAUDE.md`;
+Codex should load `.codex/` and `.agents/skills/` after the project is trusted.
 
 ## Project context
 
@@ -167,7 +166,8 @@ the target feature.
 - `presets/spec-driven-governance/` - vendored spec-kit preset and canonical
   source for the constitution template, spec template, and the
   speckit-specify/clarify Write→Edit fix; edits propagate via `./scripts/bootstrap.sh`.
-- `.claude/agents/` - agent prompts (read-only, advisory);
+- `.claude/agents/` - canonical agent prompts (read-only, advisory);
+  `.codex/agents/` provides matching Codex adapters that read these prompts.
   `concern-selector.md` resolves the routing plan; `closure-auditor.md` verifies
   and handles consolidation/cross-cutting routing.
 - `.claude/docs/agent-coordination.md` - coordination protocol, invocation

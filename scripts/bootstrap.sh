@@ -87,8 +87,8 @@ else
   fix "Then: eval \"\$(mise activate \$SHELL)\""
 fi
 
-if command -v python3 >/dev/null 2>&1; then
-  PY_VER=$(python3 -c 'import sys; print(f"{sys.version_info.major}.{sys.version_info.minor}")')
+if command -v python3 >/dev/null 2>&1 \
+   && PY_VER=$(python3 -c 'import sys; print(f"{sys.version_info.major}.{sys.version_info.minor}")' 2>/dev/null); then
   PY_MAJOR=$(echo "$PY_VER" | cut -d. -f1)
   PY_MINOR=$(echo "$PY_VER" | cut -d. -f2)
   if [ "$PY_MAJOR" -gt 3 ] || { [ "$PY_MAJOR" -eq 3 ] && [ "$PY_MINOR" -ge 9 ]; }; then
@@ -123,6 +123,13 @@ else
   fix "Non-Claude AI tools (Cursor, Cline, etc.) can use the framework manually; see docs/AI-COMPATIBILITY.md"
 fi
 
+if command -v codex >/dev/null 2>&1; then
+  ok "codex CLI present: $(codex --version 2>&1 | head -1)"
+else
+  warn "codex CLI not found in PATH."
+  fix "Install Codex to use the local Codex delivery adapter; see docs/CODEX.md."
+fi
+
 # gitleaks is required by the fail-closed secret-scan gate
 # (.githooks/pre-commit.d/10-gitleaks). Mirror the gate's own resolution order
 # (PATH, then mise) so this check agrees with what the gate will actually find.
@@ -135,6 +142,50 @@ else
   fix "It is pinned in .mise.toml - run: mise install"
   fix "Or install globally: mise use -g gitleaks@8.30.1"
   fix "Single-commit bypass (documented reason required): SKIP_GITLEAKS=1 git commit ..."
+fi
+
+# Codex delivery adapter (twelve generated role adapters)
+if [ -d .codex/agents ]; then
+  CODEX_AGENT_COUNT=$(find .codex/agents -maxdepth 1 -name '*.toml' -type f | wc -l | tr -d ' ')
+  if [ "$CODEX_AGENT_COUNT" -eq 12 ]; then
+    ok ".codex/agents/ has 12 Codex role adapters (expected)"
+  else
+    fail ".codex/agents/ has $CODEX_AGENT_COUNT role adapters; expected 12."
+    fix "Run: python tooling/codex/generate_agents.py"
+  fi
+else
+  fail ".codex/agents/ missing entirely."
+  fix "Restore the Codex delivery adapter from the template."
+fi
+
+if [ -f .codex/config.toml ] && [ -f .codex/hooks.json ]; then
+  ok "Codex project configuration and lifecycle hooks present"
+else
+  fail "Codex project configuration or lifecycle hooks missing."
+  fix "Restore .codex/config.toml and .codex/hooks.json from the template."
+fi
+
+if [ -f tooling/codex/generate_agents.py ] && python3 tooling/codex/generate_agents.py --check >/dev/null 2>&1; then
+  ok "Codex agent configurations match generator"
+else
+  warn "Codex agent configurations drifted or Python is unavailable."
+  fix "Run: python tooling/codex/generate_agents.py"
+fi
+
+if [ -f tooling/codex/generate_config.py ] && python3 tooling/codex/generate_config.py --repo-root . --check >/dev/null 2>&1; then
+  ok "Codex permission profile matches the reviewed sensitive-path registry"
+else
+  warn "Codex permission profile drifted or Python is unavailable."
+  fix "Run: python tooling/codex/generate_config.py --repo-root ."
+fi
+
+if command -v codex >/dev/null 2>&1 && [ -f tooling/codex/capabilities.py ]; then
+  if python3 tooling/codex/capabilities.py --repo-root . >/dev/null 2>&1; then
+    ok "Codex capability baseline and rendered skills verified"
+  else
+    warn "Codex does not meet the project capability baseline."
+    fix "Run: python tooling/codex/capabilities.py --repo-root . (requires Codex 0.146.1+)"
+  fi
 fi
 
 # ============================================================
@@ -194,6 +245,27 @@ if [ -d .claude/skills ]; then
 else
   fail ".claude/skills/ missing entirely."
   fix "Re-copy from template: cp -r ~/lab/ai-grounded/.claude ./"
+fi
+
+# Codex uses the shared .agents/skills location for framework extension skills.
+if [ -d .agents/skills ]; then
+  CODEX_SKILL_COUNT=$(find .agents/skills -maxdepth 1 -type d -name 'speckit-*' | wc -l | tr -d ' ')
+  if [ "$CODEX_SKILL_COUNT" -ge 9 ]; then
+    ok ".agents/skills/ has $CODEX_SKILL_COUNT Codex extension skills"
+  else
+    fail ".agents/skills/ has $CODEX_SKILL_COUNT skills; expected at least 9 framework extensions."
+    fix "Run: python tooling/skill-drift/render.py --repo-root ."
+  fi
+else
+  fail ".agents/skills/ missing entirely."
+  fix "Run: python tooling/skill-drift/render.py --repo-root ."
+fi
+
+if [ -f tooling/skill-drift/render.py ] && python3 tooling/skill-drift/render.py --repo-root . --check >/dev/null 2>&1; then
+  ok "Codex extension skills match renderer"
+else
+  warn "Codex extension skills drifted or Python is unavailable."
+  fix "Run: python tooling/skill-drift/render.py --repo-root ."
 fi
 
 # Pre-commit hook scripts
@@ -611,14 +683,20 @@ cat << 'EOF'
 
 Next steps:
 
-  1. Start a Claude Code session in this directory.
-  2. Verify /agents lists all 12 sub-agents.
-  3. Begin your first feature:
-       /speckit-specify Create a feature that does X
-  4. After the spec, run the post-spec checkpoint:
-       /speckit-workflow-post-spec
-     It runs the concern-selector once to produce the routing plan, gates on
-     your approval, then dispatches the C1 agents deterministically.
+  Claude Code:
+    1. Start a Claude Code session in this directory.
+    2. Verify /agents lists all 12 sub-agents.
+    3. Begin: /speckit-specify Create a feature that does X
+
+  Codex local:
+    1. Start Codex in this directory and trust the project configuration.
+    2. Review and trust lifecycle hooks with /hooks.
+    3. Begin: $speckit-specify Create a feature that does X
+
+  After the spec, run the post-spec checkpoint:
+       /speckit-workflow-post-spec (Claude) or $speckit-workflow-post-spec (Codex)
+      It runs the concern-selector once to produce the routing plan, gates on
+      your approval, then dispatches the C1 agents deterministically.
 
 Checkpoint slash commands:
   /speckit-workflow-post-spec    after /speckit-specify (and /speckit-clarify)

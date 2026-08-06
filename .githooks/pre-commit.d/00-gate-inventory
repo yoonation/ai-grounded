@@ -37,7 +37,7 @@ if [ "${GATES_STRICT:-}" = "1" ]; then
   RC=$?
   if [ "$RC" != "0" ]; then
     echo "gates: STRICT - a gate lacks a gate-meta header or docs/GATES.md is stale (GATES_STRICT=1)."
-    echo "       Regenerate with: python3 tooling/gates/describe.py > docs/GATES.md"
+    echo "       Regenerate with: python3 tooling/gates/describe.py --write"
     exit 1
   fi
 else

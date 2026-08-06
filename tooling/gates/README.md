@@ -36,7 +36,7 @@ held to the same header rule.
 Regenerate the committed inventory after adding or changing a gate:
 
 ```
-python3 tooling/gates/describe.py > docs/GATES.md
+python3 tooling/gates/describe.py --write
 ```
 
 Tests: `python3 tooling/gates/test_describe.py`

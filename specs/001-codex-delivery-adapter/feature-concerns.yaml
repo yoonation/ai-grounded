@@ -1,0 +1,43 @@
+feature: 001-codex-delivery-adapter
+profile: production-grade-baseline
+generated_by: concern-selector
+generated_at: "2026-08-06T00:00:00Z"
+status: approved
+scope:
+  selected:
+    - catalog: agent-security
+      reason: The feature adds local agent configuration, hooks, and sandbox permissions.
+    - catalog: supply-chain
+      reason: The feature changes template setup and generated integration assets.
+    - catalog: code-organization
+      reason: The feature adds a project-scoped delivery adapter and generated-code layout.
+    - catalog: documentation
+      reason: The feature changes template setup and operator documentation.
+    - catalog: input-validation
+      reason: Lifecycle hook input must be parsed defensively before policy decisions.
+  excluded:
+    - catalog: operational-reliability
+      reason: No user-facing runtime service, deployment, or persistent production workload changes.
+routing:
+  C1:
+    agents:
+      - agent: staff-engineer
+        catalogs: [agent-security, code-organization, documentation]
+      - agent: threat-modeler
+        catalogs: [agent-security, input-validation]
+      - agent: performance-reviewer
+        catalogs: []
+      - agent: production-readiness
+        catalogs: []
+  C2:
+    agents:
+      - agent: test-architect
+        catalogs: [supply-chain]
+  C3:
+    agents:
+      - agent: code-reviewer
+        catalogs: [supply-chain]
+      - agent: security-reviewer
+        catalogs: [agent-security]
+      - agent: closure-auditor
+        catalogs: [agent-security, supply-chain]

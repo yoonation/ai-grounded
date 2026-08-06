@@ -3,8 +3,9 @@
 
 # skill-drift
 
-Deterministic checker that every rendered `.claude/skills/*/SKILL.md` matches
-its canonical source under `.specify/extensions/*/commands/`. Compares the
+Deterministic checker that every rendered `.claude/skills/*/SKILL.md` and
+`.agents/skills/*/SKILL.md` matches its canonical source under
+`.specify/extensions/*/commands/`. Compares the
 body after the first markdown heading, which is invariant across the render
 transforms, so the check is spec-kit-version independent.
 
@@ -16,3 +17,7 @@ render transforms are content-modifying and version-dependent.
 Run directly:
 
     python3 tooling/skill-drift/check.py --repo-root . --text
+
+Render Codex extension skills from the canonical command source:
+
+    python3 tooling/skill-drift/render.py --repo-root .

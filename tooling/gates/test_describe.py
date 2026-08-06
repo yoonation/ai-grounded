@@ -101,6 +101,12 @@ class CheckAndMain(unittest.TestCase):
         self.assertEqual(mod.main(["--check", "--strict", "--repo-root", str(self.tmp)]), 1)
         self.assertEqual(mod.main(["--check", "--repo-root", str(self.tmp)]), 0)  # advisory does not block
 
+    def test_write_emits_utf8_inventory(self):
+        doc = self.tmp / "docs" / "GATES.md"
+        doc.unlink()
+        self.assertEqual(mod.main(["--write", "--repo-root", str(self.tmp)]), 0)
+        self.assertTrue(mod.check(self.tmp)["ok"])
+
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)

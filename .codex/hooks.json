@@ -1,0 +1,33 @@
+{
+  "description": "AI Grounded Codex lifecycle protections.",
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": ".*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$(git rev-parse --show-toplevel)/.codex/hooks/policy.py\" --phase pre",
+            "commandWindows": "py -3 (Join-Path (git rev-parse --show-toplevel) '.codex/hooks/policy.py') --phase pre",
+            "timeout": 10,
+            "statusMessage": "Applying AI Grounded policy"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": ".*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$(git rev-parse --show-toplevel)/.codex/hooks/policy.py\" --phase post",
+            "commandWindows": "py -3 (Join-Path (git rev-parse --show-toplevel) '.codex/hooks/policy.py') --phase post",
+            "timeout": 30,
+            "statusMessage": "Checking edited file"
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -16,7 +16,7 @@ Run by `.githooks/pre-commit` after the loop-closure gate, in order.
 | 20 | consultation-audit | fail-closed | SKIP_CONSULTATION_AUDIT | CONSULTATION_AUDIT_STRICT | Every dispatched agent consulted its assigned concern catalogs; blocks on a coverage gap. |
 | 30 | sast | report-only | SKIP_SAST | SAST_STRICT | OpenGrep security rules over staged source; graceful no-op when tool or rules absent. |
 | 40 | quality | report-only | SKIP_QUALITY | QUALITY_STRICT | Project-wide type-check and lint of staged files for declared stack languages. |
-| 45 | skill-drift | report-only | SKIP_SKILL_DRIFT | SKILL_DRIFT_STRICT | Rendered .claude/skills files must match their canonical extension command sources. |
+| 45 | skill-drift | report-only | SKIP_SKILL_DRIFT | SKILL_DRIFT_STRICT | Rendered Claude and Codex extension skills must match their canonical command sources. |
 | 50 | schema | report-only | SKIP_SCHEMA | SCHEMA_STRICT | Validate staged manifest and feature-concerns against their JSON Schemas. |
 | 60 | manifest | report-only | SKIP_MANIFEST | MANIFEST_STRICT | Resolve manifest references (articles, agents, files, catalogs); catch dangling references. |
 | 70 | spec-consistency | report-only | SKIP_SPEC_CONSISTENCY | SPEC_CONSISTENCY_STRICT | Flag a spec that gives one enumerated noun two different counts (the six-vs-seven drift). |
@@ -31,6 +31,7 @@ Advisory tools run at checkpoints or in CI, not on every commit.
 - `tooling/artifact/`: Tests commonly run against source while humans and CI run a built artifact (vitest
 - `tooling/capability-index/`: capability-index: the what-already-exists generator
 - `tooling/closure/`: Deterministic closure discovery scanner (tooling/closure/scan.py).
+- `tooling/codex/`: Render the Codex custom-agent registry from the framework's role contract.
 - `tooling/compose/`: Assembles every agent's context in one fixed order and nothing else, the "one mechanism
 - `tooling/consistency/`: A task checkbox is a declaration; the file system is the actual. When a task is
 - `tooling/constitution/`: Assembles the constitution's hard "do not write this" constraints into the implement

@@ -4,12 +4,12 @@
 # AI Compatibility
 
 This document explains which parts of the framework work with which AI
-coding tools, and what you give up if you use something other than
-Claude Code.
+coding tools, and what you give up if you use something other than a
+first-class delivery.
 
-The short version: the substrate is AI-agnostic; the automation layer
-is Claude-Code-specific. You can use the framework with any AI tool,
-but you keep more of its value with Claude Code.
+The short version: the substrate is AI-agnostic. The delivery layer is
+first-class for Claude Code and local Codex; other tools retain the substrate
+and Git enforcement with varying degrees of manual orchestration.
 
 ## Two layers
 
@@ -22,15 +22,14 @@ attestation specs, incident playbooks, library context) and `.specify/`
 (the spec-driven workflow infrastructure from GitHub spec-kit, which
 itself supports 20+ AI tools).
 
-**Delivery** — the automation that makes the substrate enforceable
-without manual effort. Currently Claude-Code-specific. Lives in
-`.claude/` (the twelve specialized sub-agents — eleven review agents organized into seven
-cognitive categories, plus a pre-construction discovery agent — the spec-kit skills, the loop-closure hook,
-the coordination protocol).
+**Delivery** — the automation that makes the substrate enforceable without
+manual effort. Claude assets live in `.claude/`; Codex assets live in `.codex/`
+and `.agents/skills/`. Both share the role prompts, deterministic dispatcher,
+event schema, and Git enforcement.
 
 The substrate is the framework. The delivery is how the framework
-gets executed. A different delivery layer (Cursor rules, Cline modes,
-Codex commands) could be built on the same substrate.
+gets executed. Cursor rules, Cline modes, and other delivery layers can be
+built on the same substrate.
 
 ## Compatibility matrix
 
@@ -43,13 +42,13 @@ Codex commands) could be built on the same substrate.
 | Attestation specs (SLSA + in-toto) | Substrate | Full | Full | Full | Full | Full | Full | Full | Full |
 | Incident playbooks | Substrate | Full | Full | Full | Full | Full | Full | Full | Full |
 | Library context (lib-context YAMLs) | Substrate | Full | Full | Full | Full | Full | Full | Full | Full |
-| Spec-driven workflow (spec → plan → tasks → implement) | Substrate | Full via skills | Full via slash commands | Full via commands | Full via prompt | Full via prompt | Full via prompt | Full via prompt | Manual |
-| Twelve specialized sub-agents (eleven review agents — upstream challengers, decision formalizers, test design, operational design, downstream verifiers — plus a pre-construction discovery agent) | Delivery | Full | None — must invoke manually as prompts | None | None | None | None | None | None |
-| Checkpoint routing (concern-selector plan + dispatcher at four checkpoints) | Delivery | Full | Manual (human plays the routing role) | Manual | Manual | Manual | Manual | Manual | Manual |
+| Spec-driven workflow (spec → plan → tasks → implement) | Substrate | Full via skills | Full via slash commands | Full via commands | Full via skills | Full via prompt | Full via prompt | Full via prompt | Manual |
+| Twelve specialized sub-agents (eleven review agents — upstream challengers, decision formalizers, test design, operational design, downstream verifiers — plus a pre-construction discovery agent) | Delivery | Full | None — must invoke manually as prompts | None | Full | None | None | None | None |
+| Checkpoint routing (concern-selector plan + dispatcher at four checkpoints) | Delivery | Full | Manual (human plays the routing role) | Manual | Full | Manual | Manual | Manual | Manual |
 | Operator plan approval (approve the routing plan before dispatch) | Delivery | Full | Manual judgment | None | None | None | None | None | None |
 | Decline mechanism (agents emit not-applicable for out-of-scope work) | Delivery | Full | None — human filters manually | None | None | None | None | None | None |
 | Automated agent event log (events.jsonl) | Delivery | Full | None — must write manually | None | None | None | None | None | None |
-| Loop closure verification (closure-auditor semantic + git hook mechanical) | Delivery | Full (closure-auditor in-session + git hook) | Git hook only, manual events | Git hook only | Git hook only | Git hook only | Git hook only | Git hook only | Git hook only |
+| Loop closure verification (closure-auditor semantic + git hook mechanical) | Delivery | Full (closure-auditor in-session + git hook) | Git hook only, manual events | Git hook only | Full (closure-auditor + git hook) | Git hook only | Git hook only | Git hook only | Git hook only |
 | Pre-commit loop-closure hook | Delivery | Full | Full (works regardless of AI tool) | Full | Full | Full | Full | Full | Full |
 | Memory file convention | Delivery | `CLAUDE.md` | `.cursor/rules/` + `AGENTS.md` | `.clinerules/` | `AGENTS.md` | `GEMINI.md` + `AGENTS.md` | `.github/copilot-instructions.md` | `CONVENTIONS.md` | Project-specific |
 | Agent coordination protocol | Delivery | Full | Manual | Manual | Manual | Manual | Manual | Manual | Manual |
@@ -187,22 +186,25 @@ to the git pre-commit hook only.
 
 ### Codex CLI / OpenAI
 
-Run `specify init --here --ai codex` to install spec-kit's Codex
-integration.
+Install Codex alongside the existing integration with `specify integration
+install codex`. Current Spec-Kit installs Codex skills under `.agents/skills`;
+the framework additionally renders its Git and checkpoint extensions there.
+Codex 0.146.1+ is the verified local capability baseline; run
+`python tooling/codex/capabilities.py --repo-root .` after bootstrap.
 
 Codex CLI's memory file is `AGENTS.md`. The framework's `AGENTS.md`
-is already populated with cross-tool guidance.
+is already populated with cross-tool guidance, while `.codex/config.toml`
+provides project-local permissions, hook settings, and agent defaults.
 
-Codex does not have a sub-agents feature equivalent to Claude Code.
-You manually invoke specialized analysis by pasting the relevant
-agent prompt into your conversation, or by setting up reusable
-prompt templates in your shell. The routing role is yours —
-the framework's trigger conditions (visible in `AGENTS.md`) tell
-you when each agent applies.
+Codex runs the same twelve named review roles through project-scoped custom
+agents. Their adapters default to read-only and load the canonical prompts
+from `.claude/agents/`; the main session still owns persistence. The checkpoint
+skills invoke the concern-selector and deterministic dispatcher in the same
+order as Claude Code. See `docs/CODEX.md` for trust, hook, and runtime-override
+guidance.
 
-Note: Codex CLI works with both OpenAI and Anthropic models. The
-framework is model-agnostic as long as the tool supports the
-spec-driven workflow.
+Codex model routing is explicit: high-judgment security/audit roles use
+`gpt-5.6-sol`; routine routing and review roles use `gpt-5.6-terra`.
 
 ### Gemini CLI / Google AI
 
